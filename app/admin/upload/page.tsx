@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Upload, X, Check, AlertCircle } from "lucide-react";
-import { uploadTemplate } from "@/app/actions/upload-template";
+// Using API route for file uploads to handle large files
 
 type Status = "draft" | "private" | "public";
 type LicenseType = "personal" | "commercial" | "extended";
@@ -194,10 +194,16 @@ export default function AdminUploadPage() {
             formDataToSend.append("metaDescription", formData.metaDescription || formData.shortDescription);
             formDataToSend.append("keywords", formData.keywords);
 
-            const result = await uploadTemplate(formDataToSend);
+            // Use API route instead of server action to handle large files
+            const response = await fetch("/api/upload-template", {
+                method: "POST",
+                body: formDataToSend,
+            });
 
-            if (result.error) {
-                setError(result.error);
+            const result = await response.json();
+
+            if (!response.ok || result.error) {
+                setError(result.error || "Failed to upload template");
             } else {
                 setSuccess(`Template "${formData.title}" uploaded successfully!`);
                 // Reset form
