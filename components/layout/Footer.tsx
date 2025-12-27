@@ -1,7 +1,21 @@
+"use client";
+
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { isAdmin } from "@/lib/auth/auth";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const admin = await isAdmin();
+      setUserIsAdmin(admin);
+    };
+    checkAdmin();
+  }, []);
 
   return (
     <footer className="bg-azone-black text-white mt-auto">
@@ -114,14 +128,16 @@ export default function Footer() {
                   Contact
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/admin/upload"
-                  className="text-sm text-azone-purple hover:text-purple-400 transition-colors"
-                >
-                  Admin Upload
-                </Link>
-              </li>
+              {userIsAdmin && (
+                <li>
+                  <Link
+                    href="/admin/upload"
+                    className="text-sm text-azone-purple hover:text-purple-400 transition-colors"
+                  >
+                    Admin Upload
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 

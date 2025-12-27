@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import AdminNav from "@/components/admin/AdminNav";
 import { Search, X } from "lucide-react";
+import { isAdmin } from "@/lib/auth/auth";
 
 export default function Header() {
   const router = useRouter();
@@ -14,8 +15,18 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
   const adminDropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const admin = await isAdmin();
+      setUserIsAdmin(admin);
+    };
+    checkAdmin();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -125,101 +136,35 @@ export default function Header() {
             >
               About
             </Link>
-            {/* Admin Dropdown */}
-            <div className="relative" ref={adminDropdownRef}>
-              <button
-                onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
-                className="text-sm font-medium text-azone-purple hover:text-purple-400 transition-colors flex items-center gap-1"
-              >
-                Admin
-                <svg
-                  className={`w-4 h-4 transition-transform ${
-                    isAdminDropdownOpen ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            {/* Admin Dropdown - Only show if user is admin */}
+            {userIsAdmin && (
+              <div className="relative" ref={adminDropdownRef}>
+                <button
+                  onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
+                  className="text-sm font-medium text-azone-purple hover:text-purple-400 transition-colors flex items-center gap-1"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-              {/* Dropdown Menu */}
-              {isAdminDropdownOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50">
-                  <Link
-                    href="/admin/upload"
-                    onClick={() => setIsAdminDropdownOpen(false)}
-                    className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                  Admin
+                  <svg
+                    className={`w-4 h-4 transition-transform ${
+                      isAdminDropdownOpen ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <div className="flex items-center gap-2">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                        />
-                      </svg>
-                      Upload Template
-                    </div>
-                  </Link>
-                  <Link
-                    href="/admin/templates"
-                    onClick={() => setIsAdminDropdownOpen(false)}
-                    className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 6h16M4 10h16M4 14h16M4 18h16"
-                        />
-                      </svg>
-                      Manage Templates
-                    </div>
-                  </Link>
-                  <Link
-                    href="/admin/purchases"
-                    onClick={() => setIsAdminDropdownOpen(false)}
-                    className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                        />
-                      </svg>
-                      View Purchases
-                    </div>
-                  </Link>
-                  <div className="border-t border-gray-800">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                {/* Dropdown Menu */}
+                {isAdminDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50">
                     <Link
-                      href="/admin/analytics"
+                      href="/admin/upload"
                       onClick={() => setIsAdminDropdownOpen(false)}
                       className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
                     >
@@ -234,16 +179,84 @@ export default function Header() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                           />
                         </svg>
-                        Analytics
+                        Upload Template
                       </div>
                     </Link>
+                    <Link
+                      href="/admin/templates"
+                      onClick={() => setIsAdminDropdownOpen(false)}
+                      className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 6h16M4 10h16M4 14h16M4 18h16"
+                          />
+                        </svg>
+                        Manage Templates
+                      </div>
+                    </Link>
+                    <Link
+                      href="/admin/purchases"
+                      onClick={() => setIsAdminDropdownOpen(false)}
+                      className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                          />
+                        </svg>
+                        View Purchases
+                      </div>
+                    </Link>
+                    <div className="border-t border-gray-800">
+                      <Link
+                        href="/admin/analytics"
+                        onClick={() => setIsAdminDropdownOpen(false)}
+                        className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                            />
+                          </svg>
+                          Analytics
+                        </div>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* CTA Button & Mobile Menu */}
@@ -369,40 +382,42 @@ export default function Header() {
             >
               Contact
             </Link>
-            {/* Mobile Admin Section */}
-            <div className="border-t border-gray-800 pt-2 mt-2">
-              <div className="px-4 py-2 text-xs font-semibold text-azone-purple uppercase tracking-wider">
-                Admin
+            {/* Mobile Admin Section - Only show if user is admin */}
+            {userIsAdmin && (
+              <div className="border-t border-gray-800 pt-2 mt-2">
+                <div className="px-4 py-2 text-xs font-semibold text-azone-purple uppercase tracking-wider">
+                  Admin
+                </div>
+                <Link
+                  href="/admin/upload"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-4 py-2 text-sm text-azone-purple hover:text-purple-400 transition-colors"
+                >
+                  Upload Template
+                </Link>
+                <Link
+                  href="/admin/templates"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  Manage Templates
+                </Link>
+                <Link
+                  href="/admin/purchases"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  View Purchases
+                </Link>
+                <Link
+                  href="/admin/analytics"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  Analytics
+                </Link>
               </div>
-              <Link
-                href="/admin/upload"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-4 py-2 text-sm text-azone-purple hover:text-purple-400 transition-colors"
-              >
-                Upload Template
-              </Link>
-              <Link
-                href="/admin/templates"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Manage Templates
-              </Link>
-              <Link
-                href="/admin/purchases"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                View Purchases
-              </Link>
-              <Link
-                href="/admin/analytics"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                Analytics
-              </Link>
-            </div>
+            )}
             <Link
               href="/templates"
               onClick={() => setIsMobileMenuOpen(false)}

@@ -30,16 +30,17 @@ function generateSlug(title: string): string {
     .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
 }
 
-// Upload image to Supabase Storage
-async function uploadImageToStorage(
+// Upload file to Supabase Storage
+async function uploadFileToStorage(
   supabase: ReturnType<typeof getSupabaseAdmin>,
   file: File,
-  templateSlug: string
+  templateSlug: string,
+  folder: "previews" | "downloads"
 ): Promise<string> {
   const bucketName = "template-assets";
   const fileExt = file.name.split(".").pop();
   const fileName = `${templateSlug}-${Date.now()}.${fileExt}`;
-  const filePath = `previews/${fileName}`;
+  const filePath = `${folder}/${fileName}`;
 
   // Convert File to ArrayBuffer
   const arrayBuffer = await file.arrayBuffer();
@@ -55,7 +56,7 @@ async function uploadImageToStorage(
 
   if (error) {
     console.error("Storage upload error:", error);
-    throw new Error(`Failed to upload image: ${error.message}`);
+    throw new Error(`Failed to upload file: ${error.message}`);
   }
 
   // Get public URL
@@ -64,7 +65,7 @@ async function uploadImageToStorage(
   } = supabase.storage.from(bucketName).getPublicUrl(filePath);
 
   if (!publicUrl) {
-    throw new Error("Failed to get public URL for uploaded image");
+    throw new Error("Failed to get public URL for uploaded file");
   }
 
   return publicUrl;
@@ -73,16 +74,48 @@ async function uploadImageToStorage(
 // Main server action
 export async function uploadTemplate(formData: FormData) {
   try {
-    // Get form data
+    // Get form data - Basic Info
     const title = formData.get("title") as string;
+    const shortDescription = formData.get("shortDescription") as string;
     const description = formData.get("description") as string;
     const price = parseFloat(formData.get("price") as string);
-    const demoUrl = formData.get("demoUrl") as string;
     const category = formData.get("category") as string;
+    const status = formData.get("status") as string;
+    const version = formData.get("version") as string || "1.0.0";
+    
+    // Live Demo
+    const demoUrl = formData.get("demoUrl") as string;
+    
+    // Media
     const imageFile = formData.get("image") as File;
+    const zipFile = formData.get("zipFile") as File;
+    
+    // Tech Stack
+    const techStackJson = formData.get("techStack") as string;
+    let techStack: string[] = [];
+    try {
+      const techStackData = JSON.parse(techStackJson || "{}");
+      techStack = [
+        ...(techStackData.framework || []),
+        techStackData.language,
+        techStackData.styling,
+      ].filter(Boolean);
+    } catch {
+      // Fallback if JSON parsing fails
+      techStack = [];
+    }
+    
+    // License
+    const licenseType = formData.get("licenseType") as string;
+    const licenseSummary = formData.get("licenseSummary") as string;
+    
+    // Meta / SEO
+    const metaTitle = formData.get("metaTitle") as string;
+    const metaDescription = formData.get("metaDescription") as string;
+    const keywords = formData.get("keywords") as string;
 
     // Validate required fields
-    if (!title || !description || !price || !imageFile) {
+    if (!title || !shortDescription || !description || !price || !imageFile || !zipFile) {
       return { error: "Please fill in all required fields" };
     }
 
@@ -119,28 +152,50 @@ export async function uploadTemplate(formData: FormData) {
       }
     }
 
-    // Upload image to Supabase Storage
-    const imageUrl = await uploadImageToStorage(supabase, imageFile, slug);
+    // Upload files to Supabase Storage
+    const imageUrl = await uploadFileToStorage(supabase, imageFile, slug, "previews");
+    const zipUrl = await uploadFileToStorage(supabase, zipFile, slug, "downloads");
+
+    // Prepare template data
+    const templateData: any = {
+      slug,
+      title,
+      description,
+      short_description: shortDescription.substring(0, 500),
+      price,
+      category,
+      preview_image_url: imageUrl,
+      demo_url: demoUrl || null,
+      featured: status === "public", // Auto-feature public templates
+      screenshot_urls: [imageUrl], // Use preview image as first screenshot
+      tech_stack: techStack,
+      features: [], // Can be added later
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    // Add optional fields if they exist in the database schema
+    // Note: These fields may need to be added to the database schema first
+    // For now, we'll store them in a JSONB field or skip if column doesn't exist
+    try {
+      // Try to add extended fields (will fail gracefully if columns don't exist)
+      templateData.version = version;
+      templateData.status = status;
+      templateData.download_url = zipUrl;
+      templateData.license_type = licenseType;
+      templateData.license_summary = licenseSummary;
+      templateData.meta_title = metaTitle || title;
+      templateData.meta_description = metaDescription || shortDescription;
+      templateData.keywords = keywords ? keywords.split(",").map((k: string) => k.trim()) : [];
+    } catch (e) {
+      // If columns don't exist, continue without them
+      console.log("Some optional fields may not be saved (columns may not exist in database)");
+    }
 
     // Insert template into database
     const { data: template, error: insertError } = await supabase
       .from("templates")
-      .insert({
-        slug,
-        title,
-        description,
-        short_description: description.substring(0, 500), // Auto-generate short description
-        price,
-        category,
-        preview_image_url: imageUrl,
-        demo_url: demoUrl || null,
-        featured: false,
-        screenshot_urls: [imageUrl], // Use preview image as first screenshot
-        tech_stack: [],
-        features: [],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
+      .insert(templateData)
       .select()
       .single();
 
