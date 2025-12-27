@@ -57,11 +57,63 @@ export default function AdminUploadPage() {
         "Other"
     ];
 
+    // Auto-fill helper functions
+    const autoFillFromTitle = (title: string) => {
+        // Auto-generate slug-friendly suggestions
+        const suggestions: Partial<typeof formData> = {};
+        
+        // Auto-detect category from title
+        const titleLower = title.toLowerCase();
+        if (titleLower.includes("dashboard") || titleLower.includes("admin")) {
+            suggestions.category = "Dashboard";
+        } else if (titleLower.includes("ecommerce") || titleLower.includes("shop")) {
+            suggestions.category = "E-commerce";
+        } else if (titleLower.includes("landing") || titleLower.includes("marketing")) {
+            suggestions.category = "Landing Page";
+        } else if (titleLower.includes("portfolio")) {
+            suggestions.category = "Portfolio";
+        }
+        
+        // Auto-generate short description if empty
+        if (!formData.shortDescription && title.length > 0) {
+            suggestions.shortDescription = `Premium ${title} - Production-ready template with modern design and best practices.`;
+        }
+        
+        // Auto-generate meta title if empty
+        if (!formData.metaTitle && title.length > 0) {
+            suggestions.metaTitle = `${title} | Premium Template | Azone.store`;
+        }
+        
+        // Auto-generate keywords from title
+        if (!formData.keywords && title.length > 0) {
+            const words = title.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+            suggestions.keywords = words.join(", ");
+        }
+        
+        if (Object.keys(suggestions).length > 0) {
+            setFormData((prev) => ({ ...prev, ...suggestions }));
+        }
+    };
+
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
+        
+        // Auto-fill suggestions when title changes
+        if (name === "title" && value.length > 5) {
+            autoFillFromTitle(value);
+        }
+        
+        // Auto-generate meta description from short description
+        if (name === "shortDescription" && !formData.metaDescription && value.length > 0) {
+            setFormData((prev) => ({
+                ...prev,
+                metaDescription: value.length > 160 ? value.substring(0, 157) + "..." : value
+            }));
+        }
+        
         // Clear field error when user types
         if (fieldErrors[name]) {
             setFieldErrors((prev) => {
@@ -312,6 +364,9 @@ export default function AdminUploadPage() {
                                     className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
                                     placeholder="e.g., Premium SaaS Dashboard Template"
                                 />
+                                <p className="mt-1 text-xs text-gray-500">
+                                    💡 Tip: Title ရိုက်ရင် category, description, keywords တွေ auto-fill ဖြစ်သွားမယ်
+                                </p>
                             </FieldWrapper>
 
                             <FieldWrapper label="Short Description" required error={fieldErrors.shortDescription}>
@@ -325,9 +380,16 @@ export default function AdminUploadPage() {
                                     className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
                                     placeholder="Brief one-line description (max 500 characters)"
                                 />
-                                <p className="mt-1 text-xs text-gray-500">
-                                    {formData.shortDescription.length}/500 characters
-                                </p>
+                                <div className="mt-1 flex items-center justify-between">
+                                    <p className="text-xs text-gray-500">
+                                        {formData.shortDescription.length}/500 characters
+                                    </p>
+                                    {formData.shortDescription.length > 0 && (
+                                        <p className="text-xs text-azone-purple">
+                                            ✅ Meta description auto-filled
+                                        </p>
+                                    )}
+                                </div>
                             </FieldWrapper>
 
                             <FieldWrapper label="Full Description" required error={fieldErrors.description}>
@@ -344,17 +406,23 @@ export default function AdminUploadPage() {
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <FieldWrapper label="Price (USD)" required error={fieldErrors.price}>
-                                    <input
-                                        type="number"
-                                        id="price"
-                                        name="price"
-                                        min="0"
-                                        step="0.01"
-                                        value={formData.price}
-                                        onChange={handleInputChange}
-                                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
-                                        placeholder="89.00"
-                                    />
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                                        <input
+                                            type="number"
+                                            id="price"
+                                            name="price"
+                                            min="0"
+                                            step="0.01"
+                                            value={formData.price}
+                                            onChange={handleInputChange}
+                                            className="w-full pl-8 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
+                                            placeholder="89.00"
+                                        />
+                                    </div>
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        💡 Suggested: $29-$199 for premium templates
+                                    </p>
                                 </FieldWrapper>
 
                                 <FieldWrapper label="Category" required>
@@ -598,6 +666,14 @@ export default function AdminUploadPage() {
                                     className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
                                     placeholder="Leave empty to use template title"
                                 />
+                                {formData.metaTitle && (
+                                    <p className="mt-1 text-xs text-azone-purple">
+                                        ✅ Auto-generated from title
+                                    </p>
+                                )}
+                                <p className="mt-1 text-xs text-gray-500">
+                                    💡 Leave empty to auto-generate from title
+                                </p>
                             </FieldWrapper>
 
                             <FieldWrapper label="Meta Description">
@@ -622,6 +698,14 @@ export default function AdminUploadPage() {
                                     className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
                                     placeholder="Comma-separated keywords (e.g., saas, dashboard, nextjs)"
                                 />
+                                {formData.keywords && (
+                                    <p className="mt-1 text-xs text-azone-purple">
+                                        ✅ Auto-generated from title
+                                    </p>
+                                )}
+                                <p className="mt-1 text-xs text-gray-500">
+                                    💡 Leave empty to auto-generate from title
+                                </p>
                             </FieldWrapper>
                         </div>
                     </div>
