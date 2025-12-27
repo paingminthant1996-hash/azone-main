@@ -19,25 +19,25 @@ export default function AdminUploadPage() {
         category: "SaaS",
         status: "draft" as Status,
         version: "1.0.0",
-        
+
         // Live Demo
         demoUrl: "",
-        
+
         // Tech Stack
         framework: [] as string[],
         language: "typescript",
         styling: "tailwind",
-        
+
         // License
         licenseType: "commercial" as LicenseType,
         licenseSummary: "",
-        
+
         // Meta / SEO
         metaTitle: "",
         metaDescription: "",
         keywords: "",
     });
-    
+
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [zipFile, setZipFile] = useState<File | null>(null);
@@ -45,6 +45,7 @@ export default function AdminUploadPage() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+    const [uploadProgress, setUploadProgress] = useState<string>("");
 
     const frameworkOptions = ["Next.js", "React", "Vue", "Svelte", "Angular"];
     const categoryOptions = [
@@ -61,7 +62,7 @@ export default function AdminUploadPage() {
     const autoFillFromTitle = (title: string) => {
         // Auto-generate slug-friendly suggestions
         const suggestions: Partial<typeof formData> = {};
-        
+
         // Auto-detect category from title
         const titleLower = title.toLowerCase();
         if (titleLower.includes("dashboard") || titleLower.includes("admin")) {
@@ -73,23 +74,23 @@ export default function AdminUploadPage() {
         } else if (titleLower.includes("portfolio")) {
             suggestions.category = "Portfolio";
         }
-        
+
         // Auto-generate short description if empty
         if (!formData.shortDescription && title.length > 0) {
             suggestions.shortDescription = `Premium ${title} - Production-ready template with modern design and best practices.`;
         }
-        
+
         // Auto-generate meta title if empty
         if (!formData.metaTitle && title.length > 0) {
             suggestions.metaTitle = `${title} | Premium Template | Azone.store`;
         }
-        
+
         // Auto-generate keywords from title
         if (!formData.keywords && title.length > 0) {
             const words = title.toLowerCase().split(/\s+/).filter(w => w.length > 3);
             suggestions.keywords = words.join(", ");
         }
-        
+
         if (Object.keys(suggestions).length > 0) {
             setFormData((prev) => ({ ...prev, ...suggestions }));
         }
@@ -100,12 +101,12 @@ export default function AdminUploadPage() {
     ) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-        
+
         // Auto-fill suggestions when title changes
         if (name === "title" && value.length > 5) {
             autoFillFromTitle(value);
         }
-        
+
         // Auto-generate meta description from short description
         if (name === "shortDescription" && !formData.metaDescription && value.length > 0) {
             setFormData((prev) => ({
@@ -113,7 +114,7 @@ export default function AdminUploadPage() {
                 metaDescription: value.length > 160 ? value.substring(0, 157) + "..." : value
             }));
         }
-        
+
         // Clear field error when user types
         if (fieldErrors[name]) {
             setFieldErrors((prev) => {
@@ -173,7 +174,7 @@ export default function AdminUploadPage() {
 
     const validateForm = (): boolean => {
         const errors: Record<string, string> = {};
-        
+
         if (!formData.title.trim()) errors.title = "Title is required";
         if (!formData.shortDescription.trim()) errors.shortDescription = "Short description is required";
         if (!formData.description.trim()) errors.description = "Description is required";
@@ -181,7 +182,7 @@ export default function AdminUploadPage() {
         if (!imageFile) errors.image = "Preview image is required";
         if (!zipFile) errors.zip = "Template ZIP file is required";
         if (formData.framework.length === 0) errors.framework = "At least one framework is required";
-        
+
         setFieldErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -210,10 +211,11 @@ export default function AdminUploadPage() {
         }
 
         setIsSubmitting(true);
+        setUploadProgress("Preparing upload...");
 
         try {
             const formDataToSend = new FormData();
-            
+
             // Basic Info
             formDataToSend.append("title", formData.title);
             formDataToSend.append("shortDescription", formData.shortDescription);
@@ -222,74 +224,119 @@ export default function AdminUploadPage() {
             formDataToSend.append("category", formData.category);
             formDataToSend.append("status", formData.status);
             formDataToSend.append("version", formData.version);
-            
+
             // Live Demo
             formDataToSend.append("demoUrl", formData.demoUrl);
-            
+
             // Media
             if (imageFile) formDataToSend.append("image", imageFile);
             if (zipFile) formDataToSend.append("zipFile", zipFile);
-            
+
             // Tech Stack
             formDataToSend.append("techStack", JSON.stringify({
                 framework: formData.framework,
                 language: formData.language,
                 styling: formData.styling,
             }));
-            
+
             // License
             formDataToSend.append("licenseType", formData.licenseType);
             formDataToSend.append("licenseSummary", formData.licenseSummary);
-            
+
             // Meta / SEO
             formDataToSend.append("metaTitle", formData.metaTitle || formData.title);
             formDataToSend.append("metaDescription", formData.metaDescription || formData.shortDescription);
             formDataToSend.append("keywords", formData.keywords);
 
+            setUploadProgress("Uploading files...");
+
             // Use API route instead of server action to handle large files
+            // Add timeout for large file uploads (60 seconds)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 seconds timeout
+
             const response = await fetch("/api/upload-template", {
                 method: "POST",
                 body: formDataToSend,
+                signal: controller.signal,
             });
+
+            clearTimeout(timeoutId);
+            setUploadProgress("Processing...");
+
+            // Check if response is ok
+            if (!response.ok) {
+                let errorMessage = "Failed to upload template";
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error || errorMessage;
+                } catch {
+                    errorMessage = `Server error: ${response.status} ${response.statusText}`;
+                }
+                setError(errorMessage);
+                setUploadProgress("");
+                setIsSubmitting(false);
+                return;
+            }
 
             const result = await response.json();
 
-            if (!response.ok || result.error) {
-                setError(result.error || "Failed to upload template");
-            } else {
-                setSuccess(`Template "${formData.title}" uploaded successfully!`);
-                // Reset form
-                setFormData({
-                    title: "",
-                    shortDescription: "",
-                    description: "",
-                    price: "",
-                    category: "SaaS",
-                    status: "draft",
-                    version: "1.0.0",
-                    demoUrl: "",
-                    framework: [],
-                    language: "typescript",
-                    styling: "tailwind",
-                    licenseType: "commercial",
-                    licenseSummary: "",
-                    metaTitle: "",
-                    metaDescription: "",
-                    keywords: "",
-                });
-                setImageFile(null);
-                setPreviewUrl(null);
-                setZipFile(null);
-                setFieldErrors({});
-                // Reset file inputs
-                const imageInput = document.getElementById("image") as HTMLInputElement;
-                const zipInput = document.getElementById("zipFile") as HTMLInputElement;
-                if (imageInput) imageInput.value = "";
-                if (zipInput) zipInput.value = "";
+            if (result.error) {
+                setError(result.error);
+                setUploadProgress("");
+                setIsSubmitting(false);
+                return;
             }
+
+            setUploadProgress("Upload complete!");
+
+            // Success
+            setSuccess(`Template "${formData.title}" uploaded successfully!`);
+
+            // Reset form
+            setFormData({
+                title: "",
+                shortDescription: "",
+                description: "",
+                price: "",
+                category: "SaaS",
+                status: "draft",
+                version: "1.0.0",
+                demoUrl: "",
+                framework: [],
+                language: "typescript",
+                styling: "tailwind",
+                licenseType: "commercial",
+                licenseSummary: "",
+                metaTitle: "",
+                metaDescription: "",
+                keywords: "",
+            });
+            setImageFile(null);
+            setPreviewUrl(null);
+            setZipFile(null);
+            setFieldErrors({});
+
+            // Reset file inputs
+            const imageInput = document.getElementById("image") as HTMLInputElement;
+            const zipInput = document.getElementById("zipFile") as HTMLInputElement;
+            if (imageInput) imageInput.value = "";
+            if (zipInput) zipInput.value = "";
+
+            setUploadProgress("");
+            setIsSubmitting(false);
         } catch (err: any) {
-            setError(err.message || "Failed to upload template");
-        } finally {
+            console.error("Upload error:", err);
+            let errorMessage = "Failed to upload template. Please check your connection and try again.";
+
+            if (err.name === "AbortError") {
+                errorMessage = "Upload timeout. File may be too large. Please try again or reduce file size.";
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+
+            setError(errorMessage);
+            setUploadProgress("");
             setIsSubmitting(false);
         }
     };
@@ -301,14 +348,14 @@ export default function AdminUploadPage() {
         </div>
     );
 
-    const FieldWrapper = ({ 
-        label, 
-        required, 
-        error, 
-        children 
-    }: { 
-        label: string; 
-        required?: boolean; 
+    const FieldWrapper = ({
+        label,
+        required,
+        error,
+        children
+    }: {
+        label: string;
+        required?: boolean;
         error?: string;
         children: React.ReactNode;
     }) => (
@@ -349,8 +396,8 @@ export default function AdminUploadPage() {
                 >
                     {/* Basic Info Section */}
                     <div>
-                        <SectionHeader 
-                            title="Basic Information" 
+                        <SectionHeader
+                            title="Basic Information"
                             description="Essential details about your template"
                         />
                         <div className="space-y-6">
@@ -470,8 +517,8 @@ export default function AdminUploadPage() {
 
                     {/* Media Section */}
                     <div>
-                        <SectionHeader 
-                            title="Media" 
+                        <SectionHeader
+                            title="Media"
                             description="Preview image and template source files"
                         />
                         <div className="space-y-6">
@@ -535,8 +582,8 @@ export default function AdminUploadPage() {
 
                     {/* Live Demo Section */}
                     <div>
-                        <SectionHeader 
-                            title="Live Demo" 
+                        <SectionHeader
+                            title="Live Demo"
                             description="Link to live preview of your template"
                         />
                         <FieldWrapper label="Live Preview URL">
@@ -554,8 +601,8 @@ export default function AdminUploadPage() {
 
                     {/* Tech Stack Section */}
                     <div>
-                        <SectionHeader 
-                            title="Tech Stack" 
+                        <SectionHeader
+                            title="Tech Stack"
                             description="Technologies used in this template"
                         />
                         <div className="space-y-6">
@@ -566,11 +613,10 @@ export default function AdminUploadPage() {
                                             key={fw}
                                             type="button"
                                             onClick={() => handleFrameworkToggle(fw)}
-                                            className={`px-4 py-2 rounded-lg border transition-all ${
-                                                formData.framework.includes(fw)
-                                                    ? "bg-azone-purple/20 border-azone-purple text-white"
-                                                    : "bg-gray-800/50 border-gray-700 text-gray-300 hover:border-gray-600"
-                                            }`}
+                                            className={`px-4 py-2 rounded-lg border transition-all ${formData.framework.includes(fw)
+                                                ? "bg-azone-purple/20 border-azone-purple text-white"
+                                                : "bg-gray-800/50 border-gray-700 text-gray-300 hover:border-gray-600"
+                                                }`}
                                         >
                                             {formData.framework.includes(fw) && (
                                                 <Check className="w-4 h-4 inline-block mr-2" />
@@ -616,8 +662,8 @@ export default function AdminUploadPage() {
 
                     {/* License Section */}
                     <div>
-                        <SectionHeader 
-                            title="License" 
+                        <SectionHeader
+                            title="License"
                             description="License information for this template"
                         />
                         <div className="space-y-6">
@@ -651,8 +697,8 @@ export default function AdminUploadPage() {
 
                     {/* Meta / SEO Section */}
                     <div>
-                        <SectionHeader 
-                            title="Meta / SEO" 
+                        <SectionHeader
+                            title="Meta / SEO"
                             description="SEO optimization fields (optional, defaults to title/description)"
                         />
                         <div className="space-y-6">
@@ -771,7 +817,7 @@ export default function AdminUploadPage() {
                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                         ></path>
                                     </svg>
-                                    Uploading Template...
+                                    {uploadProgress || "Uploading Template..."}
                                 </>
                             ) : (
                                 <>
