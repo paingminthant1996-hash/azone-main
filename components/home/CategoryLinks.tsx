@@ -1,15 +1,12 @@
 "use client";
 
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowRight, BarChart, ShoppingCart, Rocket, Shield, Palette, Database } from "lucide-react";
 import { getAllTemplates } from "@/lib/db/queries";
 import { Template } from "@/lib/types";
-import TemplateCardSkeleton from "@/components/shared/TemplateCardSkeleton";
-
-// Lazy load TemplateCard for code splitting
-const TemplateCard = lazy(() => import("@/components/marketplace/TemplateCard"));
 
 interface Category {
   id: string;
@@ -91,17 +88,26 @@ function getCategoryForTemplate(templateCategory: string): Category | null {
   return categories[0];
 }
 
+// Helper function to get database category name from category slug
+// This maps the slug back to the actual category value used in the database
+function getCategoryNameFromSlug(slug: string): string {
+  const category = categories.find(c => c.slug === slug);
+  if (!category) return "";
+  
+  // Return the first match value which is typically the database category name
+  return category.matches[0];
+}
+
 export default function CategoryLinks() {
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
   const [templatesByCategory, setTemplatesByCategory] = useState<Record<string, Template[]>>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchTemplates() {
       try {
         setLoading(true);
         const data = await getAllTemplates();
-        setTemplates(data);
 
         // Group templates by category
         const grouped: Record<string, Template[]> = {};
@@ -125,6 +131,14 @@ export default function CategoryLinks() {
     fetchTemplates();
   }, []);
 
+  const handleCategoryClick = (categorySlug: string) => {
+    // Get the actual category name from slug (for database matching)
+    const categoryName = getCategoryNameFromSlug(categorySlug);
+    // Navigate to templates page with category filter
+    // Use the actual category name that matches database values
+    router.push(`/templates?category=${encodeURIComponent(categoryName)}`);
+  };
+
   return (
     <section className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-azone-black to-gray-900">
       <div className="container mx-auto max-w-7xl">
@@ -145,9 +159,9 @@ export default function CategoryLinks() {
           </p>
         </motion.div>
 
-        {/* Categories with Templates */}
-        <div className="space-y-16">
-          {categories.map((category, categoryIndex) => {
+        {/* Categories Grid - Clickable Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {categories.map((category, index) => {
             const categoryTemplates = templatesByCategory[category.slug] || [];
             const hasTemplates = categoryTemplates.length > 0;
 
@@ -157,66 +171,46 @@ export default function CategoryLinks() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: categoryIndex * 0.1 }}
-                className="space-y-8"
+                transition={{ duration: 0.6, delay: index * 0.1 }}
               >
-                {/* Category Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center text-white`}>
-                      {category.icon}
-                    </div>
-                    <div>
-                      <h3 className="text-2xl md:text-3xl font-semibold text-white">
-                        {category.name}
-                      </h3>
-                      <p className="text-gray-400 text-sm mt-1">
-                        {category.description}
-                      </p>
-                    </div>
+                <motion.button
+                  onClick={() => handleCategoryClick(category.slug)}
+                  disabled={!hasTemplates}
+                  className={`w-full bg-gray-900/50 backdrop-blur-sm border rounded-2xl p-6 transition-all duration-300 h-full text-left group ${
+                    hasTemplates
+                      ? "border-gray-800 hover:border-azone-purple/50 cursor-pointer"
+                      : "border-gray-800/50 opacity-50 cursor-not-allowed"
+                  }`}
+                  whileHover={hasTemplates ? { scale: 1.02 } : {}}
+                  whileTap={hasTemplates ? { scale: 0.98 } : {}}
+                >
+                  {/* Icon */}
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform`}>
+                    {category.icon}
                   </div>
-                  {hasTemplates && (
-                    <Link
-                      href={`/templates?category=${category.slug}`}
-                      className="flex items-center gap-2 text-azone-purple hover:text-azone-purple/80 text-sm font-medium transition-colors group"
-                    >
-                      <span>View All</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  )}
-                </div>
 
-                {/* Templates Grid */}
-                {loading ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                    {[1, 2, 3].map((i) => (
-                      <TemplateCardSkeleton key={i} />
-                    ))}
+                  {/* Content */}
+                  <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-azone-purple transition-colors">
+                    {category.name}
+                  </h3>
+                  <p className="text-gray-400 text-sm mb-4">
+                    {category.description}
+                  </p>
+
+                  {/* Template Count & Arrow */}
+                  <div className="flex items-center justify-between">
+                    {hasTemplates ? (
+                      <span className="text-azone-purple text-sm font-medium">
+                        {categoryTemplates.length} {categoryTemplates.length === 1 ? "template" : "templates"}
+                      </span>
+                    ) : (
+                      <span className="text-gray-500 text-sm">No templates</span>
+                    )}
+                    {hasTemplates && (
+                      <ArrowRight className="w-4 h-4 text-azone-purple group-hover:translate-x-1 transition-transform" />
+                    )}
                   </div>
-                ) : hasTemplates ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                    {categoryTemplates.slice(0, 3).map((template, index) => (
-                      <Suspense key={template.id} fallback={<TemplateCardSkeleton />}>
-                        <TemplateCard
-                          id={template.id}
-                          title={template.title}
-                          category={template.category}
-                          price={template.price}
-                          techStack={template.techStack}
-                          imageUrl={template.imageUrl}
-                          slug={template.slug}
-                          updatedAt={template.updatedAt}
-                          featured={template.featured}
-                          index={index}
-                        />
-                      </Suspense>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12 bg-gray-900/30 rounded-2xl border border-gray-800/50">
-                    <p className="text-gray-500">No templates in this category yet</p>
-                  </div>
-                )}
+                </motion.button>
               </motion.div>
             );
           })}

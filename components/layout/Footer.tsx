@@ -2,27 +2,32 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { isAdmin } from "@/lib/auth/auth";
+import { isAdmin, getSession } from "@/lib/auth/auth";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const [userIsAdmin, setUserIsAdmin] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
-  // Check if user is admin
+  // Check if user is logged in and admin
   useEffect(() => {
-    const checkAdmin = async () => {
-      const admin = await isAdmin();
-      setUserIsAdmin(admin);
+    const checkUser = async () => {
+      const { user: sessionUser } = await getSession();
+      setUser(sessionUser);
+      if (sessionUser) {
+        const admin = await isAdmin();
+        setUserIsAdmin(admin);
+      }
     };
-    checkAdmin();
+    checkUser();
   }, []);
 
   return (
     <footer className="bg-azone-black text-white mt-auto">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className={`grid grid-cols-1 md:grid-cols-3 ${user ? 'lg:grid-cols-4' : ''} gap-8`}>
           {/* Brand Section */}
-          <div className="col-span-1 md:col-span-2">
+          <div className="col-span-1">
             <Link
               href="/"
               className="flex items-center space-x-2 mb-4"
@@ -94,8 +99,16 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-sm font-semibold mb-4 text-white">Quick Links</h3>
             <ul className="space-y-3">
+              <li>
+                <Link
+                  href="/"
+                  className="text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  Home
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/templates"
@@ -128,22 +141,63 @@ export default function Footer() {
                   Contact
                 </Link>
               </li>
-              {userIsAdmin && (
-                <li>
-                  <Link
-                    href="/admin/upload"
-                    className="text-sm text-azone-purple hover:text-purple-400 transition-colors"
-                  >
-                    Admin Upload
-                  </Link>
-                </li>
-              )}
             </ul>
           </div>
 
+          {/* Account Section - Only show if user is logged in */}
+          {user && (
+            <div>
+              <h3 className="text-sm font-semibold mb-4 text-white">Account</h3>
+              <ul className="space-y-3">
+                <li>
+                  <Link
+                    href="/account"
+                    className="text-sm text-gray-400 hover:text-white transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/account/purchases"
+                    className="text-sm text-gray-400 hover:text-white transition-colors"
+                  >
+                    Purchases
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/account/downloads"
+                    className="text-sm text-gray-400 hover:text-white transition-colors"
+                  >
+                    Downloads
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/account/settings"
+                    className="text-sm text-gray-400 hover:text-white transition-colors"
+                  >
+                    Settings
+                  </Link>
+                </li>
+                {userIsAdmin && (
+                  <li>
+                    <Link
+                      href="/admin/upload"
+                      className="text-sm text-azone-purple hover:text-purple-400 transition-colors"
+                    >
+                      Admin Upload
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+          )}
+
           {/* Legal */}
           <div>
-            <h3 className="text-sm font-semibold mb-4">Legal</h3>
+            <h3 className="text-sm font-semibold mb-4 text-white">Legal</h3>
             <ul className="space-y-3">
               <li>
                 <Link

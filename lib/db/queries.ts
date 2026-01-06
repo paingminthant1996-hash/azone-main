@@ -158,12 +158,41 @@ export async function getAllLegacyProjects(): Promise<LegacyProject[]> {
   }
 
   try {
-    const { data, error } = await supabase!
+    // Try to fetch with year ordering first, fallback to created_at if year column doesn't exist
+    let query = supabase!
       .from("legacy_projects")
-      .select("*")
-      .order("year", { ascending: false });
+      .select("*");
+    
+    // Try ordering by created_at first (more reliable), then by year if needed
+    const { data, error } = await query
+      .order("created_at", { ascending: false });
 
     if (error) {
+      // If created_at fails, try year as fallback
+      if (error.code === "42703" || error.message?.includes("column") || error.message?.includes("created_at")) {
+        const { data: dataYear, error: errorYear } = await supabase!
+          .from("legacy_projects")
+          .select("*")
+          .order("year", { ascending: false });
+        
+        if (errorYear) {
+          // If both fail, just get data without ordering
+          const { data: dataNoOrder, error: errorNoOrder } = await supabase!
+            .from("legacy_projects")
+            .select("*");
+          
+          if (errorNoOrder) {
+            // Only log if it's not a common/expected error (missing table, RLS)
+            if (errorNoOrder.code !== "PGRST301" && errorNoOrder.code !== "42P01") {
+              console.warn("Error fetching legacy projects:", errorNoOrder.message || errorNoOrder);
+            }
+            return legacyProjects;
+          }
+          return dataNoOrder ? dataNoOrder.map(transformLegacyProject) : legacyProjects;
+        }
+        return dataYear ? dataYear.map(transformLegacyProject) : legacyProjects;
+      }
+      
       // Only log if it's not a common/expected error
       if (error.code !== "PGRST301" && error.code !== "42P01") {
         console.warn("Error fetching legacy projects:", error.message || error);

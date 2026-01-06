@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 import { Calendar, ArrowRight, Sparkles } from "lucide-react";
 import { getAllLegacyProjects } from "@/lib/db/queries";
 import { getAllLegacyProjects as getLocalLegacyProjects } from "@/lib/data";
@@ -95,6 +94,8 @@ interface LegacyCardProps {
 }
 
 function LegacyCard({ project, index }: LegacyCardProps) {
+  const [imageError, setImageError] = useState(false);
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -116,13 +117,13 @@ function LegacyCard({ project, index }: LegacyCardProps) {
       <div className="relative z-10">
         {/* Image Section */}
         <div className="relative h-64 overflow-hidden rounded-t-3xl">
-          {project.imageUrl ? (
+          {project.imageUrl && !imageError ? (
             <>
-              <Image
+              <img
                 src={project.imageUrl}
                 alt={project.title}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-700"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                onError={() => setImageError(true)}
               />
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>

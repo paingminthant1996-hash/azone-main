@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import AdminNav from "@/components/admin/AdminNav";
-import { Search, X } from "lucide-react";
-import { isAdmin } from "@/lib/auth/auth";
+import { Search, X, User, ChevronDown, LayoutGrid, Home, FileText, Info, Mail, ShoppingBag, Download, Settings } from "lucide-react";
+import { isAdmin, getSession } from "@/lib/auth/auth";
+import { getAllTemplates } from "@/lib/db/queries";
 
 export default function Header() {
   const router = useRouter();
@@ -16,17 +17,66 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [userIsAdmin, setUserIsAdmin] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
+  const [allTemplates, setAllTemplates] = useState<any[]>([]);
   const adminDropdownRef = useRef<HTMLDivElement>(null);
+  const accountDropdownRef = useRef<HTMLDivElement>(null);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Check if user is admin
+  // Check if user is admin and get user session
   useEffect(() => {
-    const checkAdmin = async () => {
-      const admin = await isAdmin();
-      setUserIsAdmin(admin);
+    const checkUser = async () => {
+      const { user: sessionUser } = await getSession();
+      setUser(sessionUser);
+      if (sessionUser) {
+        const admin = await isAdmin();
+        setUserIsAdmin(admin);
+      }
     };
-    checkAdmin();
+    checkUser();
   }, []);
+
+  // Fetch categories and templates
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const templates = await getAllTemplates();
+        setAllTemplates(templates);
+        const uniqueCategories = Array.from(new Set(templates.map(t => t.category))).sort();
+        setCategories(uniqueCategories);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Generate search suggestions
+  useEffect(() => {
+    if (searchQuery.trim().length > 0) {
+      const query = searchQuery.toLowerCase().trim();
+      const suggestions = allTemplates
+        .filter((template) => {
+          const titleMatch = template.title.toLowerCase().includes(query);
+          const descMatch = template.description?.toLowerCase().includes(query);
+          const categoryMatch = template.category?.toLowerCase().includes(query);
+          const techMatch = template.techStack?.some((tech: string) =>
+            tech.toLowerCase().includes(query)
+          );
+          return titleMatch || descMatch || categoryMatch || techMatch;
+        })
+        .slice(0, 5); // Limit to 5 suggestions
+      setSearchSuggestions(suggestions);
+    } else {
+      setSearchSuggestions([]);
+    }
+  }, [searchQuery, allTemplates]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,7 +87,7 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -46,16 +96,34 @@ export default function Header() {
       ) {
         setIsAdminDropdownOpen(false);
       }
+      if (
+        accountDropdownRef.current &&
+        !accountDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsAccountDropdownOpen(false);
+      }
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsCategoryDropdownOpen(false);
+      }
+      if (
+        searchDropdownRef.current &&
+        !searchDropdownRef.current.contains(event.target as Node)
+      ) {
+        setSearchSuggestions([]);
+      }
     };
 
-    if (isAdminDropdownOpen) {
+    if (isAdminDropdownOpen || isAccountDropdownOpen || isCategoryDropdownOpen || searchSuggestions.length > 0) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isAdminDropdownOpen]);
+  }, [isAdminDropdownOpen, isAccountDropdownOpen, isCategoryDropdownOpen, searchSuggestions.length]);
 
   // Handle search
   const handleSearch = (e: React.FormEvent) => {
@@ -77,8 +145,8 @@ export default function Header() {
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled
-          ? "bg-azone-black/80 backdrop-blur-md shadow-sm border-b border-gray-800"
-          : "bg-azone-black"
+        ? "bg-azone-black/80 backdrop-blur-md shadow-sm border-b border-gray-800"
+        : "bg-azone-black"
         }`}
     >
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -96,43 +164,145 @@ export default function Header() {
           </Link>
 
           {/* Search Bar (Desktop) */}
-          <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
+          <div className="hidden md:flex items-center flex-1 max-w-md mx-8 relative" ref={searchDropdownRef}>
             <form onSubmit={handleSearch} className="w-full relative">
               <input
                 ref={searchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => {
+                  if (searchQuery.trim().length > 0) {
+                    // Suggestions will show automatically via useEffect
+                  }
+                }}
                 placeholder="Search templates..."
                 className="w-full px-4 py-2 pl-10 bg-gray-900/50 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-azone-purple transition-colors text-sm"
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             </form>
+            {/* Search Suggestions Dropdown */}
+            {searchSuggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50 max-h-80 overflow-y-auto">
+                {searchSuggestions.map((template) => (
+                  <Link
+                    key={template.id}
+                    href={`/templates/${template.slug}`}
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSearchSuggestions([]);
+                    }}
+                    className="block px-4 py-3 hover:bg-gray-800 transition-colors border-b border-gray-800 last:border-b-0"
+                  >
+                    <div className="flex items-start gap-3">
+                      {template.imageUrl && (
+                        <img
+                          src={template.imageUrl}
+                          alt={template.title}
+                          className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium text-white truncate">
+                          {template.title}
+                        </h4>
+                        <p className="text-xs text-gray-400 mt-1 line-clamp-1">
+                          {template.shortDescription || template.description}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-azone-purple font-medium">
+                            ${Math.round(template.price)}
+                          </span>
+                          <span className="text-xs text-gray-500">•</span>
+                          <span className="text-xs text-gray-400">{template.category}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-10">
             <Link
               href="/"
-              className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
+              className={`text-sm font-medium transition-colors ${pathname === "/"
+                ? "text-azone-purple border-b-2 border-azone-purple pb-1"
+                : "text-gray-400 hover:text-white"
+                }`}
             >
               Home
             </Link>
+            {/* Categories Dropdown */}
+            {categories.length > 0 && (
+              <div className="relative" ref={categoryDropdownRef}>
+                <button
+                  onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                  className={`text-sm font-medium transition-colors flex items-center gap-1 ${pathname?.startsWith("/templates")
+                    ? "text-azone-purple border-b-2 border-azone-purple pb-1"
+                    : "text-gray-400 hover:text-white"
+                    }`}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  Categories
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform ${isCategoryDropdownOpen ? "rotate-180" : ""
+                      }`}
+                  />
+                </button>
+                {/* Categories Dropdown Menu */}
+                {isCategoryDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-2 w-56 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50">
+                    <Link
+                      href="/templates"
+                      onClick={() => setIsCategoryDropdownOpen(false)}
+                      className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors border-b border-gray-800"
+                    >
+                      <div className="flex items-center gap-2">
+                        <LayoutGrid className="w-4 h-4" />
+                        All Templates
+                      </div>
+                    </Link>
+                    {categories.map((category) => (
+                      <Link
+                        key={category}
+                        href={`/templates?category=${encodeURIComponent(category)}`}
+                        onClick={() => setIsCategoryDropdownOpen(false)}
+                        className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                      >
+                        {category}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             <Link
               href="/templates"
-              className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
+              className={`text-sm font-medium transition-colors ${pathname?.startsWith("/templates")
+                ? "text-azone-purple border-b-2 border-azone-purple pb-1"
+                : "text-gray-400 hover:text-white"
+                }`}
             >
               Templates
             </Link>
             <Link
               href="/case-studies"
-              className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
+              className={`text-sm font-medium transition-colors ${pathname?.startsWith("/case-studies")
+                ? "text-azone-purple border-b-2 border-azone-purple pb-1"
+                : "text-gray-400 hover:text-white"
+                }`}
             >
               Case Studies
             </Link>
             <Link
               href="/about"
-              className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
+              className={`text-sm font-medium transition-colors ${pathname === "/about"
+                ? "text-azone-purple border-b-2 border-azone-purple pb-1"
+                : "text-gray-400 hover:text-white"
+                }`}
             >
               About
             </Link>
@@ -145,9 +315,8 @@ export default function Header() {
                 >
                   Admin
                   <svg
-                    className={`w-4 h-4 transition-transform ${
-                      isAdminDropdownOpen ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform ${isAdminDropdownOpen ? "rotate-180" : ""
+                      }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -166,7 +335,10 @@ export default function Header() {
                     <Link
                       href="/admin/upload"
                       onClick={() => setIsAdminDropdownOpen(false)}
-                      className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                      className={`block px-4 py-3 text-sm transition-colors ${pathname === "/admin/upload"
+                        ? "text-azone-purple bg-gray-800"
+                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                        }`}
                     >
                       <div className="flex items-center gap-2">
                         <svg
@@ -188,7 +360,10 @@ export default function Header() {
                     <Link
                       href="/admin/templates"
                       onClick={() => setIsAdminDropdownOpen(false)}
-                      className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                      className={`block px-4 py-3 text-sm transition-colors ${pathname === "/admin/templates"
+                        ? "text-azone-purple bg-gray-800"
+                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                        }`}
                     >
                       <div className="flex items-center gap-2">
                         <svg
@@ -210,7 +385,10 @@ export default function Header() {
                     <Link
                       href="/admin/purchases"
                       onClick={() => setIsAdminDropdownOpen(false)}
-                      className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                      className={`block px-4 py-3 text-sm transition-colors ${pathname === "/admin/purchases"
+                        ? "text-azone-purple bg-gray-800"
+                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                        }`}
                     >
                       <div className="flex items-center gap-2">
                         <svg
@@ -233,7 +411,10 @@ export default function Header() {
                       <Link
                         href="/admin/analytics"
                         onClick={() => setIsAdminDropdownOpen(false)}
-                        className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                        className={`block px-4 py-3 text-sm transition-colors ${pathname === "/admin/analytics"
+                          ? "text-azone-purple bg-gray-800"
+                          : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                          }`}
                       >
                         <div className="flex items-center gap-2">
                           <svg
@@ -250,6 +431,123 @@ export default function Header() {
                             />
                           </svg>
                           Analytics
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Account Dropdown - Only show if user is logged in */}
+            {user && !userIsAdmin && (
+              <div className="relative" ref={accountDropdownRef}>
+                <button
+                  onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
+                  className="text-sm font-medium text-gray-400 hover:text-white transition-colors flex items-center gap-1"
+                >
+                  <User className="w-4 h-4" />
+                  <span>Account</span>
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform ${isAccountDropdownOpen ? "rotate-180" : ""
+                      }`}
+                  />
+                </button>
+                {/* Account Dropdown Menu */}
+                {isAccountDropdownOpen && (
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50">
+                    <Link
+                      href="/account"
+                      onClick={() => setIsAccountDropdownOpen(false)}
+                      className={`block px-4 py-3 text-sm transition-colors ${pathname === "/account"
+                        ? "text-azone-purple bg-gray-800"
+                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                        }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        Dashboard
+                      </div>
+                    </Link>
+                    <Link
+                      href="/account/purchases"
+                      onClick={() => setIsAccountDropdownOpen(false)}
+                      className={`block px-4 py-3 text-sm transition-colors ${pathname === "/account/purchases"
+                        ? "text-azone-purple bg-gray-800"
+                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                        }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                          />
+                        </svg>
+                        Purchases
+                      </div>
+                    </Link>
+                    <Link
+                      href="/account/downloads"
+                      onClick={() => setIsAccountDropdownOpen(false)}
+                      className={`block px-4 py-3 text-sm transition-colors ${pathname === "/account/downloads"
+                        ? "text-azone-purple bg-gray-800"
+                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                        }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          />
+                        </svg>
+                        Downloads
+                      </div>
+                    </Link>
+                    <div className="border-t border-gray-800">
+                      <Link
+                        href="/account/settings"
+                        onClick={() => setIsAccountDropdownOpen(false)}
+                        className={`block px-4 py-3 text-sm transition-colors ${pathname === "/account/settings"
+                          ? "text-azone-purple bg-gray-800"
+                          : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                          }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                          Settings
                         </div>
                       </Link>
                     </div>
@@ -323,7 +621,7 @@ export default function Header() {
 
         {/* Mobile Search Bar */}
         {isSearchOpen && (
-          <div className="md:hidden border-t border-gray-800 py-4 px-4">
+          <div className="md:hidden border-t border-gray-800 py-4 px-4 relative" ref={searchDropdownRef}>
             <form onSubmit={handleSearch} className="relative">
               <input
                 type="text"
@@ -341,47 +639,192 @@ export default function Header() {
                 <X className="w-4 h-4" />
               </button>
             </form>
+            {/* Mobile Search Suggestions */}
+            {searchSuggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50 max-h-64 overflow-y-auto">
+                {searchSuggestions.map((template) => (
+                  <Link
+                    key={template.id}
+                    href={`/templates/${template.slug}`}
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSearchSuggestions([]);
+                      setIsSearchOpen(false);
+                    }}
+                    className="block px-4 py-3 hover:bg-gray-800 transition-colors border-b border-gray-800 last:border-b-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      {template.imageUrl && (
+                        <img
+                          src={template.imageUrl}
+                          alt={template.title}
+                          className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium text-white truncate">
+                          {template.title}
+                        </h4>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          ${Math.round(template.price)} • {template.category}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-800 py-4 space-y-2">
-            <Link
-              href="/"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
-            >
-              Home
-            </Link>
-            <Link
-              href="/templates"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
-            >
-              Templates
-            </Link>
-            <Link
-              href="/case-studies"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
-            >
-              Case Studies
-            </Link>
-            <Link
-              href="/about"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
-            >
-              About
-            </Link>
-            <Link
-              href="/contact"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
-            >
-              Contact
-            </Link>
+          <div className="md:hidden border-t border-gray-800 py-4">
+            {/* Main Navigation */}
+            <div className="space-y-1">
+              <Link
+                href="/"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${pathname === "/"
+                  ? "text-azone-purple bg-gray-900/50"
+                  : "text-gray-400 hover:text-white hover:bg-gray-900/30"
+                  }`}
+              >
+                <Home className="w-5 h-5" />
+                Home
+              </Link>
+              {categories.length > 0 && (
+                <div className="px-4 py-2">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                    Categories
+                  </div>
+                  <div className="space-y-1">
+                    <Link
+                      href="/templates"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors ${pathname?.startsWith("/templates") && !pathname.includes("?category")
+                        ? "text-azone-purple bg-gray-900/50"
+                        : "text-gray-400 hover:text-white hover:bg-gray-900/30"
+                        }`}
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                      All Templates
+                    </Link>
+                    {categories.slice(0, 5).map((category) => (
+                      <Link
+                        key={category}
+                        href={`/templates?category=${encodeURIComponent(category)}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors ${pathname?.includes(`category=${encodeURIComponent(category)}`)
+                          ? "text-azone-purple bg-gray-900/50"
+                          : "text-gray-400 hover:text-white hover:bg-gray-900/30"
+                          }`}
+                      >
+                        <div className="w-4 h-4 rounded bg-gray-700" />
+                        {category}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <Link
+                href="/templates"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${pathname?.startsWith("/templates")
+                  ? "text-azone-purple bg-gray-900/50"
+                  : "text-gray-400 hover:text-white hover:bg-gray-900/30"
+                  }`}
+              >
+                <FileText className="w-5 h-5" />
+                Templates
+              </Link>
+              <Link
+                href="/case-studies"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${pathname?.startsWith("/case-studies")
+                  ? "text-azone-purple bg-gray-900/50"
+                  : "text-gray-400 hover:text-white hover:bg-gray-900/30"
+                  }`}
+              >
+                <FileText className="w-5 h-5" />
+                Case Studies
+              </Link>
+              <Link
+                href="/about"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${pathname === "/about"
+                  ? "text-azone-purple bg-gray-900/50"
+                  : "text-gray-400 hover:text-white hover:bg-gray-900/30"
+                  }`}
+              >
+                <Info className="w-5 h-5" />
+                About
+              </Link>
+              <Link
+                href="/contact"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${pathname === "/contact"
+                  ? "text-azone-purple bg-gray-900/50"
+                  : "text-gray-400 hover:text-white hover:bg-gray-900/30"
+                  }`}
+              >
+                <Mail className="w-5 h-5" />
+                Contact
+              </Link>
+            </div>
+
+            {/* Account Section - Mobile */}
+            {user && (
+              <div className="border-t border-gray-800 pt-2 mt-2">
+                <div className="px-4 py-2 text-xs font-semibold text-azone-purple uppercase tracking-wider">
+                  Account
+                </div>
+                <Link
+                  href="/account"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors ${pathname === "/account"
+                    ? "text-azone-purple bg-gray-900/50"
+                    : "text-gray-400 hover:text-white hover:bg-gray-900/30"
+                    }`}
+                >
+                  <User className="w-4 h-4" />
+                  Dashboard
+                </Link>
+                <Link
+                  href="/account/purchases"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors ${pathname === "/account/purchases"
+                    ? "text-azone-purple bg-gray-900/50"
+                    : "text-gray-400 hover:text-white hover:bg-gray-900/30"
+                    }`}
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  Purchases
+                </Link>
+                <Link
+                  href="/account/downloads"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors ${pathname === "/account/downloads"
+                    ? "text-azone-purple bg-gray-900/50"
+                    : "text-gray-400 hover:text-white hover:bg-gray-900/30"
+                    }`}
+                >
+                  <Download className="w-4 h-4" />
+                  Downloads
+                </Link>
+                <Link
+                  href="/account/settings"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors ${pathname === "/account/settings"
+                    ? "text-azone-purple bg-gray-900/50"
+                    : "text-gray-400 hover:text-white hover:bg-gray-900/30"
+                    }`}
+                >
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </Link>
+              </div>
+            )}
             {/* Mobile Admin Section - Only show if user is admin */}
             {userIsAdmin && (
               <div className="border-t border-gray-800 pt-2 mt-2">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { ToastProvider } from "@/lib/utils/toast";
 
@@ -63,6 +64,7 @@ export default function RootLayout({
         <ErrorBoundary>
           <ToastProvider>
             <Header />
+            <Breadcrumbs />
             <main className="flex-1">
               {children}
             </main>

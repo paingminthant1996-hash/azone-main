@@ -88,9 +88,16 @@ export default function TemplatesPage() {
       );
     }
 
-    // Category filter
+    // Category filter - case-insensitive and partial match
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((t) => t.category === selectedCategory);
+      const categoryLower = selectedCategory.toLowerCase();
+      filtered = filtered.filter((t) => {
+        const templateCategoryLower = t.category.toLowerCase();
+        // Exact match or partial match (e.g., "Landing" matches "Landing Page")
+        return templateCategoryLower === categoryLower || 
+               templateCategoryLower.includes(categoryLower) ||
+               categoryLower.includes(templateCategoryLower);
+      });
     }
 
     // Price range filter

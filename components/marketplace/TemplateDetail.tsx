@@ -546,6 +546,20 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
 
   return (
     <div className="min-h-screen bg-azone-black relative">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <motion.button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-sm font-medium">Back to Templates</span>
+        </motion.button>
+      </div>
+
       {/* Floating Sticky CTA Button */}
       <AnimatePresence>
         {isScrolled && (
@@ -689,7 +703,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
               <h2 className="text-3xl font-semibold text-white mb-6">Gallery</h2>
 
               {/* Main Image with Lightbox */}
-              <div 
+              <div
                 className="relative w-full h-[500px] md:h-[600px] rounded-3xl overflow-hidden bg-gray-950 border border-gray-800/50 cursor-pointer group"
                 onClick={() => {
                   if (allImages.length > 0) {
@@ -886,8 +900,8 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                       onClick={handleDownload}
                       disabled={downloadLoading || !selectedVersionId}
                       className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2 group/download relative overflow-hidden mb-4 ${downloadLoading || !selectedVersionId
-                          ? "bg-gray-800/50 text-gray-500 cursor-not-allowed"
-                          : "bg-green-600/90 hover:bg-green-600 text-white border-2 border-green-500/50"
+                        ? "bg-gray-800/50 text-gray-500 cursor-not-allowed"
+                        : "bg-green-600/90 hover:bg-green-600 text-white border-2 border-green-500/50"
                         }`}
                       whileHover={!downloadLoading && selectedVersionId ? { scale: 1.02, y: -2 } : {}}
                       whileTap={!downloadLoading && selectedVersionId ? { scale: 0.98 } : {}}
