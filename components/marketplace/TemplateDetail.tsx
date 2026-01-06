@@ -37,7 +37,8 @@ import {
   Twitter,
   Facebook,
   Linkedin,
-  Link as LinkIcon
+  Link as LinkIcon,
+  ArrowLeft
 } from "lucide-react";
 import { Template } from "@/lib/types";
 import { supabase } from "@/lib/db/supabase";
@@ -380,6 +381,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [relatedTemplates, setRelatedTemplates] = useState<Template[]>([]);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
 
   // Fetch user and template details on mount
   useEffect(() => {
@@ -1022,24 +1024,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                     e.preventDefault();
                     e.stopPropagation();
                     if (template.demoUrl) {
-                      try {
-                        const url = new URL(template.demoUrl);
-                        const currentUrl = new URL(window.location.href);
-
-                        // Always open Live Preview in a new tab for better UX
-                        // This prevents navigation issues and allows users to compare
-                        window.open(template.demoUrl, '_blank', 'noopener,noreferrer');
-                      } catch (e) {
-                        // If URL parsing fails, try opening directly
-                        if (template.demoUrl.startsWith('/')) {
-                          // Relative URL - construct full URL
-                          const fullUrl = `${window.location.origin}${template.demoUrl}`;
-                          window.open(fullUrl, '_blank', 'noopener,noreferrer');
-                        } else {
-                          // Absolute URL - open directly
-                          window.open(template.demoUrl, '_blank', 'noopener,noreferrer');
-                        }
-                      }
+                      setDemoModalOpen(true);
                     }
                   }}
                   disabled={!template.demoUrl}
@@ -1317,6 +1302,75 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                   </button>
                 </>
               )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Demo Preview Modal */}
+      <AnimatePresence>
+        {demoModalOpen && template.demoUrl && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            onClick={() => setDemoModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="relative w-full h-full flex flex-col bg-gray-950"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header with Back Button */}
+              <div className="flex items-center justify-between px-6 py-4 bg-gray-900/80 border-b border-gray-800/50 backdrop-blur-xl">
+                <motion.button
+                  onClick={() => setDemoModalOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-800 text-white rounded-lg transition-colors group/back"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <ArrowLeft className="w-4 h-4 group-hover/back:-translate-x-0.5 transition-transform" />
+                  <span className="font-medium">Back to Template</span>
+                </motion.button>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-400">Live Preview</span>
+                  <motion.button
+                    onClick={() => setDemoModalOpen(false)}
+                    className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <X className="w-5 h-5 text-gray-400 hover:text-white" />
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Iframe Container */}
+              <div className="flex-1 relative overflow-hidden">
+                {(() => {
+                  let demoUrl = template.demoUrl;
+                  try {
+                    if (demoUrl.startsWith('/')) {
+                      demoUrl = `${window.location.origin}${demoUrl}`;
+                    }
+                  } catch (e) {
+                    // URL is already absolute or invalid
+                  }
+                  return (
+                    <iframe
+                      src={demoUrl}
+                      className="w-full h-full border-0"
+                      title="Template Live Preview"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  );
+                })()}
+              </div>
             </motion.div>
           </motion.div>
         )}
