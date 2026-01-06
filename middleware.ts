@@ -2,6 +2,17 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // Redirect root domain (paing.xyz) to subdomain (store.paing.xyz)
+  const hostname = request.headers.get('host') || ''
+  const url = request.nextUrl.clone()
+  
+  // Check if it's the root domain (paing.xyz) without subdomain
+  if (hostname === 'paing.xyz' || hostname === 'www.paing.xyz') {
+    url.host = 'store.paing.xyz'
+    url.protocol = 'https:'
+    return NextResponse.redirect(url, 301) // Permanent redirect
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
