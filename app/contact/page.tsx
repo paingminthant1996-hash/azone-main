@@ -11,22 +11,65 @@ export default function ContactPage() {
     company: "",
     message: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = "Message is required";
+    } else if (formData.message.trim().length < 10) {
+      newErrors.message = "Message must be at least 10 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted:", formData);
-    // Reset form
-    setFormData({ name: "", email: "", company: "", message: "" });
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Handle form submission
+      console.log("Form submitted:", formData);
+      // Reset form
+      setFormData({ name: "", email: "", company: "", message: "" });
+      setErrors({});
+    } catch (error) {
+      console.error("Form submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
   };
 
   return (
@@ -38,7 +81,7 @@ export default function ContactPage() {
             <span className="text-white">Contact</span>
             <span className="text-azone-purple ml-3">Us</span>
           </h1>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
             Need a custom solution or priority support? Our engineers are ready to assist.
           </p>
         </div>
@@ -57,7 +100,7 @@ export default function ContactPage() {
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-gray-400 mb-2"
+                  className="block text-sm font-medium text-gray-300 mb-2"
                 >
                   Name
                 </label>
@@ -68,16 +111,31 @@ export default function ContactPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-700 transition-colors duration-200"
+                  aria-invalid={errors.name ? "true" : "false"}
+                  aria-describedby={errors.name ? "name-error" : undefined}
+                  className={`w-full px-4 py-3 bg-gray-950 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 ${
+                    errors.name
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-gray-800 focus:border-azone-purple"
+                  }`}
                   placeholder="Your name"
                 />
+                {errors.name && (
+                  <span
+                    id="name-error"
+                    role="alert"
+                    className="block mt-1 text-sm text-red-400"
+                  >
+                    {errors.name}
+                  </span>
+                )}
               </div>
 
               {/* Email Field */}
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-gray-400 mb-2"
+                  className="block text-sm font-medium text-gray-300 mb-2"
                 >
                   Professional Email
                 </label>
@@ -88,16 +146,31 @@ export default function ContactPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-700 transition-colors duration-200"
+                  aria-invalid={errors.email ? "true" : "false"}
+                  aria-describedby={errors.email ? "email-error" : undefined}
+                  className={`w-full px-4 py-3 bg-gray-950 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 ${
+                    errors.email
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-gray-800 focus:border-azone-purple"
+                  }`}
                   placeholder="your.email@company.com"
                 />
+                {errors.email && (
+                  <span
+                    id="email-error"
+                    role="alert"
+                    className="block mt-1 text-sm text-red-400"
+                  >
+                    {errors.email}
+                  </span>
+                )}
               </div>
 
               {/* Company Field */}
               <div>
                 <label
                   htmlFor="company"
-                  className="block text-sm font-medium text-gray-400 mb-2"
+                  className="block text-sm font-medium text-gray-300 mb-2"
                 >
                   Company Name
                 </label>
@@ -107,7 +180,7 @@ export default function ContactPage() {
                   name="company"
                   value={formData.company}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-700 transition-colors duration-200"
+                  className="w-full px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-azone-purple transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2"
                   placeholder="Your company"
                 />
               </div>
@@ -116,7 +189,7 @@ export default function ContactPage() {
               <div>
                 <label
                   htmlFor="message"
-                  className="block text-sm font-medium text-gray-400 mb-2"
+                  className="block text-sm font-medium text-gray-300 mb-2"
                 >
                   Message
                 </label>
@@ -127,25 +200,42 @@ export default function ContactPage() {
                   onChange={handleChange}
                   required
                   rows={6}
-                  className="w-full px-4 py-3 bg-gray-950 border border-gray-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-gray-700 transition-colors duration-200 resize-none"
+                  aria-invalid={errors.message ? "true" : "false"}
+                  aria-describedby={errors.message ? "message-error" : undefined}
+                  className={`w-full px-4 py-3 bg-gray-950 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors duration-200 resize-none focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 ${
+                    errors.message
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-gray-800 focus:border-azone-purple"
+                  }`}
                   placeholder="Tell us about your project or requirements..."
                 />
+                {errors.message && (
+                  <span
+                    id="message-error"
+                    role="alert"
+                    className="block mt-1 text-sm text-red-400"
+                  >
+                    {errors.message}
+                  </span>
+                )}
               </div>
 
               {/* Submit Button */}
               <motion.button
                 type="submit"
-                className="w-full px-6 py-4 bg-azone-purple text-white rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50 flex items-center justify-center gap-2"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                disabled={isSubmitting}
+                aria-label="Send message"
+                className="w-full px-6 py-4 bg-azone-purple text-white rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+                whileHover={!isSubmitting ? { scale: 1.02 } : {}}
+                whileTap={!isSubmitting ? { scale: 0.98 } : {}}
                 transition={{
                   duration: 0.25,
                   ease: [0.25, 0.1, 0.25, 1],
                   delay: 0.05,
                 }}
               >
-                <Send className="w-5 h-5" />
-                Send Message
+                <Send className="w-5 h-5" aria-hidden="true" />
+                {isSubmitting ? "Sending..." : "Send Message"}
               </motion.button>
             </motion.form>
           </div>
@@ -164,13 +254,13 @@ export default function ContactPage() {
                   <div className="w-10 h-10 bg-gray-950 border border-gray-800 rounded-lg flex items-center justify-center">
                     <Mail className="w-5 h-5 text-gray-400" />
                   </div>
-                  <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+                  <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
                     Email
                   </h3>
                 </div>
                 <a
                   href="mailto:hello@azone.store"
-                  className="text-white hover:text-azone-purple transition-colors duration-200 font-medium"
+                  className="text-white hover:text-azone-purple transition-colors duration-200 font-medium focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded"
                 >
                   hello@azone.store
                 </a>
@@ -180,13 +270,13 @@ export default function ContactPage() {
               <div>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-gray-950 border border-gray-800 rounded-lg flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-gray-400" />
+                    <MapPin className="w-5 h-5 text-gray-300" aria-hidden="true" />
                   </div>
-                  <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+                  <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
                     Office
                   </h3>
                 </div>
-                <div className="text-gray-400 leading-relaxed space-y-1">
+                <div className="text-gray-300 leading-relaxed space-y-1">
                   <p className="text-white font-medium">Azone.store</p>
                   <p>San Francisco, CA</p>
                   <p>United States</p>
@@ -195,7 +285,7 @@ export default function ContactPage() {
 
               {/* Response Time */}
               <div className="pt-8 border-t border-gray-800">
-                <p className="text-sm text-gray-500 leading-relaxed">
+                <p className="text-sm text-gray-300 leading-relaxed">
                   We typically respond within 24 hours during business days.
                 </p>
               </div>

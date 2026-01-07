@@ -73,6 +73,30 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Accessibility: Focus Indicators */
+*:focus-visible {
+  outline: 2px solid #A855F7; /* azone-purple */
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip Link - Hidden until focused */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #A855F7;
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 100;
+  border-radius: 4px;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -99,13 +123,14 @@ body {
     line-height: 1.75;
   }
   
+  /* Improved contrast for accessibility */
   .text-body {
-    color: #9CA3AF;
+    color: #D1D5DB; /* Changed from #9CA3AF (gray-400) to gray-300 for better contrast */
     font-weight: 400;
   }
   
   .text-body-light {
-    color: #6B7280;
+    color: #D1D5DB; /* Changed from #6B7280 (gray-500) to gray-300 for better contrast */
     font-weight: 300;
   }
   

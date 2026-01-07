@@ -267,7 +267,8 @@ export default function TemplateCard({
           {/* View Details Button - CTA with Purple */}
           <Link href={`/templates/${slug}`}>
             <motion.button
-              className="w-full py-3.5 px-4 bg-azone-purple text-white rounded-xl font-semibold text-sm transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50 flex items-center justify-center gap-2 group/btn"
+              aria-label={`View details for ${title}`}
+              className="w-full py-3.5 px-4 bg-azone-purple text-white rounded-xl font-semibold text-sm transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50 flex items-center justify-center gap-2 group/btn focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               transition={{ 
@@ -277,7 +278,7 @@ export default function TemplateCard({
               }}
             >
               View Details
-              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out" />
+              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out" aria-hidden="true" />
             </motion.button>
           </Link>
         </div>
@@ -379,7 +380,8 @@ export default function TemplateCard({
               <div className="space-y-2">
                 <Link href={`/templates/${slug}`}>
                   <motion.button
-                    className="w-full py-2 px-3 bg-azone-purple text-white rounded font-semibold text-[11px] transition-all duration-250 hover:bg-azone-purple/90 flex items-center justify-center gap-1.5 group/quick"
+                    aria-label={`Quick view ${title}`}
+                    className="w-full py-2 px-3 bg-azone-purple text-white rounded font-semibold text-[11px] transition-all duration-250 hover:bg-azone-purple/90 flex items-center justify-center gap-1.5 group/quick focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
                     transition={{ 
@@ -388,9 +390,9 @@ export default function TemplateCard({
                       delay: 0.03
                     }}
                   >
-                    <Eye className="w-3 h-3" />
+                    <Eye className="w-3 h-3" aria-hidden="true" />
                     View
-                    <ArrowRight className="w-3 h-3 group-hover/quick:translate-x-0.5 transition-transform duration-200 ease-out" />
+                    <ArrowRight className="w-3 h-3 group-hover/quick:translate-x-0.5 transition-transform duration-200 ease-out" aria-hidden="true" />
                   </motion.button>
                 </Link>
               </div>

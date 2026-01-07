@@ -1265,6 +1265,14 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4"
             onClick={() => setLightboxOpen(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setLightboxOpen(false);
+              }
+            }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="lightbox-title"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -1273,9 +1281,13 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
               className="relative max-w-7xl max-h-[90vh] w-full h-full"
               onClick={(e) => e.stopPropagation()}
             >
+              <h2 id="lightbox-title" className="sr-only">
+                {template.title} - Full view
+              </h2>
               <button
                 onClick={() => setLightboxOpen(false)}
-                className="absolute top-4 right-4 z-10 w-10 h-10 bg-gray-900/80 hover:bg-gray-800 rounded-full flex items-center justify-center text-white transition-all"
+                aria-label="Close lightbox"
+                className="absolute top-4 right-4 z-10 w-10 h-10 bg-gray-900/80 hover:bg-gray-800 rounded-full flex items-center justify-center text-white transition-all focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1298,7 +1310,8 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                       setLightboxImage(allImages[prevIndex]);
                       setSelectedImage(prevIndex);
                     }}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-gray-900/80 hover:bg-gray-800 rounded-full flex items-center justify-center text-white transition-all"
+                    aria-label="Previous image"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-gray-900/80 hover:bg-gray-800 rounded-full flex items-center justify-center text-white transition-all focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2"
                   >
                     <ArrowRight className="w-5 h-5 rotate-180" />
                   </button>
@@ -1310,7 +1323,8 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                       setLightboxImage(allImages[nextIndex]);
                       setSelectedImage(nextIndex);
                     }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-gray-900/80 hover:bg-gray-800 rounded-full flex items-center justify-center text-white transition-all"
+                    aria-label="Next image"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-gray-900/80 hover:bg-gray-800 rounded-full flex items-center justify-center text-white transition-all focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2"
                   >
                     <ArrowRight className="w-5 h-5" />
                   </button>
@@ -1330,6 +1344,14 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
             onClick={() => setDemoModalOpen(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setDemoModalOpen(false);
+              }
+            }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="demo-modal-title"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -1341,9 +1363,13 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
             >
               {/* Header with Back Button */}
               <div className="flex items-center justify-between px-6 py-4 bg-gray-900/80 border-b border-gray-800/50 backdrop-blur-xl">
+                <h2 id="demo-modal-title" className="sr-only">
+                  Live Preview - {template.title}
+                </h2>
                 <motion.button
                   onClick={() => setDemoModalOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-800 text-white rounded-lg transition-colors group/back"
+                  aria-label="Back to template"
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-800 text-white rounded-lg transition-colors group/back focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -1351,14 +1377,15 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                   <span className="font-medium">Back to Template</span>
                 </motion.button>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-400">Live Preview</span>
+                  <span className="text-sm text-gray-300">Live Preview</span>
                   <motion.button
                     onClick={() => setDemoModalOpen(false)}
-                    className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                    aria-label="Close preview"
+                    className="p-2 hover:bg-gray-800 rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                   >
-                    <X className="w-5 h-5 text-gray-400 hover:text-white" />
+                    <X className="w-5 h-5 text-gray-300 hover:text-white" />
                   </motion.button>
                 </div>
               </div>

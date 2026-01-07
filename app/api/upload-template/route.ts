@@ -52,6 +52,8 @@ export async function POST(request: NextRequest) {
     const demoUrl = formData.get("demoUrl") as string;
     const imageUrl = formData.get("imageUrl") as string;
     const zipUrl = formData.get("zipUrl") as string;
+    const downloadUrlsJson = formData.get("downloadUrls") as string;
+    const downloadPermission = formData.get("downloadPermission") as string || "purchase";
     const techStackJson = formData.get("techStack") as string;
     const licenseType = formData.get("licenseType") as string;
     const licenseSummary = formData.get("licenseSummary") as string;
@@ -59,17 +61,37 @@ export async function POST(request: NextRequest) {
     const metaDescription = formData.get("metaDescription") as string;
     const keywords = formData.get("keywords") as string;
 
+    // Parse download URLs
+    let downloadUrls: string[] = [];
+    try {
+      downloadUrls = downloadUrlsJson ? JSON.parse(downloadUrlsJson) : [];
+    } catch {
+      downloadUrls = zipUrl ? [zipUrl] : [];
+    }
+    
+    // Use zipUrl as fallback if no download URLs
+    if (downloadUrls.length === 0 && zipUrl) {
+      downloadUrls = [zipUrl];
+    }
+
     // Validate required fields
-    if (!title || !shortDescription || !description || !price || !imageUrl || !zipUrl) {
+    if (!title || !shortDescription || !description || !imageUrl) {
       return NextResponse.json(
         { error: "Please fill in all required fields" },
         { status: 400 }
       );
     }
 
-    if (isNaN(price) || price <= 0) {
+    if (downloadUrls.length === 0) {
       return NextResponse.json(
-        { error: "Please enter a valid price" },
+        { error: "At least one download URL is required" },
+        { status: 400 }
+      );
+    }
+
+    if (isNaN(price) || price < 0) {
+      return NextResponse.json(
+        { error: "Please enter a valid price (0 or greater)" },
         { status: 400 }
       );
     }
@@ -140,7 +162,9 @@ export async function POST(request: NextRequest) {
     try {
       templateData.version = version;
       templateData.status = status;
-      templateData.download_url = zipUrl;
+      templateData.download_url = downloadUrls[0] || zipUrl; // Primary download URL
+      templateData.download_urls = downloadUrls; // Array of all download URLs
+      templateData.download_permission = downloadPermission;
       templateData.license_type = licenseType;
       templateData.license_summary = licenseSummary;
       templateData.meta_title = metaTitle || title;

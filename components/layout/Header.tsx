@@ -142,6 +142,65 @@ export default function Header() {
     }
   }, [isSearchOpen]);
 
+  // Keyboard navigation for dropdowns
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Close dropdowns on Escape
+      if (e.key === "Escape") {
+        setIsCategoryDropdownOpen(false);
+        setIsAccountDropdownOpen(false);
+        setIsAdminDropdownOpen(false);
+        setIsSearchOpen(false);
+        setSearchSuggestions([]);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Keyboard navigation for search suggestions
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+
+  useEffect(() => {
+    const handleSearchKeyDown = (e: KeyboardEvent) => {
+      if (!searchSuggestions.length) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedSuggestionIndex((prev) =>
+          prev < searchSuggestions.length - 1 ? prev + 1 : 0
+        );
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedSuggestionIndex((prev) =>
+          prev > 0 ? prev - 1 : searchSuggestions.length - 1
+        );
+      } else if (e.key === "Enter" && selectedSuggestionIndex >= 0) {
+        e.preventDefault();
+        const selected = searchSuggestions[selectedSuggestionIndex];
+        if (selected) {
+          router.push(`/templates/${selected.slug}`);
+          setSearchQuery("");
+          setSearchSuggestions([]);
+          setSelectedSuggestionIndex(-1);
+        }
+      }
+    };
+
+    if (searchInputRef.current) {
+      searchInputRef.current.addEventListener("keydown", handleSearchKeyDown);
+      return () => {
+        searchInputRef.current?.removeEventListener("keydown", handleSearchKeyDown);
+      };
+    }
+  }, [searchSuggestions, selectedSuggestionIndex, router]);
+
+  // Reset selected index when suggestions change
+  useEffect(() => {
+    setSelectedSuggestionIndex(-1);
+  }, [searchQuery]);
+
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled
@@ -183,16 +242,26 @@ export default function Header() {
             </form>
             {/* Search Suggestions Dropdown */}
             {searchSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50 max-h-80 overflow-y-auto">
-                {searchSuggestions.map((template) => (
+              <div
+                role="listbox"
+                aria-label="Search suggestions"
+                className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50 max-h-80 overflow-y-auto"
+              >
+                {searchSuggestions.map((template, index) => (
                   <Link
                     key={template.id}
                     href={`/templates/${template.slug}`}
                     onClick={() => {
                       setSearchQuery("");
                       setSearchSuggestions([]);
+                      setSelectedSuggestionIndex(-1);
                     }}
-                    className="block px-4 py-3 hover:bg-gray-800 transition-colors border-b border-gray-800 last:border-b-0"
+                    role="option"
+                    aria-selected={selectedSuggestionIndex === index}
+                    className={`block px-4 py-3 transition-colors border-b border-gray-800 last:border-b-0 ${selectedSuggestionIndex === index
+                      ? "bg-azone-purple/20 border-azone-purple/50"
+                      : "hover:bg-gray-800"
+                      }`}
                   >
                     <div className="flex items-start gap-3">
                       {template.imageUrl && (
@@ -206,15 +275,15 @@ export default function Header() {
                         <h4 className="text-sm font-medium text-white truncate">
                           {template.title}
                         </h4>
-                        <p className="text-xs text-gray-400 mt-1 line-clamp-1">
+                        <p className="text-xs text-gray-300 mt-1 line-clamp-1">
                           {template.shortDescription || template.description}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-azone-purple font-medium">
                             ${Math.round(template.price)}
                           </span>
-                          <span className="text-xs text-gray-500">•</span>
-                          <span className="text-xs text-gray-400">{template.category}</span>
+                          <span className="text-xs text-gray-400">•</span>
+                          <span className="text-xs text-gray-300">{template.category}</span>
                         </div>
                       </div>
                     </div>
@@ -228,9 +297,9 @@ export default function Header() {
           <div className="hidden md:flex items-center space-x-10">
             <Link
               href="/"
-              className={`text-sm font-medium transition-colors ${pathname === "/"
+              className={`text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded ${pathname === "/"
                 ? "text-azone-purple border-b-2 border-azone-purple pb-1"
-                : "text-gray-400 hover:text-white"
+                : "text-gray-300 hover:text-white"
                 }`}
             >
               Home
@@ -240,9 +309,18 @@ export default function Header() {
               <div className="relative" ref={categoryDropdownRef}>
                 <button
                   onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                  className={`text-sm font-medium transition-colors flex items-center gap-1 ${pathname?.startsWith("/templates")
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
+                    }
+                  }}
+                  aria-expanded={isCategoryDropdownOpen}
+                  aria-haspopup="true"
+                  aria-label="Categories menu"
+                  className={`text-sm font-medium transition-colors flex items-center gap-1 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded ${pathname?.startsWith("/templates")
                     ? "text-azone-purple border-b-2 border-azone-purple pb-1"
-                    : "text-gray-400 hover:text-white"
+                    : "text-gray-300 hover:text-white"
                     }`}
                 >
                   <LayoutGrid className="w-4 h-4" />
@@ -254,11 +332,16 @@ export default function Header() {
                 </button>
                 {/* Categories Dropdown Menu */}
                 {isCategoryDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-56 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50">
+                  <div
+                    role="menu"
+                    aria-label="Categories"
+                    className="absolute top-full left-0 mt-2 w-56 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50"
+                  >
                     <Link
                       href="/templates"
                       onClick={() => setIsCategoryDropdownOpen(false)}
-                      className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors border-b border-gray-800"
+                      role="menuitem"
+                      className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors border-b border-gray-800 focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px]"
                     >
                       <div className="flex items-center gap-2">
                         <LayoutGrid className="w-4 h-4" />
@@ -270,7 +353,8 @@ export default function Header() {
                         key={category}
                         href={`/templates?category=${encodeURIComponent(category)}`}
                         onClick={() => setIsCategoryDropdownOpen(false)}
-                        className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+                        role="menuitem"
+                        className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px]"
                       >
                         {category}
                       </Link>
@@ -281,27 +365,27 @@ export default function Header() {
             )}
             <Link
               href="/templates"
-              className={`text-sm font-medium transition-colors ${pathname?.startsWith("/templates")
+              className={`text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded ${pathname?.startsWith("/templates")
                 ? "text-azone-purple border-b-2 border-azone-purple pb-1"
-                : "text-gray-400 hover:text-white"
+                : "text-gray-300 hover:text-white"
                 }`}
             >
               Templates
             </Link>
             <Link
               href="/case-studies"
-              className={`text-sm font-medium transition-colors ${pathname?.startsWith("/case-studies")
+              className={`text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded ${pathname?.startsWith("/case-studies")
                 ? "text-azone-purple border-b-2 border-azone-purple pb-1"
-                : "text-gray-400 hover:text-white"
+                : "text-gray-300 hover:text-white"
                 }`}
             >
               Case Studies
             </Link>
             <Link
               href="/about"
-              className={`text-sm font-medium transition-colors ${pathname === "/about"
+              className={`text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded ${pathname === "/about"
                 ? "text-azone-purple border-b-2 border-azone-purple pb-1"
-                : "text-gray-400 hover:text-white"
+                : "text-gray-300 hover:text-white"
                 }`}
             >
               About
@@ -311,7 +395,16 @@ export default function Header() {
               <div className="relative" ref={adminDropdownRef}>
                 <button
                   onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
-                  className="text-sm font-medium text-azone-purple hover:text-purple-400 transition-colors flex items-center gap-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setIsAdminDropdownOpen(!isAdminDropdownOpen);
+                    }
+                  }}
+                  aria-expanded={isAdminDropdownOpen}
+                  aria-haspopup="true"
+                  aria-label="Admin menu"
+                  className="text-sm font-medium text-azone-purple hover:text-purple-400 transition-colors flex items-center gap-1 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded"
                 >
                   Admin
                   <svg
@@ -331,11 +424,16 @@ export default function Header() {
                 </button>
                 {/* Dropdown Menu */}
                 {isAdminDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50">
+                  <div
+                    role="menu"
+                    aria-label="Admin"
+                    className="absolute top-full left-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50"
+                  >
                     <Link
                       href="/admin/upload"
                       onClick={() => setIsAdminDropdownOpen(false)}
-                      className={`block px-4 py-3 text-sm transition-colors ${pathname === "/admin/upload"
+                      role="menuitem"
+                      className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/admin/upload"
                         ? "text-azone-purple bg-gray-800"
                         : "text-gray-300 hover:bg-gray-800 hover:text-white"
                         }`}
@@ -360,7 +458,8 @@ export default function Header() {
                     <Link
                       href="/admin/templates"
                       onClick={() => setIsAdminDropdownOpen(false)}
-                      className={`block px-4 py-3 text-sm transition-colors ${pathname === "/admin/templates"
+                      role="menuitem"
+                      className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/admin/templates"
                         ? "text-azone-purple bg-gray-800"
                         : "text-gray-300 hover:bg-gray-800 hover:text-white"
                         }`}
@@ -385,7 +484,8 @@ export default function Header() {
                     <Link
                       href="/admin/purchases"
                       onClick={() => setIsAdminDropdownOpen(false)}
-                      className={`block px-4 py-3 text-sm transition-colors ${pathname === "/admin/purchases"
+                      role="menuitem"
+                      className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/admin/purchases"
                         ? "text-azone-purple bg-gray-800"
                         : "text-gray-300 hover:bg-gray-800 hover:text-white"
                         }`}
@@ -411,7 +511,8 @@ export default function Header() {
                       <Link
                         href="/admin/analytics"
                         onClick={() => setIsAdminDropdownOpen(false)}
-                        className={`block px-4 py-3 text-sm transition-colors ${pathname === "/admin/analytics"
+                        role="menuitem"
+                        className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/admin/analytics"
                           ? "text-azone-purple bg-gray-800"
                           : "text-gray-300 hover:bg-gray-800 hover:text-white"
                           }`}
@@ -443,7 +544,16 @@ export default function Header() {
               <div className="relative" ref={accountDropdownRef}>
                 <button
                   onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
-                  className="text-sm font-medium text-gray-400 hover:text-white transition-colors flex items-center gap-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setIsAccountDropdownOpen(!isAccountDropdownOpen);
+                    }
+                  }}
+                  aria-expanded={isAccountDropdownOpen}
+                  aria-haspopup="true"
+                  aria-label="Account menu"
+                  className="text-sm font-medium text-gray-300 hover:text-white transition-colors flex items-center gap-1 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded"
                 >
                   <User className="w-4 h-4" />
                   <span>Account</span>
@@ -454,11 +564,16 @@ export default function Header() {
                 </button>
                 {/* Account Dropdown Menu */}
                 {isAccountDropdownOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50">
+                  <div
+                    role="menu"
+                    aria-label="Account"
+                    className="absolute top-full right-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50"
+                  >
                     <Link
                       href="/account"
                       onClick={() => setIsAccountDropdownOpen(false)}
-                      className={`block px-4 py-3 text-sm transition-colors ${pathname === "/account"
+                      role="menuitem"
+                      className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/account"
                         ? "text-azone-purple bg-gray-800"
                         : "text-gray-300 hover:bg-gray-800 hover:text-white"
                         }`}
@@ -471,7 +586,8 @@ export default function Header() {
                     <Link
                       href="/account/purchases"
                       onClick={() => setIsAccountDropdownOpen(false)}
-                      className={`block px-4 py-3 text-sm transition-colors ${pathname === "/account/purchases"
+                      role="menuitem"
+                      className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/account/purchases"
                         ? "text-azone-purple bg-gray-800"
                         : "text-gray-300 hover:bg-gray-800 hover:text-white"
                         }`}
@@ -496,7 +612,8 @@ export default function Header() {
                     <Link
                       href="/account/downloads"
                       onClick={() => setIsAccountDropdownOpen(false)}
-                      className={`block px-4 py-3 text-sm transition-colors ${pathname === "/account/downloads"
+                      role="menuitem"
+                      className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/account/downloads"
                         ? "text-azone-purple bg-gray-800"
                         : "text-gray-300 hover:bg-gray-800 hover:text-white"
                         }`}
@@ -522,7 +639,8 @@ export default function Header() {
                       <Link
                         href="/account/settings"
                         onClick={() => setIsAccountDropdownOpen(false)}
-                        className={`block px-4 py-3 text-sm transition-colors ${pathname === "/account/settings"
+                        role="menuitem"
+                        className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/account/settings"
                           ? "text-azone-purple bg-gray-800"
                           : "text-gray-300 hover:bg-gray-800 hover:text-white"
                           }`}
@@ -562,10 +680,11 @@ export default function Header() {
             {/* Mobile Search Button */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+              className="md:hidden p-2 text-gray-300 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded"
               aria-label="Search"
+              aria-expanded={isSearchOpen}
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-5 h-5" aria-hidden="true" />
             </button>
 
             {pathname?.startsWith("/admin") ? (
@@ -590,8 +709,9 @@ export default function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+              className="md:hidden p-2 text-gray-300 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded"
               aria-label="Toggle menu"
+              aria-expanded={isMobileMenuOpen}
             >
               <svg
                 className="w-6 h-6"
@@ -634,9 +754,10 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setIsSearchOpen(false)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+                aria-label="Close search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </form>
             {/* Mobile Search Suggestions */}

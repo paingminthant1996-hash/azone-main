@@ -133,7 +133,7 @@ export default function Breadcrumbs({ customItems, templateTitle }: BreadcrumbsP
                         {index === 0 ? (
                             <Link
                                 href={crumb.href}
-                                className="text-gray-400 hover:text-white transition-colors flex items-center"
+                                className="text-gray-300 hover:text-white transition-colors flex items-center focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded"
                                 aria-label="Home"
                             >
                                 <Home className="w-4 h-4" />
@@ -145,7 +145,7 @@ export default function Breadcrumbs({ customItems, templateTitle }: BreadcrumbsP
                         ) : (
                             <Link
                                 href={crumb.href}
-                                className="text-gray-400 hover:text-white transition-colors"
+                                className="text-gray-300 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded"
                             >
                                 {crumb.name}
                             </Link>

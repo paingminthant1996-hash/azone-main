@@ -63,9 +63,17 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col bg-azone-black">
         <ErrorBoundary>
           <ToastProvider>
+            {/* Skip to main content link for accessibility */}
+            <a
+              href="#main-content"
+              className="skip-link"
+              aria-label="Skip to main content"
+            >
+              Skip to main content
+            </a>
             <Header />
             <Breadcrumbs />
-            <main className="flex-1">
+            <main id="main-content" className="flex-1" tabIndex={-1}>
               {children}
             </main>
             <Footer />

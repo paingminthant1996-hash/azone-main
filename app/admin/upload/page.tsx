@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Upload, X, Check, AlertCircle } from "lucide-react";
+import { Upload, X, Check, AlertCircle, Plus, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/auth/supabase-client";
 import { cache, CacheKeys } from "@/lib/utils/cache";
 
@@ -13,6 +13,7 @@ export default function AdminUploadPage() {
     const [formData, setFormData] = useState({
         title: "",
         category: "SaaS",
+        priceType: "paid" as "free" | "paid",
         price: "",
         // Hidden fields with defaults
         shortDescription: "",
@@ -28,11 +29,14 @@ export default function AdminUploadPage() {
         metaTitle: "",
         metaDescription: "",
         keywords: "",
+        downloadPermission: "purchase" as "public" | "purchase" | "admin",
     });
+
+    const [downloadUrls, setDownloadUrls] = useState<string[]>([""]);
 
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const [zipFile, setZipFile] = useState<File | null>(null);
+    const [zipFiles, setZipFiles] = useState<File[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
@@ -148,7 +152,7 @@ export default function AdminUploadPage() {
         }
     };
 
-    const handleZipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleZipChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             if (!file.name.endsWith(".zip")) {
@@ -159,9 +163,41 @@ export default function AdminUploadPage() {
                 setError("ZIP file size must be less than 100MB");
                 return;
             }
-            setZipFile(file);
+            const newZipFiles = [...zipFiles];
+            newZipFiles[index] = file;
+            setZipFiles(newZipFiles);
             setError(null);
         }
+    };
+
+    const addZipFile = () => {
+        setZipFiles([...zipFiles, null as any]);
+    };
+
+    const removeZipFile = (index: number) => {
+        if (zipFiles.length > 1) {
+            const newZipFiles = zipFiles.filter((_, i) => i !== index);
+            setZipFiles(newZipFiles);
+        }
+    };
+
+    const addDownloadUrl = () => {
+        setDownloadUrls([...downloadUrls, ""]);
+    };
+
+    const removeDownloadUrl = (index: number) => {
+        if (downloadUrls.length > 1) {
+            const newUrls = downloadUrls.filter((_, i) => i !== index);
+            setDownloadUrls(newUrls);
+            const newZipFiles = zipFiles.filter((_, i) => i !== index);
+            setZipFiles(newZipFiles);
+        }
+    };
+
+    const handleDownloadUrlChange = (index: number, value: string) => {
+        const newUrls = [...downloadUrls];
+        newUrls[index] = value;
+        setDownloadUrls(newUrls);
     };
 
     // Upload file directly to Supabase Storage
@@ -223,16 +259,20 @@ export default function AdminUploadPage() {
             setError("Title is required");
             return;
         }
-        if (!formData.price || parseFloat(formData.price) <= 0) {
-            setError("Valid price is required");
+        if (formData.priceType === "paid" && (!formData.price || parseFloat(formData.price) <= 0)) {
+            setError("Valid price is required for paid templates");
             return;
         }
         if (!imageFile) {
             setError("Preview image is required");
             return;
         }
-        if (!zipFile) {
-            setError("Template ZIP file is required");
+
+        // Check if at least one download URL or ZIP file is provided
+        const hasDownloadUrls = downloadUrls.some(url => url.trim() !== "");
+        const hasZipFiles = zipFiles.some(file => file !== null && file !== undefined);
+        if (!hasDownloadUrls && !hasZipFiles) {
+            setError("At least one download URL or ZIP file is required");
             return;
         }
 
@@ -257,20 +297,39 @@ export default function AdminUploadPage() {
 
             setUploadProgress("Uploading files...");
             const imageUrl = await uploadFileToStorage(imageFile, "previews", slug);
-            const zipUrl = await uploadFileToStorage(zipFile, "downloads", slug);
+
+            // Upload ZIP files if any
+            const uploadedZipUrls: string[] = [];
+            for (let i = 0; i < zipFiles.length; i++) {
+                if (zipFiles[i]) {
+                    const zipUrl = await uploadFileToStorage(zipFiles[i]!, "downloads", slug);
+                    uploadedZipUrls.push(zipUrl);
+                }
+            }
+
+            // Combine download URLs (from input fields + uploaded ZIP files)
+            const allDownloadUrls = [
+                ...downloadUrls.filter(url => url.trim() !== ""),
+                ...uploadedZipUrls
+            ];
+
+            // Use first download URL as primary (for backward compatibility)
+            const primaryDownloadUrl = allDownloadUrls[0] || "";
 
             setUploadProgress("Saving template data...");
             const formDataToSend = new FormData();
             formDataToSend.append("title", formData.title);
             formDataToSend.append("shortDescription", formData.shortDescription);
             formDataToSend.append("description", formData.description);
-            formDataToSend.append("price", formData.price);
+            formDataToSend.append("price", formData.priceType === "free" ? "0" : formData.price);
             formDataToSend.append("category", formData.category);
             formDataToSend.append("status", formData.status);
             formDataToSend.append("version", formData.version);
             formDataToSend.append("demoUrl", formData.demoUrl);
             formDataToSend.append("imageUrl", imageUrl);
-            formDataToSend.append("zipUrl", zipUrl);
+            formDataToSend.append("zipUrl", primaryDownloadUrl);
+            formDataToSend.append("downloadUrls", JSON.stringify(allDownloadUrls));
+            formDataToSend.append("downloadPermission", formData.downloadPermission);
             formDataToSend.append("techStack", JSON.stringify({
                 framework: formData.framework,
                 language: formData.language,
@@ -307,6 +366,7 @@ export default function AdminUploadPage() {
             setFormData({
                 title: "",
                 category: "SaaS",
+                priceType: "paid",
                 price: "",
                 shortDescription: "",
                 description: "",
@@ -321,15 +381,15 @@ export default function AdminUploadPage() {
                 metaTitle: "",
                 metaDescription: "",
                 keywords: "",
+                downloadPermission: "purchase",
             });
             setImageFile(null);
             setPreviewUrl(null);
-            setZipFile(null);
+            setZipFiles([]);
+            setDownloadUrls([""]);
 
             const imageInput = document.getElementById("image") as HTMLInputElement;
-            const zipInput = document.getElementById("zipFile") as HTMLInputElement;
             if (imageInput) imageInput.value = "";
-            if (zipInput) zipInput.value = "";
 
             setUploadProgress("");
             setIsSubmitting(false);
@@ -397,26 +457,67 @@ export default function AdminUploadPage() {
                         </select>
                     </div>
 
-                    {/* Price */}
+                    {/* Price Type */}
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Price (USD) <span className="text-red-400">*</span>
+                            Price Type <span className="text-red-400">*</span>
                         </label>
-                        <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-                            <input
-                                type="number"
-                                name="price"
-                                min="0"
-                                step="0.01"
-                                value={formData.price}
-                                onChange={handleInputChange}
-                                className="w-full pl-8 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
-                                placeholder="89.00"
-                                required
-                            />
+                        <div className="grid grid-cols-2 gap-4">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setFormData(prev => ({ ...prev, priceType: "free", price: "0" }));
+                                }}
+                                className={`px-4 py-3 rounded-lg border-2 transition-all ${formData.priceType === "free"
+                                    ? "border-azone-purple bg-azone-purple/20 text-white"
+                                    : "border-gray-700 bg-gray-800/50 text-gray-400 hover:border-gray-600"
+                                    }`}
+                            >
+                                <div className="flex items-center justify-center gap-2">
+                                    <span className="text-lg">🆓</span>
+                                    <span className="font-medium">Free</span>
+                                </div>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setFormData(prev => ({ ...prev, priceType: "paid" }));
+                                }}
+                                className={`px-4 py-3 rounded-lg border-2 transition-all ${formData.priceType === "paid"
+                                    ? "border-azone-purple bg-azone-purple/20 text-white"
+                                    : "border-gray-700 bg-gray-800/50 text-gray-400 hover:border-gray-600"
+                                    }`}
+                            >
+                                <div className="flex items-center justify-center gap-2">
+                                    <span className="text-lg">💰</span>
+                                    <span className="font-medium">Paid</span>
+                                </div>
+                            </button>
                         </div>
                     </div>
+
+                    {/* Price (only show if paid) */}
+                    {formData.priceType === "paid" && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                Price (USD) <span className="text-red-400">*</span>
+                            </label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                                <input
+                                    type="number"
+                                    name="price"
+                                    min="0"
+                                    step="0.01"
+                                    value={formData.price}
+                                    onChange={handleInputChange}
+                                    className="w-full pl-8 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
+                                    placeholder="89.00"
+                                    required={formData.priceType === "paid"}
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     {/* Demo URL */}
                     <div>
@@ -469,30 +570,116 @@ export default function AdminUploadPage() {
                         </p>
                     </div>
 
-                    {/* ZIP File */}
+                    {/* Download Permission */}
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Template ZIP File <span className="text-red-400">*</span>
+                            Download Permission <span className="text-red-400">*</span>
                         </label>
-                        <input
-                            type="file"
-                            id="zipFile"
-                            accept=".zip"
-                            onChange={handleZipChange}
-                            className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-azone-purple file:text-white hover:file:bg-azone-purple/80 transition-all cursor-pointer"
+                        <select
+                            name="downloadPermission"
+                            value={formData.downloadPermission}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
                             required
-                        />
-                        {zipFile && (
-                            <div className="mt-2 flex items-center gap-2 p-3 bg-gray-800/30 border border-gray-700 rounded-lg">
-                                <Check className="w-5 h-5 text-green-400" />
-                                <span className="text-sm text-gray-300">{zipFile.name}</span>
-                                <span className="text-xs text-gray-500 ml-auto">
-                                    {(zipFile.size / 1024 / 1024).toFixed(2)} MB
-                                </span>
+                        >
+                            <option value="public">Public - Anyone can download</option>
+                            <option value="purchase">Purchase Required - Must buy to download</option>
+                            <option value="admin">Admin Only - Only admins can download</option>
+                        </select>
+                        <p className="mt-1 text-xs text-gray-500">
+                            Control who can download this template
+                        </p>
+                    </div>
+
+                    {/* Download URLs */}
+                    <div>
+                        <div className="flex items-center justify-between mb-2">
+                            <label className="block text-sm font-medium text-gray-300">
+                                Download URLs <span className="text-red-400">*</span>
+                            </label>
+                            <button
+                                type="button"
+                                onClick={addDownloadUrl}
+                                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-800/50 hover:bg-gray-800 border border-gray-700 rounded-lg text-gray-300 hover:text-white transition-all"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Add URL
+                            </button>
+                        </div>
+                        {downloadUrls.map((url, index) => (
+                            <div key={index} className="mb-3 flex items-start gap-2">
+                                <input
+                                    type="url"
+                                    value={url}
+                                    onChange={(e) => handleDownloadUrlChange(index, e.target.value)}
+                                    placeholder="https://example.com/download/template.zip"
+                                    className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
+                                />
+                                {downloadUrls.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeDownloadUrl(index)}
+                                        className="p-3 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 rounded-lg text-red-400 hover:text-red-300 transition-all"
+                                        aria-label="Remove download URL"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                )}
                             </div>
-                        )}
-                        <p className="mt-2 text-xs text-gray-500">
-                            Max 100MB. Complete template source code as ZIP file.
+                        ))}
+                        <p className="mt-1 text-xs text-gray-500">
+                            Add one or more download URLs. At least one URL is required.
+                        </p>
+                    </div>
+
+                    {/* ZIP Files (Optional) */}
+                    <div>
+                        <div className="flex items-center justify-between mb-2">
+                            <label className="block text-sm font-medium text-gray-300">
+                                ZIP Files <span className="text-gray-500 text-xs">(Optional)</span>
+                            </label>
+                            <button
+                                type="button"
+                                onClick={addZipFile}
+                                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-800/50 hover:bg-gray-800 border border-gray-700 rounded-lg text-gray-300 hover:text-white transition-all"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Add File
+                            </button>
+                        </div>
+                        {zipFiles.map((file, index) => (
+                            <div key={index} className="mb-3">
+                                <div className="flex items-start gap-2">
+                                    <input
+                                        type="file"
+                                        accept=".zip"
+                                        onChange={(e) => handleZipChange(index, e)}
+                                        className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-azone-purple file:text-white hover:file:bg-azone-purple/80 transition-all cursor-pointer"
+                                    />
+                                    {zipFiles.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeZipFile(index)}
+                                            className="p-3 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 rounded-lg text-red-400 hover:text-red-300 transition-all"
+                                            aria-label="Remove ZIP file"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
+                                {file && (
+                                    <div className="mt-2 flex items-center gap-2 p-3 bg-gray-800/30 border border-gray-700 rounded-lg">
+                                        <Check className="w-5 h-5 text-green-400" />
+                                        <span className="text-sm text-gray-300">{file.name}</span>
+                                        <span className="text-xs text-gray-500 ml-auto">
+                                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                        <p className="mt-1 text-xs text-gray-500">
+                            Optional: Upload ZIP files directly. Max 100MB per file.
                         </p>
                     </div>
 
