@@ -920,9 +920,19 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                     Price
                   </div>
                   <div className="text-5xl font-semibold text-white mb-1">
-                    ${Math.round(template.price)}
+                    {template.price === 0 || parseFloat(templateDetail?.price || "0") === 0 ? (
+                      "Free"
+                    ) : (
+                      `$${Math.round(template.price)}`
+                    )}
                   </div>
-                  <p className="text-sm text-gray-500">One-time payment</p>
+                  <p className="text-sm text-gray-500">
+                    {template.price === 0 || parseFloat(templateDetail?.price || "0") === 0 ? (
+                      "No payment required"
+                    ) : (
+                      "One-time payment"
+                    )}
+                  </p>
                 </div>
 
                 {/* Primary CTA - Purchase Now or Download */}
@@ -1088,7 +1098,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                     >
                       {templateVersions.map((v: any) => (
                         <option key={v.id} value={v.id}>
-                          {v.version} {v.is_public ? "(Public)" : ""}
+                          {v.version}
                         </option>
                       ))}
                     </select>
@@ -1316,7 +1326,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                         </p>
                         <div className="flex items-center justify-between">
                           <span className="text-azone-purple font-bold">
-                            ${Math.round(relatedTemplate.price)}
+                            {relatedTemplate.price === 0 ? "Free" : `$${Math.round(relatedTemplate.price)}`}
                           </span>
                           <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-azone-purple group-hover:translate-x-1 transition-all" />
                         </div>

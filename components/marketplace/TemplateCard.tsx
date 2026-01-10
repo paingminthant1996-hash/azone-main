@@ -3,31 +3,31 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { 
-  Sparkles, 
-  ArrowRight, 
-  Check, 
-  Eye, 
-  CalendarDays, 
-  Code2, 
-  GitBranch, 
-  Database, 
-  Server, 
-  LayoutDashboard, 
-  Globe, 
-  CreditCard, 
-  Zap, 
-  Figma, 
-  Palette, 
-  Code, 
-  Layers, 
-  BarChart, 
-  Shield, 
-  MessageSquare, 
-  ShoppingCart, 
-  Rocket, 
-  Briefcase, 
-  Bitcoin, 
+import {
+  Sparkles,
+  ArrowRight,
+  Check,
+  Eye,
+  CalendarDays,
+  Code2,
+  GitBranch,
+  Database,
+  Server,
+  LayoutDashboard,
+  Globe,
+  CreditCard,
+  Zap,
+  Figma,
+  Palette,
+  Code,
+  Layers,
+  BarChart,
+  Shield,
+  MessageSquare,
+  ShoppingCart,
+  Rocket,
+  Briefcase,
+  Bitcoin,
   DollarSign,
   Star
 } from "lucide-react";
@@ -49,59 +49,59 @@ interface TemplateCardProps {
 const getTechIcon = (tech: string, size: 'default' | 'small' = 'default') => {
   const techLower = tech.toLowerCase();
   const iconSize = size === 'small' ? "w-3 h-3" : "w-4 h-4";
-  
+
   // Framework & Libraries
   if (techLower.includes('next.js') || techLower.includes('nextjs')) return <Code2 className={iconSize} />;
   if (techLower.includes('react')) return <Zap className={iconSize} />;
   if (techLower.includes('vue')) return <Zap className={iconSize} />;
   if (techLower.includes('angular')) return <Code2 className={iconSize} />;
-  
+
   // Styling
   if (techLower.includes('tailwind')) return <Palette className={iconSize} />;
   if (techLower.includes('css') && !techLower.includes('tailwind')) return <Palette className={iconSize} />;
-  
+
   // Database & Backend
   if (techLower.includes('supabase')) return <Database className={iconSize} />;
   if (techLower.includes('firebase')) return <Server className={iconSize} />;
   if (techLower.includes('postgres') || techLower.includes('postgresql')) return <Database className={iconSize} />;
   if (techLower.includes('mongodb')) return <Database className={iconSize} />;
   if (techLower.includes('database')) return <Database className={iconSize} />;
-  
+
   // Services & APIs
   if (techLower.includes('stripe')) return <CreditCard className={iconSize} />;
   if (techLower.includes('graphql')) return <GitBranch className={iconSize} />;
   if (techLower.includes('aws')) return <Globe className={iconSize} />;
   if (techLower.includes('coingecko') || techLower.includes('crypto')) return <Bitcoin className={iconSize} />;
-  
+
   // Design & Tools
   if (techLower.includes('figma')) return <Figma className={iconSize} />;
-  
+
   // Animation & UI
   if (techLower.includes('framer') || techLower.includes('motion')) return <Layers className={iconSize} />;
   if (techLower.includes('animation')) return <Zap className={iconSize} />;
-  
+
   // Charts & Analytics
   if (techLower.includes('recharts') || techLower.includes('chart')) return <BarChart className={iconSize} />;
-  
+
   // State Management
   if (techLower.includes('redux') || techLower.includes('zustand')) return <Layers className={iconSize} />;
-  
+
   // CMS
   if (techLower.includes('sanity') || techLower.includes('cms')) return <MessageSquare className={iconSize} />;
-  
+
   // Infrastructure
   if (techLower.includes('docker') || techLower.includes('kubernetes')) return <Shield className={iconSize} />;
   if (techLower.includes('node')) return <Server className={iconSize} />;
-  
+
   // WebSocket & Real-time
   if (techLower.includes('websocket') || techLower.includes('socket')) return <Zap className={iconSize} />;
-  
+
   // 3D & Graphics
   if (techLower.includes('three.js') || techLower.includes('threejs')) return <Layers className={iconSize} />;
-  
+
   // TypeScript
   if (techLower.includes('typescript') || techLower.includes('ts')) return <Code className={iconSize} />;
-  
+
   // Default
   return <Code2 className={iconSize} />;
 };
@@ -114,7 +114,7 @@ const formatDate = (dateString?: string) => {
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return "Updated today";
     if (diffDays === 1) return "Updated yesterday";
     if (diffDays < 7) return `Updated ${diffDays} days ago`;
@@ -144,18 +144,17 @@ export default function TemplateCard({
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ 
+      transition={{
         duration: 0.3,
         delay: index * 0.05,
         ease: [0.25, 0.1, 0.25, 1]
       }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className={`group relative rounded-3xl overflow-visible transition-all duration-250 ${
-        featured 
-          ? 'md:col-span-2 lg:col-span-2 scale-[1.02] md:scale-100' 
+      className={`group relative rounded-3xl overflow-visible transition-all duration-250 ${featured
+          ? 'md:col-span-2 lg:col-span-2 scale-[1.02] md:scale-100'
           : ''
-      }`}
+        }`}
     >
       {/* Featured Badge */}
       {featured && (
@@ -166,18 +165,16 @@ export default function TemplateCard({
       )}
 
       {/* Card Background - Darker Neutral (Almost Black) */}
-      <div className={`absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-950 to-gray-900 backdrop-blur-2xl border rounded-3xl transition-all duration-250 ease-[cubic-bezier(0.25,0.1,0.25,1)] shadow-2xl ${
-        featured 
-          ? 'border-gray-800/40 shadow-black/50 group-hover:border-gray-700/60' 
+      <div className={`absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-950 to-gray-900 backdrop-blur-2xl border rounded-3xl transition-all duration-250 ease-[cubic-bezier(0.25,0.1,0.25,1)] shadow-2xl ${featured
+          ? 'border-gray-800/40 shadow-black/50 group-hover:border-gray-700/60'
           : 'border-gray-800/40 shadow-black/50 group-hover:border-gray-700/60'
-      }`}></div>
+        }`}></div>
 
       {/* Content Container */}
       <div className="relative z-10">
         {/* Image Section */}
-        <div className={`relative overflow-hidden rounded-t-3xl ${
-          featured ? 'h-80 md:h-96' : 'h-64'
-        }`}>
+        <div className={`relative overflow-hidden rounded-t-3xl ${featured ? 'h-80 md:h-96' : 'h-64'
+          }`}>
           {imageUrl && !imageError ? (
             <>
               <img
@@ -209,19 +206,18 @@ export default function TemplateCard({
               </div>
             </div>
           )}
-          
+
           {/* Price Badge - Purple only for featured, neutral for others */}
           <motion.div
-            className={`absolute top-4 right-4 backdrop-blur-md border text-white px-4 py-2 rounded-xl font-semibold text-sm flex items-center gap-1 ${
-              featured 
-                ? 'bg-azone-purple/90 border-azone-purple/50 shadow-lg shadow-azone-purple/30' 
+            className={`absolute top-4 right-4 backdrop-blur-md border text-white px-4 py-2 rounded-xl font-semibold text-sm flex items-center gap-1 ${featured
+                ? 'bg-azone-purple/90 border-azone-purple/50 shadow-lg shadow-azone-purple/30'
                 : 'bg-gray-900/95 border-gray-800/50'
-            }`}
+              }`}
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <Sparkles className={`w-4 h-4 ${featured ? 'text-white' : 'text-gray-400'}`} />
-            ${Math.round(price)}
+            {price === 0 ? "Free" : `$${Math.round(price)}`}
           </motion.div>
         </div>
 
@@ -231,9 +227,8 @@ export default function TemplateCard({
             <span className="inline-block text-xs font-medium uppercase tracking-wider mb-3 px-3 py-1.5 rounded-md border text-gray-400 bg-gray-900/40 border-gray-800/30">
               {category}
             </span>
-            <h3 className={`font-semibold text-white mt-4 mb-4 leading-relaxed ${
-              featured ? 'text-3xl' : 'text-2xl'
-            }`}>
+            <h3 className={`font-semibold text-white mt-4 mb-4 leading-relaxed ${featured ? 'text-3xl' : 'text-2xl'
+              }`}>
               {title}
             </h3>
           </div>
@@ -246,7 +241,7 @@ export default function TemplateCard({
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ 
+                transition={{
                   delay: index * 0.03,
                   duration: 0.2,
                   ease: [0.25, 0.1, 0.25, 1]
@@ -271,7 +266,7 @@ export default function TemplateCard({
               className="w-full py-3.5 px-4 bg-azone-purple text-white rounded-xl font-semibold text-sm transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50 flex items-center justify-center gap-2 group/btn focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              transition={{ 
+              transition={{
                 duration: 0.25,
                 ease: [0.25, 0.1, 0.25, 1],
                 delay: 0.05
@@ -291,9 +286,9 @@ export default function TemplateCard({
             initial={{ x: "100%", opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: "100%", opacity: 0 }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 400, 
+            transition={{
+              type: "spring",
+              stiffness: 400,
               damping: 35,
               duration: 0.3,
               ease: [0.25, 0.1, 0.25, 1]
@@ -333,7 +328,7 @@ export default function TemplateCard({
                         key={index}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ 
+                        transition={{
                           delay: index * 0.02,
                           duration: 0.15,
                           ease: [0.25, 0.1, 0.25, 1]
@@ -384,7 +379,7 @@ export default function TemplateCard({
                     className="w-full py-2 px-3 bg-azone-purple text-white rounded font-semibold text-[11px] transition-all duration-250 hover:bg-azone-purple/90 flex items-center justify-center gap-1.5 group/quick focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
-                    transition={{ 
+                    transition={{
                       duration: 0.2,
                       ease: [0.25, 0.1, 0.25, 1],
                       delay: 0.03
