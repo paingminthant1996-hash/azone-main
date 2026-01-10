@@ -12,26 +12,39 @@ const getStripe = () => {
 };
 
 export async function POST(request: NextRequest) {
-  // Check if Stripe is configured
-  if (!process.env.STRIPE_SECRET_KEY) {
-    return NextResponse.json(
-      { error: "Stripe is not configured. Please add STRIPE_SECRET_KEY to environment variables." },
-      { status: 500 }
-    );
-  }
-
-  const stripe = getStripe();
   try {
     const { templateId, templateSlug, templateTitle, price } = await request.json();
 
-    if (!templateId || !templateSlug || !templateTitle || !price) {
+    if (!templateId || !templateSlug || !templateTitle || price === undefined) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // Create Stripe Checkout Session
+    // Handle free templates (price === 0)
+    if (price === 0 || price === "0") {
+      // For free templates, return download URLs directly
+      // We'll get the download URLs from the template in the frontend
+      return NextResponse.json({ 
+        isFree: true,
+        templateId,
+        templateSlug,
+        message: "Free template - download available"
+      });
+    }
+
+    // Check if Stripe is configured for paid templates
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return NextResponse.json(
+        { error: "Stripe is not configured. Please add STRIPE_SECRET_KEY to environment variables." },
+        { status: 500 }
+      );
+    }
+
+    const stripe = getStripe();
+
+    // Create Stripe Checkout Session for paid templates
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -42,7 +55,7 @@ export async function POST(request: NextRequest) {
               name: templateTitle,
               description: `Premium template: ${templateTitle}`,
             },
-            unit_amount: Math.round(price * 100), // Convert to cents
+            unit_amount: Math.round(parseFloat(price.toString()) * 100), // Convert to cents
           },
           quantity: 1,
         },
@@ -57,11 +70,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ sessionId: session.id, url: session.url });
+    return NextResponse.json({ sessionId: session.id, url: session.url, isFree: false });
   } catch (error) {
-    console.error("Stripe checkout error:", error);
+    console.error("Checkout error:", error);
     return NextResponse.json(
-      { error: "Failed to create checkout session" },
+      { error: "Failed to process checkout" },
       { status: 500 }
     );
   }

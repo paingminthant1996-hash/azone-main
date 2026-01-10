@@ -16,6 +16,8 @@ export interface Template {
   demoUrl?: string;
   createdAt?: string;
   updatedAt?: string;
+  downloadUrls?: string[];
+  downloadPermission?: string;
 }
 
 export interface LegacyProject {

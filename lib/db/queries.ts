@@ -5,13 +5,13 @@ import { templates, legacyProjects, getTemplateBySlug } from "../data";
 
 // Helper function to transform database row to Template
 function transformTemplate(row: any): Template {
-  return {
+  const template: Template = {
     id: row.id,
     slug: row.slug,
     title: row.title,
     description: row.description,
     shortDescription: row.short_description || undefined,
-    price: parseFloat(row.price),
+    price: parseFloat(row.price || 0),
     category: row.category,
     featured: row.featured || false,
     imageUrl: row.preview_image_url || undefined,
@@ -21,7 +21,11 @@ function transformTemplate(row: any): Template {
     demoUrl: row.demo_url || undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    // Include download URLs for free templates
+    downloadUrls: row.download_urls || (row.download_url ? [row.download_url] : []),
+    downloadPermission: row.download_permission || 'purchase',
   };
+  return template;
 }
 
 // Helper function to transform database row to LegacyProject
@@ -273,6 +277,12 @@ export async function getTemplateDetail(slug: string): Promise<any | null> {
       `)
       .eq("slug", slug)
       .single();
+
+    // Ensure download_urls and download_permission are included
+    if (data) {
+      data.download_urls = data.download_urls || (data.download_url ? [data.download_url] : []);
+      data.download_permission = data.download_permission || 'purchase';
+    }
 
     if (error) {
       if (error.code === "PGRST116") {

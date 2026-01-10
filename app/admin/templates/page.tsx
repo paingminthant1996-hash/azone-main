@@ -29,6 +29,7 @@ export default function AdminTemplatesPage() {
     title: "",
     description: "",
     price: "",
+    priceType: "paid", // "free" or "paid"
     category: "",
     demoUrl: "",
   });
@@ -89,10 +90,12 @@ export default function AdminTemplatesPage() {
   // Handle edit
   const handleEdit = (template: Template) => {
     setEditingTemplate(template);
+    const isFree = template.price === 0;
     setEditForm({
       title: template.title,
       description: template.description,
-      price: template.price.toString(),
+      price: isFree ? "" : template.price.toString(),
+      priceType: isFree ? "free" : "paid",
       category: template.category,
       demoUrl: template.demoUrl || "",
     });
@@ -105,10 +108,13 @@ export default function AdminTemplatesPage() {
     setError(null);
     setSuccess(null);
 
+    // Calculate price based on priceType
+    const price = editForm.priceType === "free" ? 0 : parseFloat(editForm.price || "0");
+
     const result = await updateTemplate(editingTemplate.id, {
       title: editForm.title,
       description: editForm.description,
-      price: parseFloat(editForm.price),
+      price: price,
       category: editForm.category,
       demo_url: editForm.demoUrl || undefined,
     });
@@ -521,15 +527,50 @@ export default function AdminTemplatesPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Price</label>
-                    <input
-                      type="number"
-                      value={editForm.price}
-                      onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Price Type</label>
+                    <select
+                      value={editForm.priceType}
+                      onChange={(e) => {
+                        const newPriceType = e.target.value;
+                        setEditForm({ 
+                          ...editForm, 
+                          priceType: newPriceType,
+                          price: newPriceType === "free" ? "" : editForm.price
+                        });
+                      }}
                       className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-azone-purple"
-                    />
+                    >
+                      <option value="paid">Paid</option>
+                      <option value="free">Free</option>
+                    </select>
                   </div>
 
+                  <div>
+                    {editForm.priceType === "paid" ? (
+                      <>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Price ($)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={editForm.price}
+                          onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                          placeholder="0.00"
+                          className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-azone-purple"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Price</label>
+                        <div className="w-full px-4 py-3 bg-gray-800/30 border border-gray-700 rounded-lg text-gray-400">
+                          Free
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
                     <select

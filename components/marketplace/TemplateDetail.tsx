@@ -382,6 +382,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [relatedTemplates, setRelatedTemplates] = useState<Template[]>([]);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [templateDetail, setTemplateDetail] = useState<any>(null);
 
   // Fetch user and template details on mount
   useEffect(() => {
@@ -392,19 +393,38 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
         setUser(currentUser);
 
         // Fetch template detail with versions
-        const templateDetail = await getTemplateDetail(template.slug);
-        if (templateDetail) {
-          const versions = templateDetail.template_versions || [];
+        const fetchedTemplateDetail = await getTemplateDetail(template.slug);
+        if (fetchedTemplateDetail) {
+          setTemplateDetail(fetchedTemplateDetail);
+          const versions = fetchedTemplateDetail.template_versions || [];
           setTemplateVersions(versions);
           if (versions.length > 0) {
             setSelectedVersionId(versions[0].id);
           }
-        }
 
-        // Check if user has purchased this template
-        if (currentUser) {
-          const purchased = await hasUserPurchasedTemplate(currentUser.id, template.id);
-          setHasAccess(purchased);
+          // Check if template is free (price === 0) or has public download permission
+          const templatePrice = parseFloat(fetchedTemplateDetail.price || template.price || 0);
+          const isFree = templatePrice === 0;
+          const downloadPermission = fetchedTemplateDetail.download_permission || template.downloadPermission || 'purchase';
+
+          if (isFree || downloadPermission === 'public') {
+            // Free templates are immediately accessible
+            setHasAccess(true);
+          } else if (currentUser) {
+            // For paid templates, check if user has purchased
+            const purchased = await hasUserPurchasedTemplate(currentUser.id, template.id);
+            setHasAccess(purchased);
+          }
+        } else {
+          // Fallback: check if template price is 0
+          const isFree = template.price === 0;
+          const downloadPermission = template.downloadPermission || 'purchase';
+          if (isFree || downloadPermission === 'public') {
+            setHasAccess(true);
+          } else if (currentUser) {
+            const purchased = await hasUserPurchasedTemplate(currentUser.id, template.id);
+            setHasAccess(purchased);
+          }
         }
       } catch (err) {
         console.error("Failed to initialize download:", err);
@@ -441,6 +461,24 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
 
   // Download handler
   const handleDownload = async () => {
+    const isFree = template.price === 0 || parseFloat(templateDetail?.price || "0") === 0;
+    const downloadPermission = templateDetail?.download_permission || 'purchase';
+
+    // For free templates, use download_urls directly
+    if (isFree || downloadPermission === 'public') {
+      const downloadUrls = templateDetail?.download_urls || template.downloadUrls || [];
+
+      if (downloadUrls.length === 0) {
+        setDownloadError("Download URL not available for this template");
+        return;
+      }
+
+      // Open the first download URL
+      window.open(downloadUrls[0], "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    // For paid templates, require version selection and user authentication
     if (!selectedVersionId) {
       setDownloadError("No version selected");
       return;
@@ -925,6 +963,38 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                       ✓ You own this template
                     </div>
                   </>
+                ) : template.price === 0 || parseFloat(templateDetail?.price || "0") === 0 || templateDetail?.download_permission === 'public' ? (
+                  <>
+                    {/* Free Template - Direct Download Button */}
+                    <motion.button
+                      onClick={handleDownload}
+                      disabled={downloadLoading}
+                      className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2 group/download relative overflow-hidden mb-4 ${downloadLoading
+                        ? "bg-gray-800/50 text-gray-500 cursor-not-allowed"
+                        : "bg-green-600/90 hover:bg-green-600 text-white border-2 border-green-500/50"
+                        }`}
+                      whileHover={!downloadLoading ? { scale: 1.02, y: -2 } : {}}
+                      whileTap={!downloadLoading ? { scale: 0.98 } : {}}
+                    >
+                      <div className="relative z-10 flex items-center gap-2">
+                        {downloadLoading ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Preparing Download...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-5 h-5" />
+                            Download Free Template
+                            <ArrowRight className="w-5 h-5 group-hover/download:translate-x-1 transition-transform duration-300 ease-out" />
+                          </>
+                        )}
+                      </div>
+                    </motion.button>
+                    <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-sm text-green-400 text-center">
+                      ✓ Free Template - No Purchase Required
+                    </div>
+                  </>
                 ) : (
                   <>
                     {/* Purchase Button - User hasn't purchased */}
@@ -947,8 +1017,12 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
 
                           const data = await response.json();
 
-                          if (data.url) {
-                            // Redirect to Stripe Checkout
+                          if (data.isFree) {
+                            // Free template - trigger download directly
+                            handleDownload();
+                            setIsLoading(false);
+                          } else if (data.url) {
+                            // Redirect to Stripe Checkout for paid templates
                             window.location.href = data.url;
                           } else {
                             console.error("Failed to create checkout session");
