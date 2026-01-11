@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useSettings } from "@/lib/contexts/SettingsContext";
 import {
   Sparkles,
   ArrowRight,
@@ -136,6 +137,8 @@ export default function TemplateCard({
   featured = false,
   index = 0,
 }: TemplateCardProps) {
+  const { settings, t } = useSettings();
+  const themeColor = settings?.themeColor || "#7C3AED";
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -217,7 +220,7 @@ export default function TemplateCard({
             transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <Sparkles className={`w-4 h-4 ${featured ? 'text-white' : 'text-gray-400'}`} />
-            {price === 0 ? "Free" : `$${Math.round(price)}`}
+            {price === 0 ? t("free") : `$${Math.round(price)}`}
           </motion.div>
         </div>
 
@@ -259,11 +262,15 @@ export default function TemplateCard({
             )}
           </div>
 
-          {/* View Details Button - CTA with Purple */}
+          {/* View Details Button - CTA with Theme Color */}
           <Link href={`/templates/${slug}`}>
             <motion.button
-              aria-label={`View details for ${title}`}
-              className="w-full py-3.5 px-4 bg-azone-purple text-white rounded-xl font-semibold text-sm transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50 flex items-center justify-center gap-2 group/btn focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+              aria-label={`${t("view-details-button")} ${title}`}
+              className="w-full py-3.5 px-4 text-white rounded-xl font-semibold text-sm transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2 group/btn focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+              style={{
+                backgroundColor: themeColor,
+                boxShadow: `0 10px 40px ${themeColor}40`,
+              }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               transition={{
@@ -272,7 +279,7 @@ export default function TemplateCard({
                 delay: 0.05
               }}
             >
-              View Details
+              {t("view-details-button")}
               <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out" aria-hidden="true" />
             </motion.button>
           </Link>

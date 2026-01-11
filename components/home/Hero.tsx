@@ -2,8 +2,17 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useSettings } from "@/lib/contexts/SettingsContext";
 
 export default function Hero() {
+  const { settings, getText } = useSettings();
+  const themeColor = settings?.themeColor || "#7C3AED";
+  
+  // Get granular translations with fallback
+  const heroTitle = getText(settings?.heroTitleEn, settings?.heroTitleMm);
+  const heroSubtitle = getText(settings?.heroSubtitleEn, settings?.heroSubtitleMm);
+  const ctaButton = getText(settings?.ctaButtonEn, settings?.ctaButtonMm);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-azone-black">
       {/* Animated Gradient Background */}
@@ -12,10 +21,10 @@ export default function Hero() {
           className="absolute inset-0 opacity-30"
           animate={{
             background: [
-              "radial-gradient(circle at 20% 50%, #7C3AED 0%, transparent 50%)",
-              "radial-gradient(circle at 80% 50%, #7C3AED 0%, transparent 50%)",
-              "radial-gradient(circle at 50% 80%, #7C3AED 0%, transparent 50%)",
-              "radial-gradient(circle at 20% 50%, #7C3AED 0%, transparent 50%)",
+              `radial-gradient(circle at 20% 50%, ${themeColor} 0%, transparent 50%)`,
+              `radial-gradient(circle at 80% 50%, ${themeColor} 0%, transparent 50%)`,
+              `radial-gradient(circle at 50% 80%, ${themeColor} 0%, transparent 50%)`,
+              `radial-gradient(circle at 20% 50%, ${themeColor} 0%, transparent 50%)`,
             ],
           }}
           transition={{
@@ -28,10 +37,10 @@ export default function Hero() {
           className="absolute inset-0 opacity-20"
           animate={{
             background: [
-              "radial-gradient(circle at 80% 20%, #7C3AED 0%, transparent 50%)",
-              "radial-gradient(circle at 20% 80%, #7C3AED 0%, transparent 50%)",
-              "radial-gradient(circle at 50% 20%, #7C3AED 0%, transparent 50%)",
-              "radial-gradient(circle at 80% 20%, #7C3AED 0%, transparent 50%)",
+              `radial-gradient(circle at 80% 20%, ${themeColor} 0%, transparent 50%)`,
+              `radial-gradient(circle at 20% 80%, ${themeColor} 0%, transparent 50%)`,
+              `radial-gradient(circle at 50% 20%, ${themeColor} 0%, transparent 50%)`,
+              `radial-gradient(circle at 80% 20%, ${themeColor} 0%, transparent 50%)`,
             ],
           }}
           transition={{
@@ -78,31 +87,69 @@ export default function Hero() {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <motion.h1
-            className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold mb-8 leading-[1.15] tracking-tight"
+            className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold mb-8 leading-[1.15] tracking-tight transition-colors duration-300"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <span className="text-white">Production-Ready</span>
-            <br />
-            <span className="bg-gradient-to-r from-azone-purple via-purple-400 to-azone-purple bg-clip-text text-transparent">
-              Launch Accelerator
-            </span>
-            <br />
-            <span className="text-white">for Serious Builders</span>
+            {heroTitle ? (
+              heroTitle.split("\n").map((line, index) => (
+                <span key={index}>
+                  {index === 1 ? (
+                    <span
+                      className="bg-clip-text text-transparent"
+                      style={{
+                        backgroundImage: `linear-gradient(to right, ${themeColor}, ${themeColor}88, ${themeColor})`,
+                      }}
+                    >
+                      {line}
+                    </span>
+                  ) : (
+                    <span className="text-white">{line}</span>
+                  )}
+                  {index < heroTitle.split("\n").length - 1 && <br />}
+                </span>
+              ))
+            ) : (
+              <>
+                <span className="text-white">Production-Ready</span>
+                <br />
+                <span
+                  className="bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, ${themeColor}, ${themeColor}88, ${themeColor})`,
+                  }}
+                >
+                  Launch Accelerator
+                </span>
+                <br />
+                <span className="text-white">for Serious Builders</span>
+              </>
+            )}
           </motion.h1>
 
           <motion.p
-            className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed"
+            className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed transition-colors duration-300"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            Built for scale. Designed for production. Used in real-world products.
-            <br />
-            <span className="text-gray-500 text-base mt-2 block">
-              For funded startup founders and senior engineers.
-            </span>
+            {heroSubtitle ? (
+              heroSubtitle.split("\n").map((line, index) => (
+                <span key={index}>
+                  {line}
+                  {index < heroSubtitle.split("\n").length - 1 && <br />}
+                </span>
+              ))
+            ) : (
+              <>
+                Built for scale. Designed for production. Used in real-world products.
+                <br />
+                <span className="text-gray-500 text-base mt-2 block">
+                  For funded startup founders and senior engineers.
+                </span>
+              </>
+            )}
           </motion.p>
 
           <motion.div
@@ -113,16 +160,24 @@ export default function Hero() {
           >
             <Link href="/templates">
               <motion.button
-                className="px-10 py-4 text-lg font-semibold bg-azone-purple text-white rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50"
+                className="px-10 py-4 text-lg font-semibold text-white rounded-lg transition-all duration-300 hover:shadow-lg"
+                style={{
+                  backgroundColor: themeColor,
+                  boxShadow: `0 10px 40px ${themeColor}40`,
+                  transition: "background-color 0.3s ease, box-shadow 0.3s ease",
+                }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Browse Templates
+                {ctaButton || "Browse Templates"}
               </motion.button>
             </Link>
             <Link href="/case-studies">
               <motion.button
-                className="px-10 py-4 text-lg font-medium bg-transparent text-gray-300 border border-gray-700 rounded-lg hover:border-gray-600 hover:text-white transition-colors"
+                className="px-10 py-4 text-lg font-medium bg-transparent text-gray-300 border border-gray-700 rounded-lg hover:border-gray-600 hover:text-white transition-all duration-300"
+                style={{
+                  borderColor: "rgb(55, 65, 81)",
+                }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >

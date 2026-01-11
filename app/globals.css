@@ -3,12 +3,18 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+/* Burmese/Myanmar font support - Pyidaungsu is the standard, but Inter also supports Myanmar */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   --background: #ffffff;
   --foreground: #050505;
   --font-geist-sans: 'Geist', system-ui, sans-serif;
   --font-jakarta: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-inter: 'Inter', system-ui, sans-serif;
+  --primary-color: #3b82f6;
+  --theme-color: #3b82f6;
+  --theme-color-rgb: 59, 130, 246;
   
   /* Shadcn UI Variables */
   --border: 214.3 31.8% 91.4%;
@@ -68,16 +74,32 @@ html {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-jakarta), system-ui, sans-serif;
+  font-family: var(--font-jakarta), var(--font-inter), 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Accessibility: Focus Indicators */
+/* Burmese/Myanmar font support - Inter supports Myanmar script */
+body[lang="my"],
+body[lang="my"] * {
+  font-family: var(--font-inter), 'Inter', 'Pyidaungsu', system-ui, sans-serif;
+}
+
+/* Accessibility: Focus Indicators - Use theme color */
 *:focus-visible {
-  outline: 2px solid #A855F7; /* azone-purple */
+  outline: 2px solid var(--theme-color, #A855F7);
   outline-offset: 2px;
   border-radius: 4px;
+  transition: outline-color 0.3s ease;
+}
+
+/* Global transitions for theme color changes - Applied to interactive elements only */
+button, a, input, select, textarea, [role="button"], [role="link"],
+.bg-azone-purple, .border-azone-purple, .text-azone-purple,
+[style*="background-color"], [style*="border-color"], [style*="color"] {
+  transition-property: color, background-color, border-color, box-shadow, outline-color;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
 }
 
 /* Skip Link - Hidden until focused */

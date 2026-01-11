@@ -7,10 +7,12 @@ import AdminNav from "@/components/admin/AdminNav";
 import { Search, X, User, ChevronDown, LayoutGrid, Home, FileText, Info, Mail, ShoppingBag, Download, Settings } from "lucide-react";
 import { isAdmin, getSession } from "@/lib/auth/auth";
 import { getAllTemplates } from "@/lib/db/queries";
+import { useSettings } from "@/lib/contexts/SettingsContext";
 
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
+  const { settings, t } = useSettings();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -28,6 +30,9 @@ export default function Header() {
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Get site name from settings or use default
+  const siteName = settings?.siteName || "Azone.store";
 
   // Check if user is admin and get user session
   useEffect(() => {
@@ -214,11 +219,10 @@ export default function Header() {
           <Link
             href="/"
             className="flex items-center space-x-2 group"
-            aria-label="Azone.store Home"
+            aria-label={`${siteName} Home`}
           >
             <div className="text-2xl md:text-3xl font-bold">
-              <span className="text-white">Azone</span>
-              <span className="text-azone-purple">.store</span>
+              <span className="text-white">{siteName}</span>
             </div>
           </Link>
 
@@ -302,7 +306,7 @@ export default function Header() {
                 : "text-gray-300 hover:text-white"
                 }`}
             >
-              Home
+              {t("home")}
             </Link>
             {/* Categories Dropdown */}
             {categories.length > 0 && (
@@ -322,10 +326,10 @@ export default function Header() {
                     ? "text-azone-purple border-b-2 border-azone-purple pb-1"
                     : "text-gray-300 hover:text-white"
                     }`}
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                  Categories
-                  <ChevronDown
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                    {t("categories")}
+                    <ChevronDown
                     className={`w-4 h-4 transition-transform ${isCategoryDropdownOpen ? "rotate-180" : ""
                       }`}
                   />
@@ -345,7 +349,7 @@ export default function Header() {
                     >
                       <div className="flex items-center gap-2">
                         <LayoutGrid className="w-4 h-4" />
-                        All Templates
+                        {t("all-templates")}
                       </div>
                     </Link>
                     {categories.map((category) => (
@@ -370,7 +374,7 @@ export default function Header() {
                 : "text-gray-300 hover:text-white"
                 }`}
             >
-              Templates
+              {t("templates")}
             </Link>
             <Link
               href="/case-studies"
@@ -379,7 +383,7 @@ export default function Header() {
                 : "text-gray-300 hover:text-white"
                 }`}
             >
-              Case Studies
+              {t("case-studies")}
             </Link>
             <Link
               href="/about"
@@ -388,7 +392,7 @@ export default function Header() {
                 : "text-gray-300 hover:text-white"
                 }`}
             >
-              About
+              {t("about")}
             </Link>
             {/* Admin Dropdown - Only show if user is admin */}
             {userIsAdmin && (
@@ -532,6 +536,20 @@ export default function Header() {
                             />
                           </svg>
                           Analytics
+                        </div>
+                      </Link>
+                      <Link
+                        href="/admin/settings"
+                        onClick={() => setIsAdminDropdownOpen(false)}
+                        role="menuitem"
+                        className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/admin/settings"
+                          ? "text-azone-purple bg-gray-800"
+                          : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                          }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Settings className="w-4 h-4" />
+                          Settings
                         </div>
                       </Link>
                     </div>
@@ -979,6 +997,13 @@ export default function Header() {
                   className="block px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
                 >
                   Analytics
+                </Link>
+                <Link
+                  href="/admin/settings"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  Settings
                 </Link>
               </div>
             )}

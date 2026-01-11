@@ -8,11 +8,14 @@ import { getFeaturedTemplates as getLocalFeaturedTemplates } from "@/lib/data";
 import { Template } from "@/lib/types";
 import { useToast } from "@/lib/utils/toast";
 import { getErrorMessage } from "@/lib/utils/errors";
+import { useSettings } from "@/lib/contexts/SettingsContext";
 
 // Lazy load TemplateCard for code splitting
 const TemplateCard = lazy(() => import("@/components/marketplace/TemplateCard"));
 
 export default function FeaturedTemplates() {
+  const { settings, t } = useSettings();
+  const themeColor = settings?.themeColor || "#7C3AED";
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,14 +56,16 @@ export default function FeaturedTemplates() {
         {/* Section Header */}
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-6 leading-[1.15] tracking-tight">
-            <span className="text-white">Production</span>
-            <span className="text-azone-purple ml-3">Templates</span>
+            <span className="text-white">{t("production-templates").split(" ")[0]}</span>
+            <span className="ml-3" style={{ color: themeColor }}>
+              {t("production-templates").split(" ")[1] || "Templates"}
+            </span>
           </h2>
           <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Built for production. Designed for scale. Used in real-world products.
+            {t("production-description")}
             <br />
             <span className="text-gray-500 text-base mt-1 block">
-              Enterprise-grade UI kits and boilerplates.
+              {t("enterprise-grade")}
             </span>
           </p>
         </div>
@@ -97,9 +102,13 @@ export default function FeaturedTemplates() {
         <div className="text-center mt-16">
           <Link
             href="/templates"
-            className="inline-block px-10 py-4 text-lg font-semibold bg-azone-purple text-white rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50"
+            className="inline-block px-10 py-4 text-lg font-semibold text-white rounded-lg transition-all duration-300 hover:shadow-lg"
+            style={{
+              backgroundColor: themeColor,
+              boxShadow: `0 10px 40px ${themeColor}40`,
+            }}
           >
-            View All
+            {t("all-templates")}
           </Link>
         </div>
       </div>

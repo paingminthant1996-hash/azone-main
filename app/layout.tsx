@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { ToastProvider } from "@/lib/utils/toast";
+import { SettingsProvider } from "@/lib/contexts/SettingsContext";
 
 export const metadata: Metadata = {
   title: "Azone.store - Production-Ready Templates for Serious Builders",
@@ -62,22 +63,24 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth dark">
       <body className="min-h-screen flex flex-col bg-azone-black">
         <ErrorBoundary>
-          <ToastProvider>
-            {/* Skip to main content link for accessibility */}
-            <a
-              href="#main-content"
-              className="skip-link"
-              aria-label="Skip to main content"
-            >
-              Skip to main content
-            </a>
-            <Header />
-            <Breadcrumbs />
-            <main id="main-content" className="flex-1" tabIndex={-1}>
-              {children}
-            </main>
-            <Footer />
-          </ToastProvider>
+          <SettingsProvider>
+            <ToastProvider>
+              {/* Skip to main content link for accessibility */}
+              <a
+                href="#main-content"
+                className="skip-link"
+                aria-label="Skip to main content"
+              >
+                Skip to main content
+              </a>
+              <Header />
+              <Breadcrumbs />
+              <main id="main-content" className="flex-1" tabIndex={-1}>
+                {children}
+              </main>
+              <Footer />
+            </ToastProvider>
+          </SettingsProvider>
         </ErrorBoundary>
       </body>
     </html>

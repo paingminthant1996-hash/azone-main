@@ -42,3 +42,22 @@ export interface Purchase {
   createdAt?: string;
 }
 
+export interface SiteSettings {
+  id: string;
+  themeColor: string;
+  siteName: string;
+  language: string;
+  isMaintenanceMode: boolean;
+  // Granular Translation Fields (English)
+  heroTitleEn?: string;
+  heroSubtitleEn?: string;
+  ctaButtonEn?: string;
+  footerTextEn?: string;
+  // Granular Translation Fields (Myanmar)
+  heroTitleMm?: string;
+  heroSubtitleMm?: string;
+  ctaButtonMm?: string;
+  footerTextMm?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}

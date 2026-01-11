@@ -3,11 +3,18 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { isAdmin, getSession } from "@/lib/auth/auth";
+import { useSettings } from "@/lib/contexts/SettingsContext";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { settings, t, getText } = useSettings();
   const [userIsAdmin, setUserIsAdmin] = useState(false);
   const [user, setUser] = useState<any>(null);
+
+  // Get site name from settings or use default
+  const siteName = settings?.siteName || "Azone.store";
+  // Get footer text with granular translation
+  const footerText = getText(settings?.footerTextEn, settings?.footerTextMm);
 
   // Check if user is logged in and admin
   useEffect(() => {
@@ -31,15 +38,14 @@ export default function Footer() {
             <Link
               href="/"
               className="flex items-center space-x-2 mb-4"
-              aria-label="Azone.store Home"
+              aria-label={`${siteName} Home`}
             >
               <div className="text-2xl font-bold">
-                <span className="text-white">Azone</span>
-                <span className="text-azone-purple">.store</span>
+                <span className="text-white">{siteName}</span>
               </div>
             </Link>
-            <p className="text-gray-400 text-sm max-w-md mb-4 leading-relaxed">
-              Production-ready templates built for scale. Designed for funded startup founders and senior engineers.
+            <p className="text-gray-400 text-sm max-w-md mb-4 leading-relaxed transition-colors duration-300">
+              {footerText || "Production-ready templates built for scale. Designed for funded startup founders and senior engineers."}
             </p>
             <div className="flex space-x-4">
               <a
@@ -99,14 +105,14 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold mb-4 text-white">Quick Links</h3>
+            <h3 className="text-sm font-semibold mb-4 text-white">{t("quick-links")}</h3>
             <ul className="space-y-3">
               <li>
                 <Link
                   href="/"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  Home
+                  {t("home")}
                 </Link>
               </li>
               <li>
@@ -114,7 +120,7 @@ export default function Footer() {
                   href="/templates"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  Templates
+                  {t("templates")}
                 </Link>
               </li>
               <li>
@@ -122,7 +128,7 @@ export default function Footer() {
                   href="/case-studies"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  Case Studies
+                  {t("case-studies")}
                 </Link>
               </li>
               <li>
@@ -130,7 +136,7 @@ export default function Footer() {
                   href="/about"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  About
+                  {t("about")}
                 </Link>
               </li>
               <li>
@@ -138,7 +144,7 @@ export default function Footer() {
                   href="/contact"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  Contact
+                  {t("contact")}
                 </Link>
               </li>
             </ul>
@@ -231,7 +237,7 @@ export default function Footer() {
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-gray-400">
-              © {currentYear} Azone.store. All rights reserved.
+              © {currentYear} {siteName}. {t("copyright")}.
             </p>
             <p className="text-sm text-gray-500 mt-2 md:mt-0">
               Built for production. Designed for scale.

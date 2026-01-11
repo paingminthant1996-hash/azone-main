@@ -1,0 +1,112 @@
+"use client";
+
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { SiteSettings } from "@/lib/types";
+import { translations, getTranslation } from "@/lib/translations";
+
+interface SettingsContextType {
+  settings: SiteSettings | null;
+  loading: boolean;
+  error: string | null;
+  refreshSettings: () => Promise<void>;
+  t: (key: string) => string; // Translation function (backward compatibility)
+  getText: (enValue: string | undefined, mmValue: string | undefined) => string; // Granular translation helper
+}
+
+const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+
+interface SettingsProviderProps {
+  children: ReactNode;
+}
+
+export function SettingsProvider({ children }: SettingsProviderProps) {
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchSettings = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch("/api/settings");
+      if (!response.ok) {
+        throw new Error("Failed to fetch settings");
+      }
+      const data = await response.json();
+      setSettings(data);
+
+      // Set CSS variable for theme color on root element with transition
+      if (typeof document !== "undefined" && data.themeColor) {
+        document.documentElement.style.setProperty("--primary-color", data.themeColor);
+        document.documentElement.style.setProperty("--theme-color", data.themeColor);
+        // Convert hex to RGB for Tailwind arbitrary values
+        const hex = data.themeColor.replace("#", "");
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        document.documentElement.style.setProperty("--theme-color-rgb", `${r}, ${g}, ${b}`);
+        // Set language attribute on html element
+        document.documentElement.setAttribute("lang", data.language === "my" ? "my" : "en");
+        document.body.setAttribute("lang", data.language === "my" ? "my" : "en");
+      }
+    } catch (err: any) {
+      console.error("Error fetching settings:", err);
+      setError(err.message || "Failed to load settings");
+      // Set default values if fetch fails
+      setSettings({
+        id: "default",
+        themeColor: "#3b82f6",
+        siteName: "My Store",
+        language: "en",
+        isMaintenanceMode: false,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  // Helper function to get granular translation with fallback
+  const getGranularTranslation = (
+    enValue: string | undefined,
+    mmValue: string | undefined
+  ): string => {
+    const language = settings?.language || "en";
+    if (language === "my") {
+      return mmValue || enValue || "";
+    }
+    return enValue || "";
+  };
+
+  // Translation function (kept for backward compatibility)
+  const t = (key: string): string => {
+    const language = settings?.language || "en";
+    return getTranslation(key, language as "en" | "my");
+  };
+
+  return (
+    <SettingsContext.Provider
+      value={{
+        settings,
+        loading,
+        error,
+        refreshSettings: fetchSettings,
+        t,
+        getText: getGranularTranslation,
+      }}
+    >
+      {children}
+    </SettingsContext.Provider>
+  );
+}
+
+export function useSettings() {
+  const context = useContext(SettingsContext);
+  if (context === undefined) {
+    throw new Error("useSettings must be used within a SettingsProvider");
+  }
+  return context;
+}
