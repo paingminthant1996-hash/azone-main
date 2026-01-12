@@ -102,9 +102,125 @@ export function DesignModeProvider({ children }: { children: ReactNode }) {
     });
   }, [history]);
 
+  // Map EditableText IDs to API field names
+  const mapIdToFieldName = (id: string, value: string): Record<string, string> => {
+    const mapping: Record<string, string> = {};
+    
+    // Site name mappings
+    if (id === "header-site-name" || id === "footer-site-name") {
+      mapping.siteName = value;
+    }
+    // Hero title mappings (multi-line, need to combine)
+    else if (id.startsWith("hero-title-line-")) {
+      // For hero title, we need to handle all lines together
+      // This is a simplified approach - in production, you might want to collect all hero-title-line-* first
+      const lineIndex = parseInt(id.split("-").pop() || "0");
+      // For now, we'll save each line separately and the API should handle combining them
+      // Or we can use heroTitleEn/heroTitleMm directly
+      // This is a limitation - we need to know the current language
+      // For now, let's assume English and save to heroTitleEn
+      mapping.heroTitleEn = value;
+    }
+    // Hero subtitle
+    else if (id === "hero-subtitle") {
+      // Need to determine language - defaulting to English for now
+      mapping.heroSubtitleEn = value;
+    }
+    // Hero CTA button
+    else if (id === "hero-cta-button") {
+      // Need to determine language - defaulting to English for now
+      mapping.ctaButtonEn = value;
+    }
+    // Footer description
+    else if (id === "footer-description") {
+      // Need to determine language - defaulting to English for now
+      mapping.footerTextEn = value;
+    }
+    
+    return mapping;
+  };
+
   const saveChanges = useCallback(async () => {
+    if (editableElements.size === 0) {
+      return; // Nothing to save
+    }
+
+    // Collect all updates
+    const updates: Record<string, string> = {};
+    
+    // Get current language from settings
+    let currentLang = "en";
+    try {
+      const settingsResponse = await fetch("/api/settings");
+      if (settingsResponse.ok) {
+        const settings = await settingsResponse.json();
+        currentLang = settings.language || "en";
+      }
+    } catch (e) {
+      console.error("Failed to fetch current language:", e);
+    }
+
+    // Collect hero title lines first
+    const heroTitleLines: { index: number; value: string }[] = [];
+    const otherUpdates: Record<string, string> = {};
+
+    // First pass: collect hero title lines and other updates separately
+    editableElements.forEach((value, id) => {
+      // Site name mappings
+      if (id === "header-site-name" || id === "footer-site-name") {
+        otherUpdates.siteName = value;
+      }
+      // Hero title lines - collect them
+      else if (id.startsWith("hero-title-line-")) {
+        const lineNum = parseInt(id.split("-").pop() || "0");
+        heroTitleLines.push({ index: lineNum, value });
+      }
+      // Hero subtitle
+      else if (id === "hero-subtitle") {
+        if (currentLang === "my") {
+          otherUpdates.heroSubtitleMm = value;
+        } else {
+          otherUpdates.heroSubtitleEn = value;
+        }
+      }
+      // Hero CTA button
+      else if (id === "hero-cta-button") {
+        if (currentLang === "my") {
+          otherUpdates.ctaButtonMm = value;
+        } else {
+          otherUpdates.ctaButtonEn = value;
+        }
+      }
+      // Footer description
+      else if (id === "footer-description") {
+        if (currentLang === "my") {
+          otherUpdates.footerTextMm = value;
+        } else {
+          otherUpdates.footerTextEn = value;
+        }
+      }
+    });
+
+    // Combine hero title lines in order
+    if (heroTitleLines.length > 0) {
+      heroTitleLines.sort((a, b) => a.index - b.index);
+      const fullTitle = heroTitleLines.map((line) => line.value).join("\n");
+      if (currentLang === "my") {
+        otherUpdates.heroTitleMm = fullTitle;
+      } else {
+        otherUpdates.heroTitleEn = fullTitle;
+      }
+    }
+
+    // Merge all updates
+    Object.assign(updates, otherUpdates);
+
+    if (Object.keys(updates).length === 0) {
+      console.warn("No valid fields to update");
+      return;
+    }
+
     // Save to database via API
-    const updates = Object.fromEntries(editableElements);
     const response = await fetch("/api/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -112,7 +228,8 @@ export function DesignModeProvider({ children }: { children: ReactNode }) {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to save changes");
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Failed to save changes");
     }
 
     // Clear editable elements after successful save
@@ -120,6 +237,10 @@ export function DesignModeProvider({ children }: { children: ReactNode }) {
     // Reset history
     setHistory([{ elements: new Map(), timestamp: Date.now() }]);
     setHistoryIndex(0);
+    
+    // Reload page to reflect changes
+    window.location.reload();
+    
     return await response.json();
   }, [editableElements]);
 
