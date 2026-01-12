@@ -102,6 +102,26 @@ button, a, input, select, textarea, [role="button"], [role="link"],
   transition-timing-function: ease;
 }
 
+/* Design Mode Visual Indicators */
+[data-design-mode="true"] {
+  position: relative;
+}
+
+[data-design-mode="true"]::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 1px dashed rgba(124, 58, 237, 0.3);
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+[data-design-mode="true"]:hover::before {
+  opacity: 1;
+}
+
 /* Skip Link - Hidden until focused */
 .skip-link {
   position: absolute;

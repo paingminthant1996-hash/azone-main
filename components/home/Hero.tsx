@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useSettings } from "@/lib/contexts/SettingsContext";
+import { EditableText } from "@/components/shared/EditableText";
 
 export default function Hero() {
   const { settings, getText } = useSettings();
@@ -96,61 +97,123 @@ export default function Hero() {
               heroTitle.split("\n").map((line, index) => (
                 <span key={index}>
                   {index === 1 ? (
-                    <span
+                    <EditableText
+                      id={`hero-title-line-${index}`}
+                      defaultText={line}
                       className="bg-clip-text text-transparent"
-                      style={{
-                        backgroundImage: `linear-gradient(to right, ${themeColor}, ${themeColor}88, ${themeColor})`,
+                      onSave={async (newText) => {
+                        const currentLang = settings?.language || "en";
+                        const field = currentLang === "my" ? "heroTitleMm" : "heroTitleEn";
+                        const currentTitle = currentLang === "my" ? settings?.heroTitleMm : settings?.heroTitleEn || "";
+                        const lines = currentTitle ? currentTitle.split("\n") : ["", "", ""];
+                        lines[index] = newText;
+                        await fetch("/api/settings", {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ [field]: lines.join("\n") }),
+                        });
+                        window.location.reload();
                       }}
-                    >
-                      {line}
-                    </span>
+                    />
                   ) : (
-                    <span className="text-white">{line}</span>
+                    <EditableText
+                      id={`hero-title-line-${index}`}
+                      defaultText={line}
+                      className="text-white"
+                      onSave={async (newText) => {
+                        const currentLang = settings?.language || "en";
+                        const field = currentLang === "my" ? "heroTitleMm" : "heroTitleEn";
+                        const currentTitle = currentLang === "my" ? settings?.heroTitleMm : settings?.heroTitleEn || "";
+                        const lines = currentTitle ? currentTitle.split("\n") : ["", "", ""];
+                        lines[index] = newText;
+                        await fetch("/api/settings", {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ [field]: lines.join("\n") }),
+                        });
+                        window.location.reload();
+                      }}
+                    />
                   )}
                   {index < heroTitle.split("\n").length - 1 && <br />}
                 </span>
               ))
             ) : (
               <>
-                <span className="text-white">Production-Ready</span>
-                <br />
-                <span
-                  className="bg-clip-text text-transparent"
-                  style={{
-                    backgroundImage: `linear-gradient(to right, ${themeColor}, ${themeColor}88, ${themeColor})`,
+                <EditableText
+                  id="hero-title-line-0"
+                  defaultText="Production-Ready"
+                  className="text-white"
+                  onSave={async (newText) => {
+                    const currentLang = settings?.language || "en";
+                    const field = currentLang === "my" ? "heroTitleMm" : "heroTitleEn";
+                    await fetch("/api/settings", {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ [field]: `${newText}\nLaunch Accelerator\nfor Serious Builders` }),
+                    });
+                    window.location.reload();
                   }}
-                >
-                  Launch Accelerator
-                </span>
+                />
                 <br />
-                <span className="text-white">for Serious Builders</span>
+                <EditableText
+                  id="hero-title-line-1"
+                  defaultText="Launch Accelerator"
+                  className="bg-clip-text text-transparent"
+                  onSave={async (newText) => {
+                    const currentLang = settings?.language || "en";
+                    const field = currentLang === "my" ? "heroTitleMm" : "heroTitleEn";
+                    await fetch("/api/settings", {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ [field]: `Production-Ready\n${newText}\nfor Serious Builders` }),
+                    });
+                    window.location.reload();
+                  }}
+                />
+                <br />
+                <EditableText
+                  id="hero-title-line-2"
+                  defaultText="for Serious Builders"
+                  className="text-white"
+                  onSave={async (newText) => {
+                    const currentLang = settings?.language || "en";
+                    const field = currentLang === "my" ? "heroTitleMm" : "heroTitleEn";
+                    await fetch("/api/settings", {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ [field]: `Production-Ready\nLaunch Accelerator\n${newText}` }),
+                    });
+                    window.location.reload();
+                  }}
+                />
               </>
             )}
           </motion.h1>
 
-          <motion.p
+          <motion.div
             className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed transition-colors duration-300"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            {heroSubtitle ? (
-              heroSubtitle.split("\n").map((line, index) => (
-                <span key={index}>
-                  {line}
-                  {index < heroSubtitle.split("\n").length - 1 && <br />}
-                </span>
-              ))
-            ) : (
-              <>
-                Built for scale. Designed for production. Used in real-world products.
-                <br />
-                <span className="text-gray-500 text-base mt-2 block">
-                  For funded startup founders and senior engineers.
-                </span>
-              </>
-            )}
-          </motion.p>
+            <EditableText
+              id="hero-subtitle"
+              defaultText={heroSubtitle || "Built for scale. Designed for production. Used in real-world products.\nFor funded startup founders and senior engineers."}
+              className="text-gray-400"
+              multiline={true}
+              onSave={async (newText) => {
+                const currentLang = settings?.language || "en";
+                const field = currentLang === "my" ? "heroSubtitleMm" : "heroSubtitleEn";
+                await fetch("/api/settings", {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ [field]: newText }),
+                });
+                window.location.reload();
+              }}
+            />
+          </motion.div>
 
           <motion.div
             className="flex flex-col sm:flex-row gap-5 justify-center items-center"
@@ -169,7 +232,21 @@ export default function Hero() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {ctaButton || "Browse Templates"}
+                <EditableText
+                  id="hero-cta-button"
+                  defaultText={ctaButton || "Browse Templates"}
+                  className="text-white"
+                  onSave={async (newText) => {
+                    const currentLang = settings?.language || "en";
+                    const field = currentLang === "my" ? "ctaButtonMm" : "ctaButtonEn";
+                    await fetch("/api/settings", {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ [field]: newText }),
+                    });
+                    window.location.reload();
+                  }}
+                />
               </motion.button>
             </Link>
             <Link href="/case-studies">

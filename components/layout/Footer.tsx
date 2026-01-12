@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { isAdmin, getSession } from "@/lib/auth/auth";
 import { useSettings } from "@/lib/contexts/SettingsContext";
+import { EditableText } from "@/components/shared/EditableText";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -30,7 +31,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-azone-black text-white mt-auto">
+    <footer className="bg-azone-black border-t border-gray-800 mt-auto">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className={`grid grid-cols-1 md:grid-cols-3 ${user ? 'lg:grid-cols-4' : ''} gap-8`}>
           {/* Brand Section */}
@@ -41,12 +42,41 @@ export default function Footer() {
               aria-label={`${siteName} Home`}
             >
               <div className="text-2xl font-bold">
-                <span className="text-white">{siteName}</span>
+                <EditableText
+                  id="footer-site-name"
+                  defaultText={siteName}
+                  className="text-white"
+                  onSave={async (newText) => {
+                    // Update siteName in settings
+                    await fetch("/api/settings", {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ siteName: newText }),
+                    });
+                    // Refresh settings context
+                    window.location.reload();
+                  }}
+                />
               </div>
             </Link>
-            <p className="text-gray-400 text-sm max-w-md mb-4 leading-relaxed transition-colors duration-300">
-              {footerText || "Production-ready templates built for scale. Designed for funded startup founders and senior engineers."}
-            </p>
+            <div className="text-gray-400 text-sm max-w-md mb-4 leading-relaxed transition-colors duration-300">
+              <EditableText
+                id="footer-description"
+                defaultText={footerText || "Production-ready templates built for scale. Designed for funded startup founders and senior engineers."}
+                className="text-gray-400"
+                multiline={true}
+                onSave={async (newText) => {
+                  const currentLang = settings?.language || "en";
+                  const field = currentLang === "my" ? "footerTextMm" : "footerTextEn";
+                  await fetch("/api/settings", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ [field]: newText }),
+                  });
+                  window.location.reload();
+                }}
+              />
+            </div>
             <div className="flex space-x-4">
               <a
                 href="https://twitter.com"
@@ -103,16 +133,16 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links Section */}
           <div>
-            <h3 className="text-sm font-semibold mb-4 text-white">{t("quick-links")}</h3>
+            <h3 className="text-sm font-semibold mb-4 text-white">{t("Quick Links")}</h3>
             <ul className="space-y-3">
               <li>
                 <Link
                   href="/"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  {t("home")}
+                  {t("Home")}
                 </Link>
               </li>
               <li>
@@ -120,7 +150,7 @@ export default function Footer() {
                   href="/templates"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  {t("templates")}
+                  {t("Templates")}
                 </Link>
               </li>
               <li>
@@ -128,7 +158,7 @@ export default function Footer() {
                   href="/case-studies"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  {t("case-studies")}
+                  {t("Case Studies")}
                 </Link>
               </li>
               <li>
@@ -136,7 +166,7 @@ export default function Footer() {
                   href="/about"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  {t("about")}
+                  {t("About")}
                 </Link>
               </li>
               <li>
@@ -144,7 +174,7 @@ export default function Footer() {
                   href="/contact"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  {t("contact")}
+                  {t("Contact")}
                 </Link>
               </li>
             </ul>
@@ -179,38 +209,20 @@ export default function Footer() {
                     Downloads
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/account/settings"
-                    className="text-sm text-gray-400 hover:text-white transition-colors"
-                  >
-                    Settings
-                  </Link>
-                </li>
-                {userIsAdmin && (
-                  <li>
-                    <Link
-                      href="/admin/upload"
-                      className="text-sm text-azone-purple hover:text-purple-400 transition-colors"
-                    >
-                      Admin Upload
-                    </Link>
-                  </li>
-                )}
               </ul>
             </div>
           )}
 
-          {/* Legal */}
+          {/* Legal Section */}
           <div>
-            <h3 className="text-sm font-semibold mb-4 text-white">Legal</h3>
+            <h3 className="text-sm font-semibold mb-4 text-white">{t("Legal")}</h3>
             <ul className="space-y-3">
               <li>
                 <Link
                   href="/privacy"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  Privacy Policy
+                  {t("Privacy Policy")}
                 </Link>
               </li>
               <li>
@@ -218,7 +230,7 @@ export default function Footer() {
                   href="/terms"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  Terms of Service
+                  {t("Terms of Service")}
                 </Link>
               </li>
               <li>
@@ -226,7 +238,7 @@ export default function Footer() {
                   href="/license"
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  License
+                  {t("License")}
                 </Link>
               </li>
             </ul>
@@ -234,13 +246,13 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-800 mt-8 pt-8">
+        <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-gray-400">
-              © {currentYear} {siteName}. {t("copyright")}.
+              © {currentYear} {siteName}. {t("All rights reserved.")}.
             </p>
             <p className="text-sm text-gray-500 mt-2 md:mt-0">
-              Built for production. Designed for scale.
+              {t("Built for production. Designed for scale.")}
             </p>
           </div>
         </div>
@@ -248,4 +260,3 @@ export default function Footer() {
     </footer>
   );
 }
-

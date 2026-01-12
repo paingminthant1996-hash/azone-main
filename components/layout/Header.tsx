@@ -8,6 +8,7 @@ import { Search, X, User, ChevronDown, LayoutGrid, Home, FileText, Info, Mail, S
 import { isAdmin, getSession } from "@/lib/auth/auth";
 import { getAllTemplates } from "@/lib/db/queries";
 import { useSettings } from "@/lib/contexts/SettingsContext";
+import { EditableText } from "@/components/shared/EditableText";
 
 export default function Header() {
   const router = useRouter();
@@ -222,7 +223,21 @@ export default function Header() {
             aria-label={`${siteName} Home`}
           >
             <div className="text-2xl md:text-3xl font-bold">
-              <span className="text-white">{siteName}</span>
+              <EditableText
+                id="header-site-name"
+                defaultText={siteName}
+                className="text-white"
+                onSave={async (newText) => {
+                  // Update siteName in settings
+                  await fetch("/api/settings", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ siteName: newText }),
+                  });
+                  // Refresh settings context
+                  window.location.reload();
+                }}
+              />
             </div>
           </Link>
 
