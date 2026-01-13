@@ -95,6 +95,25 @@ function transformSiteSettings(row: any): SiteSettings {
 
 // GET - Fetch site settings
 export async function GET() {
+  // Default settings to return if anything fails
+  const defaultSettings = {
+    id: "default",
+    themeColor: "#3b82f6",
+    siteName: "My Store",
+    language: "en",
+    isMaintenanceMode: false,
+    heroTitleEn: undefined,
+    heroSubtitleEn: undefined,
+    ctaButtonEn: undefined,
+    footerTextEn: undefined,
+    heroTitleMm: undefined,
+    heroSubtitleMm: undefined,
+    ctaButtonMm: undefined,
+    footerTextMm: undefined,
+    createdAt: undefined,
+    updatedAt: undefined,
+  };
+
   try {
     const supabase = getSupabaseAdmin();
 
@@ -106,39 +125,26 @@ export async function GET() {
       .single();
 
     if (error) {
-      // If table doesn't exist or no rows, return default settings
-      if (error.code === "PGRST116" || error.code === "42P01") {
-        return NextResponse.json({
-          themeColor: "#3b82f6",
-          siteName: "My Store",
-          language: "en",
-          isMaintenanceMode: false,
-        });
+      // If table doesn't exist or no rows, return default settings (200 OK)
+      if (error.code === "PGRST116" || error.code === "42P01" || error.code === "PGRST116") {
+        console.warn("Site settings table not found or empty, using defaults");
+        return NextResponse.json(defaultSettings);
       }
-      console.error("Error fetching site settings:", error);
-      return NextResponse.json(
-        { error: "Failed to fetch site settings" },
-        { status: 500 }
-      );
+      // For other errors, log but still return defaults (don't fail the app)
+      console.warn("Error fetching site settings, using defaults:", error.message);
+      return NextResponse.json(defaultSettings);
     }
 
     if (!data) {
       // Return default settings if no data exists
-      return NextResponse.json({
-        themeColor: "#3b82f6",
-        siteName: "My Store",
-        language: "en",
-        isMaintenanceMode: false,
-      });
+      return NextResponse.json(defaultSettings);
     }
 
     return NextResponse.json(transformSiteSettings(data));
   } catch (error: any) {
-    console.error("GET site settings error:", error);
-    return NextResponse.json(
-      { error: error.message || "An unexpected error occurred" },
-      { status: 500 }
-    );
+    // Always return default settings instead of error (app should still work)
+    console.warn("GET site settings error, using defaults:", error.message);
+    return NextResponse.json(defaultSettings);
   }
 }
 

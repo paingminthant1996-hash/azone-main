@@ -110,19 +110,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-6 border-b border-gray-800">
-            <div className="flex items-center justify-between mb-4">
-              <Link href="/" className="flex items-center gap-2 text-azone-purple hover:text-azone-purple/80 transition-colors">
-                <ArrowLeft className="w-5 h-5" />
-                <span className="text-lg font-bold">Templates</span>
-              </Link>
-              <button
-                onClick={() => setIsSidebarOpen(false)}
-                className="lg:hidden text-gray-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+          <div className="flex items-center justify-between h-16 px-6 border-b border-gray-800">
+            <Link href="/" className="flex items-center gap-2">
+              <ArrowLeft className="w-5 h-5 text-gray-400 hover:text-white transition-colors" />
+              <h1 className="font-bold bg-gradient-to-r from-azone-purple to-blue-500 bg-clip-text text-transparent text-xl tracking-normal leading-7">
+                Templates
+              </h1>
+            </Link>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="lg:hidden text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800/50 rounded-lg"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           {/* Navigation */}
@@ -137,10 +137,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   href={item.href}
                   onClick={() => setIsSidebarOpen(false)}
                   className={`
-                    flex items-center gap-3 px-4 py-3 rounded-lg transition-all
+                    flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                     ${
                       isActive
-                        ? "bg-azone-purple/20 text-white border border-azone-purple/50"
+                        ? "bg-gradient-to-r from-azone-purple/20 to-blue-500/20 text-white"
                         : "text-gray-400 hover:bg-gray-800/50 hover:text-white"
                     }
                   `}
@@ -154,9 +154,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
           {/* User Profile */}
           <div className="p-4 border-t border-gray-800">
-            <div className="flex items-center gap-3 p-3 bg-gray-800/30 rounded-lg">
-              <div className="w-10 h-10 bg-azone-purple/20 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-azone-purple" />
+            <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-800/30">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-azone-purple to-blue-500 flex-shrink-0 flex items-center justify-center">
+                <User className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">Admin</p>

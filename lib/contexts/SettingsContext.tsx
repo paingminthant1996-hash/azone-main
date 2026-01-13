@@ -29,10 +29,25 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       setLoading(true);
       setError(null);
       const response = await fetch("/api/settings");
-      if (!response.ok) {
-        throw new Error("Failed to fetch settings");
+
+      // API now always returns 200 with data (real or defaults)
+      // So we can safely parse JSON
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        // If JSON parsing fails, use defaults
+        console.warn("Failed to parse settings response, using defaults");
+        data = {
+          id: "default",
+          themeColor: "#3b82f6",
+          siteName: "My Store",
+          language: "en",
+          isMaintenanceMode: false,
+        };
       }
-      const data = await response.json();
+
+      // Set settings (API always returns valid data now)
       setSettings(data);
 
       // Set CSS variable for theme color on root element with transition
