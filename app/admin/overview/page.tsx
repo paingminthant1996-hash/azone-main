@@ -33,30 +33,52 @@ export default function AdminOverviewPage() {
       try {
         setLoading(true);
         
-        // Fetch all data in parallel
-        const [templates, revenue, purchases] = await Promise.all([
+        // Fetch all data in parallel with error handling
+        const results = await Promise.allSettled([
           getAllTemplates(),
           getTotalRevenue(),
           getAllPurchases(),
         ]);
+        
+        const templates = results[0].status === 'fulfilled' ? (results[0].value as Template[]) : [];
+        const revenue = results[1].status === 'fulfilled' ? (results[1].value as number) : 0;
+        const purchases = results[2].status === 'fulfilled' ? (results[2].value as any[]) : [];
 
-        // Calculate metrics
-        const customerStats = await getCustomerStats();
+        // Calculate metrics safely
+        let customerStats = null;
+        try {
+          customerStats = await getCustomerStats();
+        } catch (err) {
+          // Ignore customer stats error
+        }
         
         setMetrics({
-          totalTemplates: templates.length,
-          livePreviews: templates.length, // Using template count as placeholder
-          customerInquiries: purchases.length,
-          totalRevenue: revenue,
+          totalTemplates: Array.isArray(templates) ? templates.length : 0,
+          livePreviews: Array.isArray(templates) ? templates.length : 0, // Using template count as placeholder
+          customerInquiries: Array.isArray(purchases) ? purchases.length : 0,
+          totalRevenue: typeof revenue === 'number' ? revenue : 0,
         });
 
         // Get 5 most recent templates
-        setRecentTemplates(templates.slice(0, 5));
+        if (Array.isArray(templates)) {
+          setRecentTemplates(templates.slice(0, 5));
+        }
 
         // Get 4 most recent purchases as "client messages"
-        setRecentPurchases(purchases.slice(0, 4));
+        if (Array.isArray(purchases)) {
+          setRecentPurchases(purchases.slice(0, 4));
+        }
       } catch (error) {
-        console.error("Failed to fetch overview data:", error);
+        // Better error handling
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error("Failed to fetch overview data:", errorMessage);
+        // Set default values on error
+        setMetrics({
+          totalTemplates: 0,
+          livePreviews: 0,
+          customerInquiries: 0,
+          totalRevenue: 0,
+        });
       } finally {
         setLoading(false);
       }
@@ -71,15 +93,26 @@ export default function AdminOverviewPage() {
     }).format(amount);
   };
 
-  const formatTimeAgo = (date: string) => {
-    const now = new Date();
-    const past = new Date(date);
-    const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) return "Just now";
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  const formatTimeAgo = (date: string | Date) => {
+    try {
+      const now = new Date();
+      const past = typeof date === 'string' ? new Date(date) : date;
+      
+      // Check if date is valid
+      if (isNaN(past.getTime())) {
+        return "Unknown";
+      }
+      
+      const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+      
+      if (diffInSeconds < 0) return "Just now";
+      if (diffInSeconds < 60) return "Just now";
+      if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+      if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+      return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    } catch (error) {
+      return "Unknown";
+    }
   };
 
   if (loading) {
@@ -299,7 +332,7 @@ export default function AdminOverviewPage() {
                           : "Purchase inquiry"}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        {formatTimeAgo(purchase.purchased_at)}
+                        {purchase.purchased_at ? formatTimeAgo(purchase.purchased_at) : "Unknown"}
                       </div>
                     </div>
                   </div>

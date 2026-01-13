@@ -55,7 +55,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           }
         }
       } catch (error) {
-        console.error("Auth check failed:", error);
+        // Better error handling
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error("Auth check failed:", errorMessage);
         if (pathname !== "/admin/login") {
           router.push("/admin/login");
         }
