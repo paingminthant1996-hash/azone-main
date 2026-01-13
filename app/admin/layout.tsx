@@ -82,8 +82,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     );
   }
 
-  if (!isAuthorized) {
-    return null; // Will redirect to login
+  if (!isAuthorized && pathname !== "/admin/login") {
+    // Don't render anything, middleware will redirect
+    return null;
   }
 
   return (
