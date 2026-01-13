@@ -25,18 +25,38 @@ export class ErrorBoundary extends Component<Props, State> {
     };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error | Event | unknown): State {
+    // Convert non-Error objects to Error objects
+    let errorObj: Error;
+    if (error instanceof Error) {
+      errorObj = error;
+    } else if (error instanceof Event) {
+      errorObj = new Error(`Event error: ${error.type}`);
+    } else {
+      errorObj = new Error(String(error));
+    }
+    
     return {
       hasError: true,
-      error,
+      error: errorObj,
       errorInfo: null,
     };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  componentDidCatch(error: Error | Event | unknown, errorInfo: ErrorInfo) {
+    // Convert non-Error objects to Error objects for logging
+    let errorObj: Error;
+    if (error instanceof Error) {
+      errorObj = error;
+    } else if (error instanceof Event) {
+      errorObj = new Error(`Event error: ${error.type}`);
+    } else {
+      errorObj = new Error(String(error));
+    }
+    
+    console.error("ErrorBoundary caught an error:", errorObj, errorInfo);
     this.setState({
-      error,
+      error: errorObj,
       errorInfo,
     });
   }
@@ -74,7 +94,9 @@ export class ErrorBoundary extends Component<Props, State> {
               {this.state.error && process.env.NODE_ENV === "development" && (
                 <div className="mb-6 p-4 bg-gray-800/50 rounded-lg text-left">
                   <p className="text-sm text-red-400 font-mono mb-2">
-                    {this.state.error.toString()}
+                    {this.state.error instanceof Error 
+                      ? this.state.error.message || this.state.error.toString()
+                      : String(this.state.error)}
                   </p>
                   {this.state.errorInfo && (
                     <details className="text-xs text-gray-500">
