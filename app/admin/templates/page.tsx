@@ -245,7 +245,7 @@ export default function AdminTemplatesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-azone-black py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-azone-black py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -253,17 +253,9 @@ export default function AdminTemplatesPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-4xl font-bold text-white mb-2">Manage Templates</h1>
-              <p className="text-gray-400">View, edit, and manage all templates in the marketplace</p>
-            </div>
-            <Link
-              href="/admin/upload"
-              className="px-6 py-3 text-sm font-semibold bg-azone-purple text-white rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50"
-            >
-              Upload New Template
-            </Link>
+          <div className="mb-4">
+            <h1 className="text-4xl font-bold text-white mb-2">Manage Templates</h1>
+            <p className="text-gray-400">View, edit, and manage all templates in the marketplace</p>
           </div>
         </motion.div>
 

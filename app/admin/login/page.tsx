@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
       try {
         const { user } = await getSession();
         if (user?.role === "admin") {
-          router.push("/admin/templates");
+          router.push("/admin/overview");
         }
       } catch (err) {
         // Not logged in
@@ -48,7 +48,7 @@ export default function AdminLoginPage() {
         // Check if user is admin
         const { user } = await getSession();
         if (user?.role === "admin") {
-          router.push("/admin/templates");
+          router.push("/admin/overview");
         } else {
           setError("Access denied. Admin privileges required.");
           await signIn("", ""); // Sign out
