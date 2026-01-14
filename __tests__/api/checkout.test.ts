@@ -17,7 +17,7 @@ describe('Checkout API Route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.STRIPE_SECRET_KEY = 'sk_test_mock_key';
-    process.env.NEXT_PUBLIC_SITE_URL = 'https://store.paing.xyz';
+    process.env.NEXT_PUBLIC_SITE_URL = 'https://paing.xyz';
   });
 
   it('should return error if Stripe is not configured', async () => {

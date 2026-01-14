@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: "Terms of Service for Azone.store. Rules and guidelines for using our platform and templates.",
   openGraph: {
     type: "website",
-    url: "https://store.paing.xyz/terms",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/terms`,
     title: "Terms of Service - Azone.store",
     description: "Terms of Service for Azone.store. Rules and guidelines for using our platform and templates.",
     siteName: "Azone.store",
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     description: "Terms of Service for Azone.store.",
   },
   alternates: {
-    canonical: "https://store.paing.xyz/terms",
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/terms`,
   },
   robots: {
     index: true,

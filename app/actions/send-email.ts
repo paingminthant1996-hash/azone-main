@@ -32,7 +32,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
 
     // Send email via Resend
     const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'Azone.store <noreply@store.paing.xyz>',
+      from: process.env.RESEND_FROM_EMAIL || 'Azone.store <noreply@paing.xyz>',
       to: options.to,
       subject: options.subject,
       html: options.html,
@@ -87,7 +87,7 @@ export async function sendPurchaseConfirmationEmail(
             <p style="margin: 0;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
           </div>
           <p>You can now download your template from your account dashboard:</p>
-          <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://store.paing.xyz'}/account/downloads" 
+          <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://paing.xyz'}/account/downloads" 
              style="display: inline-block; background: #7C3AED; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0;">
             Download Template
           </a>
@@ -111,7 +111,7 @@ Template: ${templateTitle}
 Price: ${currency} ${price.toFixed(2)}
 Date: ${new Date().toLocaleDateString()}
 
-Download your template: ${process.env.NEXT_PUBLIC_SITE_URL || 'https://store.paing.xyz'}/account/downloads
+Download your template: ${process.env.NEXT_PUBLIC_SITE_URL || 'https://paing.xyz'}/account/downloads
 
 © ${new Date().getFullYear()} Azone.store. All rights reserved.
   `;

@@ -27,7 +27,7 @@ export const templates: Template[] = [
             "20+ Pre-built Components",
             "API Integration Ready",
         ],
-        demoUrl: "https://store.paing.xyz/templates/aura-ai-dashboard",
+        demoUrl: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/templates/aura-ai-dashboard`,
     },
     {
         id: "2",
@@ -53,7 +53,7 @@ export const templates: Template[] = [
             "SEO Optimized",
             "Mobile First Design",
         ],
-        demoUrl: "https://store.paing.xyz/templates/quantum-dashboard-pro",
+        demoUrl: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/templates/quantum-dashboard-pro`,
     },
     {
         id: "3",
@@ -79,7 +79,7 @@ export const templates: Template[] = [
             "Inventory Management",
             "Admin Dashboard",
         ],
-        demoUrl: "https://store.paing.xyz/templates/nexus-saas-platform",
+        demoUrl: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/templates/nexus-saas-platform`,
     },
     {
         id: "4",
@@ -105,7 +105,7 @@ export const templates: Template[] = [
             "Fast Loading",
             "SEO Friendly",
         ],
-        demoUrl: "https://store.paing.xyz/templates/stellar-portfolio-pro",
+        demoUrl: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/templates/stellar-portfolio-pro`,
     },
     {
         id: "5",
@@ -131,7 +131,7 @@ export const templates: Template[] = [
             "Export Functionality",
             "API Integration",
         ],
-        demoUrl: "https://store.paing.xyz/templates/zenith-crypto-tracker",
+        demoUrl: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/templates/zenith-crypto-tracker`,
     },
     {
         id: "6",
@@ -157,7 +157,7 @@ export const templates: Template[] = [
             "Inventory Management",
             "Admin Dashboard",
         ],
-        demoUrl: "https://store.paing.xyz/templates/lumina-ecommerce-pro",
+        demoUrl: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/templates/lumina-ecommerce-pro`,
     },
 ];
 

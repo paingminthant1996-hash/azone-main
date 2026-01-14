@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: "Privacy Policy for Azone.store. How we collect, use, and protect your data.",
   openGraph: {
     type: "website",
-    url: "https://store.paing.xyz/privacy",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/privacy`,
     title: "Privacy Policy - Azone.store",
     description: "Privacy Policy for Azone.store. How we collect, use, and protect your data.",
     siteName: "Azone.store",
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     description: "Privacy Policy for Azone.store.",
   },
   alternates: {
-    canonical: "https://store.paing.xyz/privacy",
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/privacy`,
   },
   robots: {
     index: true,

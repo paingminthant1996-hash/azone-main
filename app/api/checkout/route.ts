@@ -61,8 +61,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://store.paing.xyz"}/purchase/success?session_id={CHECKOUT_SESSION_ID}&template_id=${templateId}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://store.paing.xyz"}/templates/${templateSlug}`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/purchase/success?session_id={CHECKOUT_SESSION_ID}&template_id=${templateId}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/templates/${templateSlug}`,
       metadata: {
         templateId,
         templateSlug,

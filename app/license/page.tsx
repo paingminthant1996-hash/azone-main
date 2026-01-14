@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: "License agreement for Azone.store templates. Usage rights and restrictions for purchased templates.",
   openGraph: {
     type: "website",
-    url: "https://store.paing.xyz/license",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/license`,
     title: "License Agreement - Azone.store",
     description: "License agreement for Azone.store templates. Usage rights and restrictions for purchased templates.",
     siteName: "Azone.store",
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     description: "License agreement for Azone.store templates.",
   },
   alternates: {
-    canonical: "https://store.paing.xyz/license",
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/license`,
   },
   robots: {
     index: true,

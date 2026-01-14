@@ -13,7 +13,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const template = await getTemplateBySlugDB(slug);
-  const baseUrl = "https://store.paing.xyz";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz";
 
   if (!template) {
     return {

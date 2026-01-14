@@ -13,13 +13,13 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    url: "https://store.paing.xyz/about",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/about`,
     title: "About - Azone.store",
     description: "We accelerate startups with high-quality UI foundations. Built for production. Designed for scale.",
     siteName: "Azone.store",
     images: [
       {
-        url: "https://store.paing.xyz/og",
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/og`,
         width: 1200,
         height: 630,
         alt: "About Azone.store",
@@ -30,10 +30,10 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "About - Azone.store",
     description: "We accelerate startups with high-quality UI foundations.",
-    images: ["https://store.paing.xyz/og"],
+    images: [`${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/og`],
   },
   alternates: {
-    canonical: "https://store.paing.xyz/about",
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/about`,
   },
 };
 
