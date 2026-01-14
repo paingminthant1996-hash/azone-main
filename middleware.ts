@@ -41,39 +41,10 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Protect admin routes - STRICT: Only allow authenticated admin users
+  // BLOCK ALL ADMIN ROUTES - Completely disabled
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    // Allow login page
-    if (request.nextUrl.pathname === '/admin/login') {
-      return response
-    }
-
-    // Check authentication
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    if (!session) {
-      // Redirect to login if not authenticated
-      const url = request.nextUrl.clone()
-      url.pathname = '/admin/login'
-      url.searchParams.set('redirect', request.nextUrl.pathname)
-      return NextResponse.redirect(url)
-    }
-
-    // Check if user is admin - STRICT CHECK
-    const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',').map(e => e.trim()) || []
-    const userEmail = session.user.email?.toLowerCase().trim()
-    const isAdmin = 
-      session.user.user_metadata?.role === 'admin' ||
-      (userEmail && adminEmails.some(e => e.toLowerCase().trim() === userEmail))
-
-    if (!isAdmin) {
-      // Redirect to home page if not admin (don't show admin panel)
-      const url = request.nextUrl.clone()
-      url.pathname = '/'
-      return NextResponse.redirect(url)
-    }
+    // Return 404 for all admin routes (including login)
+    return new NextResponse(null, { status: 404 })
   }
 
   // Protect account routes (require authentication)

@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import AdminNav from "@/components/admin/AdminNav";
+// import AdminNav from "@/components/admin/AdminNav"; // DISABLED: Admin panel completely removed
 import { Search, X, User, ChevronDown, LayoutGrid, Home, FileText, Info, Mail, ShoppingBag, Download, Settings } from "lucide-react";
-import { isAdmin, getSession } from "@/lib/auth/auth";
+// import { isAdmin, getSession } from "@/lib/auth/auth"; // DISABLED: Admin panel completely removed
 import { getAllTemplates } from "@/lib/db/queries";
 import { useSettings } from "@/lib/contexts/SettingsContext";
 import { EditableText } from "@/components/shared/EditableText";
@@ -19,7 +19,7 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [userIsAdmin, setUserIsAdmin] = useState(false);
+  // const [userIsAdmin, setUserIsAdmin] = useState(false); // DISABLED: Admin panel completely removed
   const [user, setUser] = useState<any>(null);
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
@@ -35,18 +35,18 @@ export default function Header() {
   // Get site name from settings or use default
   const siteName = settings?.siteName || "Azone.store";
 
-  // Check if user is admin and get user session
-  useEffect(() => {
-    const checkUser = async () => {
-      const { user: sessionUser } = await getSession();
-      setUser(sessionUser);
-      if (sessionUser) {
-        const admin = await isAdmin();
-        setUserIsAdmin(admin);
-      }
-    };
-    checkUser();
-  }, []);
+  // Check if user is admin - DISABLED: Admin panel completely removed
+  // useEffect(() => {
+  //   const checkUser = async () => {
+  //     const { user: sessionUser } = await getSession();
+  //     setUser(sessionUser);
+  //     if (sessionUser) {
+  //       const admin = await isAdmin();
+  //       setUserIsAdmin(admin);
+  //     }
+  //   };
+  //   checkUser();
+  // }, []);
 
   // Fetch categories and templates
   useEffect(() => {
@@ -409,171 +409,9 @@ export default function Header() {
             >
               {t("about")}
             </Link>
-            {/* Admin Dropdown - Only show if user is admin */}
-            {userIsAdmin && (
-              <div className="relative" ref={adminDropdownRef}>
-                <button
-                  onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setIsAdminDropdownOpen(!isAdminDropdownOpen);
-                    }
-                  }}
-                  aria-expanded={isAdminDropdownOpen}
-                  aria-haspopup="true"
-                  aria-label="Admin menu"
-                  className="text-sm font-medium text-azone-purple hover:text-purple-400 transition-colors flex items-center gap-1 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded"
-                >
-                  Admin
-                  <svg
-                    className={`w-4 h-4 transition-transform ${isAdminDropdownOpen ? "rotate-180" : ""
-                      }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
-                {/* Dropdown Menu */}
-                {isAdminDropdownOpen && (
-                  <div
-                    role="menu"
-                    aria-label="Admin"
-                    className="absolute top-full left-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden z-50"
-                  >
-                    <Link
-                      href="/admin/upload"
-                      onClick={() => setIsAdminDropdownOpen(false)}
-                      role="menuitem"
-                      className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/admin/upload"
-                        ? "text-azone-purple bg-gray-800"
-                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                        }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                          />
-                        </svg>
-                        Upload Template
-                      </div>
-                    </Link>
-                    <Link
-                      href="/admin/templates"
-                      onClick={() => setIsAdminDropdownOpen(false)}
-                      role="menuitem"
-                      className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/admin/templates"
-                        ? "text-azone-purple bg-gray-800"
-                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                        }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 6h16M4 10h16M4 14h16M4 18h16"
-                          />
-                        </svg>
-                        Manage Templates
-                      </div>
-                    </Link>
-                    <Link
-                      href="/admin/purchases"
-                      onClick={() => setIsAdminDropdownOpen(false)}
-                      role="menuitem"
-                      className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/admin/purchases"
-                        ? "text-azone-purple bg-gray-800"
-                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                        }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                          />
-                        </svg>
-                        View Purchases
-                      </div>
-                    </Link>
-                    <div className="border-t border-gray-800">
-                      <Link
-                        href="/admin/analytics"
-                        onClick={() => setIsAdminDropdownOpen(false)}
-                        role="menuitem"
-                        className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/admin/analytics"
-                          ? "text-azone-purple bg-gray-800"
-                          : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                          }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                            />
-                          </svg>
-                          Analytics
-                        </div>
-                      </Link>
-                      <Link
-                        href="/admin/settings"
-                        onClick={() => setIsAdminDropdownOpen(false)}
-                        role="menuitem"
-                        className={`block px-4 py-3 text-sm transition-colors focus-visible:bg-gray-800 focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-[-2px] ${pathname === "/admin/settings"
-                          ? "text-azone-purple bg-gray-800"
-                          : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                          }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Settings className="w-4 h-4" />
-                          Settings
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Admin Dropdown - DISABLED: Completely removed from public UI */}
             {/* Account Dropdown - Only show if user is logged in */}
-            {user && !userIsAdmin && (
+            {user && (
               <div className="relative" ref={accountDropdownRef}>
                 <button
                   onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
@@ -720,8 +558,9 @@ export default function Header() {
               <Search className="w-5 h-5" aria-hidden="true" />
             </button>
 
-            {pathname?.startsWith("/admin") && userIsAdmin ? (
-              <AdminNav />
+            {/* AdminNav - DISABLED: Completely removed from public UI */}
+            {false ? (
+              null
             ) : (
               <>
                 <Link
@@ -979,49 +818,7 @@ export default function Header() {
                 </Link>
               </div>
             )}
-            {/* Mobile Admin Section - Only show if user is admin */}
-            {userIsAdmin && (
-              <div className="border-t border-gray-800 pt-2 mt-2">
-                <div className="px-4 py-2 text-xs font-semibold text-azone-purple uppercase tracking-wider">
-                  Admin
-                </div>
-                <Link
-                  href="/admin/upload"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-4 py-2 text-sm text-azone-purple hover:text-purple-400 transition-colors"
-                >
-                  Upload Template
-                </Link>
-                <Link
-                  href="/admin/templates"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
-                >
-                  Manage Templates
-                </Link>
-                <Link
-                  href="/admin/purchases"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
-                >
-                  View Purchases
-                </Link>
-                <Link
-                  href="/admin/analytics"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
-                >
-                  Analytics
-                </Link>
-                <Link
-                  href="/admin/settings"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
-                >
-                  Settings
-                </Link>
-              </div>
-            )}
+            {/* Mobile Admin Section - DISABLED: Completely removed from public UI */}
             <Link
               href="/templates"
               onClick={() => setIsMobileMenuOpen(false)}
