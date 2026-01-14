@@ -83,17 +83,17 @@ export default function AdminOverviewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-azone-black py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-azone-purple mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600 dark:text-slate-400">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-azone-black py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -102,7 +102,7 @@ export default function AdminOverviewPage() {
           className="mb-8"
         >
           <div className="flex items-center gap-3 mb-2">
-            <LayoutDashboard className="w-8 h-8 text-azone-purple" />
+            <LayoutDashboard className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             <h1 className="text-4xl font-bold text-white">Overview</h1>
           </div>
           <p className="text-gray-400">Welcome to your admin dashboard</p>

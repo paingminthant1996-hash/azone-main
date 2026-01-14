@@ -8,12 +8,7 @@ export async function middleware(request: NextRequest) {
   // Admin subdomain routing: admin.paing.xyz -> /admin routes
   if (hostname === 'admin.paing.xyz' || hostname.startsWith('admin.')) {
     // Allow admin routes on admin subdomain
-    // Redirect root path to /admin/overview
-    if (request.nextUrl.pathname === '/') {
-      url.pathname = '/admin/overview'
-      return NextResponse.redirect(url)
-    }
-    // Allow all /admin/* routes on admin subdomain
+    // Don't redirect root path here - let auth check handle it
     // Continue to authentication check below
   } else {
     // Main website (paing.xyz) - Block admin routes
@@ -57,16 +52,37 @@ export async function middleware(request: NextRequest) {
   )
 
   // Protect admin routes (only on admin subdomain)
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
+  // Allow /admin/login to be accessed without session
+  if (hostname === 'admin.paing.xyz' || hostname.startsWith('admin.')) {
+    // Handle root path on admin subdomain
+    if (request.nextUrl.pathname === '/') {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      
+      if (session) {
+        // Redirect to overview if logged in
+        url.pathname = '/admin/overview'
+        return NextResponse.redirect(url)
+      } else {
+        // Redirect to login if not logged in
+        url.pathname = '/admin/login'
+        return NextResponse.redirect(url)
+      }
+    }
+    
+    // Protect other admin routes (except login)
+    if (request.nextUrl.pathname.startsWith('/admin') && !request.nextUrl.pathname.startsWith('/admin/login')) {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
 
-    if (!session) {
-      // Redirect to admin login if not authenticated
-      const loginUrl = request.nextUrl.clone()
-      loginUrl.pathname = '/admin/login'
-      return NextResponse.redirect(loginUrl)
+      if (!session) {
+        // Redirect to admin login if not authenticated
+        const loginUrl = request.nextUrl.clone()
+        loginUrl.pathname = '/admin/login'
+        return NextResponse.redirect(loginUrl)
+      }
     }
   }
 
