@@ -64,7 +64,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Dynamic template pages
   try {
+    // Check if Supabase is configured before trying to fetch templates
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    if (!supabaseUrl || supabaseUrl === 'https://your-project-url.supabase.co') {
+      // Supabase not configured, return static pages only
+      console.warn('Supabase not configured, returning static pages only')
+      return staticPages
+    }
+
     const templates = await getAllTemplates()
+    
+    // Validate templates array
+    if (!Array.isArray(templates) || templates.length === 0) {
+      return staticPages
+    }
+
     const templatePages: MetadataRoute.Sitemap = templates.map((template) => ({
       url: `${baseUrl}/templates/${template.slug}`,
       lastModified: template.updatedAt ? new Date(template.updatedAt) : new Date(),
