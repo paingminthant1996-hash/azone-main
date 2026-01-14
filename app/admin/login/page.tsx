@@ -45,9 +45,24 @@ export default function AdminLoginPage() {
       }
 
       if (data?.user) {
-        // Check if user is admin
-        const { user } = await getSession();
-        if (user?.role === "admin") {
+        // Wait a bit for session to be fully established
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Check if user is admin - retry mechanism
+        let isAdminUser = false;
+        for (let i = 0; i < 3; i++) {
+          const { user } = await getSession();
+          if (user?.role === "admin") {
+            isAdminUser = true;
+            break;
+          }
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+        
+        if (isAdminUser) {
+          // Force refresh and redirect
+          router.refresh();
           router.push("/admin/overview");
         } else {
           setError("Access denied. Admin privileges required.");

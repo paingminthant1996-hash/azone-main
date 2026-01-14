@@ -39,15 +39,30 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const { user: sessionUser } = await getSession();
-        if (sessionUser) {
-          const admin = await isAdmin();
-          if (admin) {
-            setUser(sessionUser);
-            setIsAuthorized(true);
-          } else {
-            router.push("/admin/login");
+        // Retry mechanism for session check
+        let sessionUser = null;
+        let admin = false;
+        
+        for (let i = 0; i < 3; i++) {
+          const result = await getSession();
+          sessionUser = result.user;
+          
+          if (sessionUser) {
+            admin = await isAdmin();
+            if (admin) {
+              break;
+            }
           }
+          
+          // Wait before retry (only if not first attempt)
+          if (i < 2) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+          }
+        }
+        
+        if (sessionUser && admin) {
+          setUser(sessionUser);
+          setIsAuthorized(true);
         } else {
           // Redirect to login if not on login page
           if (pathname !== "/admin/login") {
