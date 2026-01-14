@@ -177,6 +177,14 @@ export default function Footer() {
                   {t("Contact")}
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/docs"
+                  className="text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  Documentation
+                </Link>
+              </li>
             </ul>
           </div>
 
