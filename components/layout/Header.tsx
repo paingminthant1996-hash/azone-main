@@ -720,7 +720,7 @@ export default function Header() {
               <Search className="w-5 h-5" aria-hidden="true" />
             </button>
 
-            {pathname?.startsWith("/admin") ? (
+            {pathname?.startsWith("/admin") && userIsAdmin ? (
               <AdminNav />
             ) : (
               <>

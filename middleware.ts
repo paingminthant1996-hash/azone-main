@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Protect admin routes
+  // Protect admin routes - STRICT: Only allow authenticated admin users
   if (request.nextUrl.pathname.startsWith('/admin')) {
     // Allow login page
     if (request.nextUrl.pathname === '/admin/login') {
@@ -61,17 +61,17 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url)
     }
 
-    // Check if user is admin
-    const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',') || []
+    // Check if user is admin - STRICT CHECK
+    const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',').map(e => e.trim()) || []
+    const userEmail = session.user.email?.toLowerCase().trim()
     const isAdmin = 
       session.user.user_metadata?.role === 'admin' ||
-      (session.user.email && adminEmails.includes(session.user.email))
+      (userEmail && adminEmails.some(e => e.toLowerCase().trim() === userEmail))
 
     if (!isAdmin) {
-      // Redirect to login if not admin
+      // Redirect to home page if not admin (don't show admin panel)
       const url = request.nextUrl.clone()
-      url.pathname = '/admin/login'
-      url.searchParams.set('error', 'access_denied')
+      url.pathname = '/'
       return NextResponse.redirect(url)
     }
   }

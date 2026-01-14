@@ -2,20 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { signOut, getSession } from "@/lib/auth/auth";
+import { signOut, getSession, isAdmin } from "@/lib/auth/auth";
 import Link from "next/link";
 
 export default function AdminNav() {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<{ email: string } | null>(null);
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function checkUser() {
       try {
         const { user: currentUser } = await getSession();
-        setUser(currentUser);
+        if (currentUser) {
+          setUser(currentUser);
+          const admin = await isAdmin();
+          setUserIsAdmin(admin);
+        }
       } catch (err) {
         // Not logged in
       } finally {
@@ -34,7 +39,8 @@ export default function AdminNav() {
     }
   };
 
-  if (loading || !user) {
+  // Only show admin nav if user is authenticated AND is admin
+  if (loading || !user || !userIsAdmin) {
     return null;
   }
 
