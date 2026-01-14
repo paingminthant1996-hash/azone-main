@@ -16,11 +16,11 @@ export const metadata: Metadata = {
   authors: [{ name: "Azone.store" }],
   creator: "Azone.store",
   publisher: "Azone.store",
-  metadataBase: new URL("https://store.paing.xyz"),
+  metadataBase: new URL("https://paing.xyz"),
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://store.paing.xyz",
+    url: "https://paing.xyz",
     siteName: "Azone.store",
     title: "Azone.store - Production-Ready Templates for Serious Builders",
     description: "Built for production. Designed for scale. Used in real-world products. Enterprise-grade UI kits and boilerplates for funded startup founders and senior engineers.",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://store.paing.xyz",
+    canonical: "https://paing.xyz",
   },
 };
 

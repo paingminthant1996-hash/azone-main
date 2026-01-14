@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://store.paing.xyz'
+  const baseUrl = 'https://paing.xyz'
   
   return {
     rules: [

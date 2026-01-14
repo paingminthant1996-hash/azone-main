@@ -6,21 +6,10 @@
             "has": [
                 {
                     "type": "host",
-                    "value": "paing.xyz"
-                }
-            ],
-            "destination": "https://store.paing.xyz/:path*",
-            "permanent": true
-        },
-        {
-            "source": "/:path*",
-            "has": [
-                {
-                    "type": "host",
                     "value": "www.paing.xyz"
                 }
             ],
-            "destination": "https://store.paing.xyz/:path*",
+            "destination": "https://paing.xyz/:path*",
             "permanent": true
         }
     ]

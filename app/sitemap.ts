@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { getAllTemplates } from '@/lib/db/queries'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://store.paing.xyz'
+  const baseUrl = 'https://paing.xyz'
   
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
