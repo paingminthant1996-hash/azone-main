@@ -54,10 +54,9 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getSession()
 
     if (!session) {
-      // Redirect to login if not authenticated
+      // Redirect to home page if not authenticated (admin login is disabled)
       const url = request.nextUrl.clone()
-      url.pathname = '/admin/login'
-      url.searchParams.set('redirect', request.nextUrl.pathname)
+      url.pathname = '/'
       return NextResponse.redirect(url)
     }
   }
