@@ -28,7 +28,25 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch("/api/settings");
+      
+      // Add timeout to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      let response;
+      try {
+        response = await fetch("/api/settings", {
+          signal: controller.signal,
+          cache: "no-store", // Prevent cache issues
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          throw new Error("Request timeout. Please check your connection.");
+        }
+        throw fetchError;
+      }
 
       // API now always returns 200 with data (real or defaults)
       // So we can safely parse JSON
@@ -66,7 +84,9 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       }
     } catch (err: any) {
       console.error("Error fetching settings:", err);
-      setError(err.message || "Failed to load settings");
+      // Don't set error state - just use defaults silently
+      // This prevents blank page if settings API fails
+      setError(null);
       // Set default values if fetch fails
       setSettings({
         id: "default",

@@ -22,10 +22,20 @@ export default function Newsletter() {
     setMessage("");
 
     try {
-      // TODO: Integrate with your email service (Resend, Mailchimp, etc.)
-      // For now, just simulate success
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+      const response = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to subscribe");
+      }
+
       setStatus("success");
       setMessage("Thank you for subscribing! Check your email for confirmation.");
       setEmail("");
@@ -35,9 +45,9 @@ export default function Newsletter() {
         setStatus("idle");
         setMessage("");
       }, 5000);
-    } catch (error) {
+    } catch (error: any) {
       setStatus("error");
-      setMessage("Something went wrong. Please try again later.");
+      setMessage(error.message || "Something went wrong. Please try again later.");
     }
   };
 

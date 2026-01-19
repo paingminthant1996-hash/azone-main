@@ -106,17 +106,17 @@ export default function AdminSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-azone-black py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-azone-purple mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading settings...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600 dark:text-slate-400">Loading settings...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-azone-black py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -126,10 +126,10 @@ export default function AdminSettingsPage() {
         >
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Settings className="w-8 h-8 text-azone-purple" />
-              <h1 className="text-4xl font-bold text-white">Site Settings</h1>
+              <Settings className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              <h1 className="text-4xl font-bold text-slate-900 dark:text-white">Site Settings</h1>
             </div>
-            <p className="text-gray-400">Manage global site settings and preferences</p>
+            <p className="text-slate-600 dark:text-slate-400">Manage global site settings and preferences</p>
           </div>
         </motion.div>
 
@@ -168,19 +168,19 @@ export default function AdminSettingsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-6"
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm"
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-azone-purple/20 rounded-lg">
-                  <Palette className="w-5 h-5 text-azone-purple" />
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                  <Palette className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h2 className="text-xl font-semibold text-white">Theme Settings</h2>
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Theme Settings</h2>
               </div>
 
               <div className="space-y-4">
                 {/* Theme Color */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Theme Color
                   </label>
                   <div className="flex items-center gap-4">
@@ -188,19 +188,19 @@ export default function AdminSettingsPage() {
                       type="color"
                       value={formData.themeColor}
                       onChange={(e) => handleChange("themeColor", e.target.value)}
-                      className="w-20 h-12 bg-gray-800/50 border border-gray-700 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
+                      className="w-20 h-12 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                     <input
                       type="text"
                       value={formData.themeColor}
                       onChange={(e) => handleChange("themeColor", e.target.value)}
-                      className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
+                      className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       placeholder="#3b82f6"
                       pattern="^#[0-9A-Fa-f]{6}$"
                       title="Enter a valid hex color code (e.g., #3b82f6)"
                     />
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     Choose the primary theme color for your site
                   </p>
                 </div>
@@ -212,37 +212,37 @@ export default function AdminSettingsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-6"
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm"
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-azone-purple/20 rounded-lg">
-                  <Globe className="w-5 h-5 text-azone-purple" />
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                  <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h2 className="text-xl font-semibold text-white">General Settings</h2>
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">General Settings</h2>
               </div>
 
               <div className="space-y-4">
                 {/* Site Name */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Site Name
                   </label>
                   <input
                     type="text"
                     value={formData.siteName}
                     onChange={(e) => handleChange("siteName", e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     placeholder="My Store"
                     required
                   />
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     The name of your site displayed throughout the platform
                   </p>
                 </div>
 
                 {/* Language */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Default Language
                   </label>
                   <select
@@ -254,7 +254,7 @@ export default function AdminSettingsPage() {
                     <option value="en">English</option>
                     <option value="my">Myanmar</option>
                   </select>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     Select the default language for your site
                   </p>
                 </div>
@@ -270,25 +270,25 @@ export default function AdminSettingsPage() {
             className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-6"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-azone-purple/20 rounded-lg">
-                <FileText className="w-5 h-5 text-azone-purple" />
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
-              <h2 className="text-xl font-semibold text-white">Content Management</h2>
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Content Management</h2>
             </div>
-            <p className="text-gray-400 text-sm mb-6">
+            <p className="text-slate-600 dark:text-slate-400 text-sm mb-6">
               Manage content translations for different sections of your site. Provide both English and Myanmar translations side by side.
             </p>
 
             <div className="space-y-6">
               {/* Hero Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                   <Type className="w-4 h-4" />
                   Hero Title
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-400 mb-2">English</label>
+                    <label className="block text-xs text-slate-500 dark:text-slate-400 mb-2">English</label>
                     <textarea
                       value={formData.heroTitleEn}
                       onChange={(e) => handleChange("heroTitleEn", e.target.value)}
@@ -298,7 +298,7 @@ export default function AdminSettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-2">Myanmar</label>
+                    <label className="block text-xs text-slate-500 dark:text-slate-400 mb-2">Myanmar</label>
                     <textarea
                       value={formData.heroTitleMm}
                       onChange={(e) => handleChange("heroTitleMm", e.target.value)}
@@ -312,13 +312,13 @@ export default function AdminSettingsPage() {
 
               {/* Hero Subtitle */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                   <Type className="w-4 h-4" />
                   Hero Subtitle
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-400 mb-2">English</label>
+                    <label className="block text-xs text-slate-500 dark:text-slate-400 mb-2">English</label>
                     <textarea
                       value={formData.heroSubtitleEn}
                       onChange={(e) => handleChange("heroSubtitleEn", e.target.value)}
@@ -328,7 +328,7 @@ export default function AdminSettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-2">Myanmar</label>
+                    <label className="block text-xs text-slate-500 dark:text-slate-400 mb-2">Myanmar</label>
                     <textarea
                       value={formData.heroSubtitleMm}
                       onChange={(e) => handleChange("heroSubtitleMm", e.target.value)}
@@ -342,28 +342,28 @@ export default function AdminSettingsPage() {
 
               {/* CTA Button */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                   <Type className="w-4 h-4" />
                   CTA Button Text
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-400 mb-2">English</label>
+                    <label className="block text-xs text-slate-500 dark:text-slate-400 mb-2">English</label>
                     <input
                       type="text"
                       value={formData.ctaButtonEn}
                       onChange={(e) => handleChange("ctaButtonEn", e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       placeholder="Browse Templates"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-2">Myanmar</label>
+                    <label className="block text-xs text-slate-500 dark:text-slate-400 mb-2">Myanmar</label>
                     <input
                       type="text"
                       value={formData.ctaButtonMm}
                       onChange={(e) => handleChange("ctaButtonMm", e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       placeholder="ပုံစံများကြည့်ရှုရန်"
                     />
                   </div>
@@ -372,13 +372,13 @@ export default function AdminSettingsPage() {
 
               {/* Footer Text */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                   <Type className="w-4 h-4" />
                   Footer Description
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-400 mb-2">English</label>
+                    <label className="block text-xs text-slate-500 dark:text-slate-400 mb-2">English</label>
                     <textarea
                       value={formData.footerTextEn}
                       onChange={(e) => handleChange("footerTextEn", e.target.value)}
@@ -388,7 +388,7 @@ export default function AdminSettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-2">Myanmar</label>
+                    <label className="block text-xs text-slate-500 dark:text-slate-400 mb-2">Myanmar</label>
                     <textarea
                       value={formData.footerTextMm}
                       onChange={(e) => handleChange("footerTextMm", e.target.value)}
@@ -412,7 +412,7 @@ export default function AdminSettingsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="px-8 py-3 bg-azone-purple hover:bg-azone-purple/80 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-azone-purple/20"
+              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
             >
               {saving ? (
                 <>

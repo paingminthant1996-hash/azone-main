@@ -47,6 +47,7 @@ import { getSession } from "@/lib/auth/auth";
 import { hasUserPurchasedTemplate, getDownloadUrl } from "@/lib/auth/purchases";
 import { getAllTemplates } from "@/lib/db/queries";
 import Link from "next/link";
+import CustomizerSidebar from "./CustomizerSidebar";
 
 interface TemplateDetailProps {
   template: Template;
@@ -384,6 +385,11 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [templateDetail, setTemplateDetail] = useState<any>(null);
 
+  // Customizer state
+  const [customSiteName, setCustomSiteName] = useState("My Store");
+  const [customPrimaryColor, setCustomPrimaryColor] = useState("#7C3AED");
+  const [customHeadingFont, setCustomHeadingFont] = useState("Inter");
+
   // Fetch user and template details on mount
   useEffect(() => {
     const initDownload = async () => {
@@ -582,6 +588,19 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
     },
   };
 
+  // Apply customizations via useEffect
+  useEffect(() => {
+    // Set CSS variables for customizations
+    document.documentElement.style.setProperty('--custom-primary-color', customPrimaryColor);
+    document.documentElement.style.setProperty('--custom-heading-font', customHeadingFont);
+    
+    return () => {
+      // Cleanup on unmount
+      document.documentElement.style.removeProperty('--custom-primary-color');
+      document.documentElement.style.removeProperty('--custom-heading-font');
+    };
+  }, [customPrimaryColor, customHeadingFont]);
+
   return (
     <div className="min-h-screen bg-azone-black relative">
       {/* Back Button */}
@@ -657,7 +676,11 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.4, delay: 0.3 }}
-                  className="inline-block text-xs font-medium uppercase tracking-wider mb-4 px-3 py-1.5 rounded-md border text-gray-400 bg-gray-900/40 border-gray-800/30"
+                  className="inline-block text-xs font-medium uppercase tracking-wider mb-4 px-3 py-1.5 rounded-md border text-gray-400 bg-gray-900/40 border-gray-800/30 customizer-preview"
+                  style={{ 
+                    borderColor: customPrimaryColor + '40',
+                    backgroundColor: customPrimaryColor + '20'
+                  }}
                 >
                   {template.category}
                 </motion.span>
@@ -668,8 +691,12 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}
                   className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white mb-4 leading-[1.15] tracking-tight"
+                  style={{ 
+                    fontFamily: customHeadingFont,
+                    color: customPrimaryColor 
+                  }}
                 >
-                  {template.title}
+                  {customSiteName || template.title}
                 </motion.h1>
 
                 {/* Description */}
@@ -701,6 +728,9 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                       }}
                       whileHover={{ scale: 1.1, y: -5 }}
                       className="flex items-center gap-2 px-4 py-2.5 bg-gray-950/90 backdrop-blur-xl border border-gray-800/60 rounded-xl text-white group/tech shadow-lg shadow-black/30"
+                      style={{
+                        borderColor: index === 0 ? customPrimaryColor + '60' : undefined
+                      }}
                     >
                       <motion.div
                         animate={{
@@ -712,7 +742,10 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                           delay: index * 0.15,
                           ease: "easeInOut",
                         }}
-                        className="text-gray-400 group-hover/tech:text-azone-purple transition-colors duration-200"
+                        className="text-gray-400 group-hover/tech transition-colors duration-200"
+                        style={{
+                          color: index === 0 ? customPrimaryColor : undefined
+                        }}
                       >
                         {getTechIcon(tech)}
                       </motion.div>
@@ -738,7 +771,12 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
           <div className="lg:col-span-2 space-y-12">
             {/* Image Gallery */}
             <motion.div variants={itemVariants} className="space-y-6">
-              <h2 className="text-3xl font-semibold text-white mb-6">Gallery</h2>
+              <h2 
+                className="text-3xl font-semibold text-white mb-6"
+                style={{ fontFamily: customHeadingFont }}
+              >
+                Gallery
+              </h2>
 
               {/* Main Image with Lightbox */}
               <div
@@ -814,7 +852,12 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
 
             {/* Production Features - Glassmorphic Cards */}
             <motion.div variants={itemVariants} className="space-y-6">
-              <h2 className="text-3xl font-semibold text-white mb-6">Production Features</h2>
+              <h2 
+                className="text-3xl font-semibold text-white mb-6"
+                style={{ fontFamily: customHeadingFont }}
+              >
+                Production Features
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {template.features.map((feature, index) => (
                   <motion.div
@@ -824,8 +867,16 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                     transition={{ duration: 0.4, delay: index * 0.05 }}
                     className="flex items-start gap-3 p-5 bg-gray-950/80 backdrop-blur-xl border border-gray-800/50 rounded-2xl hover:border-gray-700/60 transition-all duration-300 group"
                   >
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-azone-purple/20 flex items-center justify-center group-hover:bg-azone-purple/30 transition-colors">
-                      <Check className="w-4 h-4 text-azone-purple" />
+                    <div 
+                      className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors"
+                      style={{
+                        backgroundColor: customPrimaryColor + '20'
+                      }}
+                    >
+                      <Check 
+                        className="w-4 h-4" 
+                        style={{ color: customPrimaryColor }}
+                      />
                     </div>
                     <span className="text-gray-300 leading-relaxed">{feature}</span>
                   </motion.div>
@@ -911,6 +962,21 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
               variants={itemVariants}
               className="sticky top-24 space-y-6"
             >
+              {/* Customizer Sidebar */}
+              <CustomizerSidebar
+                siteName={customSiteName}
+                primaryColor={customPrimaryColor}
+                headingFont={customHeadingFont}
+                onSiteNameChange={setCustomSiteName}
+                onPrimaryColorChange={setCustomPrimaryColor}
+                onHeadingFontChange={setCustomHeadingFont}
+                onReset={() => {
+                  setCustomSiteName("My Store");
+                  setCustomPrimaryColor("#7C3AED");
+                  setCustomHeadingFont("Inter");
+                }}
+              />
+
               {/* Purchase Card - Glassmorphic */}
               <div className="bg-gray-950/90 backdrop-blur-2xl border border-gray-800/50 rounded-3xl p-8 shadow-2xl shadow-black/50">
                 {/* Price */}

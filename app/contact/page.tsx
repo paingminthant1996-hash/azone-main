@@ -46,13 +46,29 @@ export default function ContactPage() {
 
     setIsSubmitting(true);
     try {
-      // Handle form submission
-      console.log("Form submitted:", formData);
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send message");
+      }
+
+      // Show success message
+      alert("Message sent successfully! We'll get back to you soon.");
+      
       // Reset form
       setFormData({ name: "", email: "", company: "", message: "" });
       setErrors({});
-    } catch (error) {
+    } catch (error: any) {
       console.error("Form submission error:", error);
+      alert(error.message || "Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
