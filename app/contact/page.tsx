@@ -275,10 +275,10 @@ export default function ContactPage() {
                   </h3>
                 </div>
                 <a
-                  href="mailto:hello@azone.store"
+                  href="mailto:paingminthant1996@gmail.com"
                   className="text-white hover:text-azone-purple transition-colors duration-200 font-medium focus-visible:outline-2 focus-visible:outline-azone-purple focus-visible:outline-offset-2 focus-visible:rounded"
                 >
-                  hello@azone.store
+                  paingminthant1996@gmail.com
                 </a>
               </div>
 
@@ -294,15 +294,15 @@ export default function ContactPage() {
                 </div>
                 <div className="text-gray-300 leading-relaxed space-y-1">
                   <p className="text-white font-medium">Azone.store</p>
-                  <p>San Francisco, CA</p>
-                  <p>United States</p>
+                  <p>Myanmar</p>
+                  <p className="text-sm text-gray-400 mt-2">Remote Team</p>
                 </div>
               </div>
 
               {/* Response Time */}
               <div className="pt-8 border-t border-gray-800">
                 <p className="text-sm text-gray-300 leading-relaxed">
-                  We typically respond within 24 hours during business days.
+                  We typically respond within 24-48 hours during business days.
                 </p>
               </div>
             </motion.div>
