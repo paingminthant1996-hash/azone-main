@@ -570,7 +570,7 @@ export default function Header() {
                   Contact
                 </Link>
                 <Link
-                  href="/templates"
+                  href="/Services"
                   className="hidden sm:inline-block px-6 py-2.5 text-sm font-semibold bg-azone-purple text-white rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50"
                   aria-label="Get Started"
                 >
@@ -820,7 +820,7 @@ export default function Header() {
             )}
             {/* Mobile Admin Section - DISABLED: Completely removed from public UI */}
             <Link
-              href="/templates"
+              href="/services"
               onClick={() => setIsMobileMenuOpen(false)}
               className="block mx-4 mt-4 px-6 py-2.5 text-sm font-semibold bg-azone-purple text-white rounded-lg text-center transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50"
             >
