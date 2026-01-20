@@ -365,7 +365,6 @@ const CodePreview = ({ filePath, code, onCopy }: { filePath: string; code: strin
 
 export default function TemplateDetail({ template }: TemplateDetailProps) {
   const router = useRouter();
-  const [isScrolled, setIsScrolled] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -554,14 +553,6 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
     }
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Cinematic entrance animation variants
   const containerVariants = {
@@ -617,33 +608,6 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
         </motion.button>
       </div>
 
-      {/* Floating Sticky CTA Button */}
-      <AnimatePresence>
-        {isScrolled && (
-          <motion.div
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="fixed top-24 right-6 z-50"
-          >
-            <motion.button
-              className="px-6 py-3 bg-azone-purple text-white rounded-xl font-semibold shadow-lg shadow-azone-purple/50 flex items-center gap-2 backdrop-blur-xl border border-azone-purple/40"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{
-                duration: 0.25,
-                ease: [0.25, 0.1, 0.25, 1],
-                delay: 0.05,
-              }}
-            >
-              <ShoppingCart className="w-4 h-4" />
-              Get Started
-              <ArrowRight className="w-4 h-4" />
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Immersive Header - Full-width Glassmorphic Container */}
       <div className="relative w-full h-[70vh] md:h-[80vh] overflow-hidden">
