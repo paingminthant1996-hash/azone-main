@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Calendar, ArrowRight, Sparkles } from "lucide-react";
 import { getAllLegacyProjects } from "@/lib/db/queries";
 import { getAllLegacyProjects as getLocalLegacyProjects } from "@/lib/data";
@@ -94,7 +95,17 @@ interface LegacyCardProps {
 }
 
 function LegacyCard({ project, index }: LegacyCardProps) {
+  const router = useRouter();
   const [imageError, setImageError] = useState(false);
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on the button (it has its own link)
+    if ((e.target as HTMLElement).closest('a')) {
+      return;
+    }
+    // Link to case studies page
+    router.push("/case-studies");
+  };
   
   return (
     <motion.div
@@ -103,7 +114,8 @@ function LegacyCard({ project, index }: LegacyCardProps) {
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       whileHover={{ scale: 1.02, y: -5 }}
-      className="break-inside-avoid mb-6 group relative rounded-3xl overflow-hidden transition-all duration-500"
+      onClick={handleCardClick}
+      className="break-inside-avoid mb-6 group relative rounded-3xl overflow-hidden transition-all duration-500 cursor-pointer"
     >
       {/* Glassmorphism Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-900/95 via-gray-900/90 to-gray-900/95 backdrop-blur-2xl border border-gray-800/60 rounded-3xl group-hover:border-gray-700/80 transition-all duration-500 shadow-2xl shadow-black/50"></div>
@@ -185,7 +197,7 @@ function LegacyCard({ project, index }: LegacyCardProps) {
           </div>
 
           {/* View Showcase Button - CTA with Purple */}
-          <Link href={project.projectUrl || "#"}>
+          <Link href="/case-studies">
             <motion.button
               className="w-full py-3.5 px-4 bg-azone-purple text-white rounded-xl font-semibold text-sm transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50 flex items-center justify-center gap-2 group/btn"
               whileHover={{ scale: 1.02 }}
