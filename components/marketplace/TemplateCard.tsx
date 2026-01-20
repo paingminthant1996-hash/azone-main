@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSettings } from "@/lib/contexts/SettingsContext";
 import {
   Sparkles,
@@ -137,10 +138,19 @@ export default function TemplateCard({
   featured = false,
   index = 0,
 }: TemplateCardProps) {
+  const router = useRouter();
   const { settings, t } = useSettings();
   const themeColor = settings?.themeColor || "#7C3AED";
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on the button (it has its own link)
+    if ((e.target as HTMLElement).closest('a')) {
+      return;
+    }
+    router.push(`/templates/${slug}`);
+  };
 
   return (
     <motion.div
@@ -154,7 +164,8 @@ export default function TemplateCard({
       }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className={`group relative rounded-3xl overflow-visible transition-all duration-250 ${featured
+      onClick={handleCardClick}
+      className={`group relative rounded-3xl overflow-visible transition-all duration-250 cursor-pointer ${featured
           ? 'md:col-span-2 lg:col-span-2 scale-[1.02] md:scale-100'
           : ''
         }`}
@@ -263,26 +274,25 @@ export default function TemplateCard({
           </div>
 
           {/* View Details Button - CTA with Theme Color */}
-          <Link href={`/templates/${slug}`}>
-            <motion.button
-              aria-label={`${t("view-details-button")} ${title}`}
-              className="w-full py-3.5 px-4 text-white rounded-xl font-semibold text-sm transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2 group/btn focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
-              style={{
-                backgroundColor: themeColor,
-                boxShadow: `0 10px 40px ${themeColor}40`,
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{
-                duration: 0.25,
-                ease: [0.25, 0.1, 0.25, 1],
-                delay: 0.05
-              }}
-            >
-              {t("view-details-button")}
-              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out" aria-hidden="true" />
-            </motion.button>
-          </Link>
+          <motion.a
+            href={`/templates/${slug}`}
+            aria-label={`${t("view-details-button")} ${title}`}
+            className="block w-full py-3.5 px-4 text-white rounded-xl font-semibold text-sm transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2 group/btn focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+            style={{
+              backgroundColor: themeColor,
+              boxShadow: `0 10px 40px ${themeColor}40`,
+            }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{
+              duration: 0.25,
+              ease: [0.25, 0.1, 0.25, 1],
+              delay: 0.05
+            }}
+          >
+            {t("view-details-button")}
+            <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out" aria-hidden="true" />
+          </motion.a>
         </div>
       </div>
 

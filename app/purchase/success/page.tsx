@@ -5,6 +5,9 @@ import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { CheckCircle, Download, ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { getSession } from "@/lib/auth/auth";
+import { getDownloadUrl } from "@/lib/auth/purchases";
+import { createClient } from "@/lib/auth/supabase-client";
 
 export default function PurchaseSuccessPage() {
   const searchParams = useSearchParams();
@@ -16,22 +19,91 @@ export default function PurchaseSuccessPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (sessionId && templateId) {
-      // In a real app, verify the session and generate download link
-      // For now, we'll create a mock download link
-      // In production, you'd verify the payment with Stripe and generate a secure download link
-      
-      // Simulate API call to verify purchase and get download link
-      setTimeout(() => {
-        // Mock download link - in production, this would be a secure, time-limited link
-        const mockDownloadLink = `https://github.com/azone-store/${templateId}/archive/refs/heads/main.zip`;
-        setDownloadLink(mockDownloadLink);
+    async function fetchDownloadLink() {
+      if (!sessionId || !templateId) {
+        setError("Missing session information");
         setLoading(false);
-      }, 1500);
-    } else {
-      setError("Missing session information");
-      setLoading(false);
+        return;
+      }
+
+      try {
+        // Get user session
+        const { user, error: sessionError } = await getSession();
+        if (sessionError || !user) {
+          setError("Please sign in to download your purchase");
+          setLoading(false);
+          return;
+        }
+
+        // Find purchase by stripe_session_id
+        const supabase = createClient();
+        const { data: purchase, error: purchaseError } = await supabase
+          .from("purchases_v2")
+          .select("template_version_id")
+          .eq("stripe_session_id", sessionId)
+          .eq("user_id", user.id)
+          .eq("granted", true)
+          .eq("refunded", false)
+          .single();
+
+        if (purchaseError || !purchase) {
+          // Purchase might not be recorded yet, wait a bit and retry
+          setTimeout(async () => {
+            const { data: retryPurchase, error: retryError } = await supabase
+              .from("purchases_v2")
+              .select("template_version_id")
+              .eq("stripe_session_id", sessionId)
+              .eq("user_id", user.id)
+              .eq("granted", true)
+              .eq("refunded", false)
+              .single();
+
+            if (retryError || !retryPurchase) {
+              setError("Purchase not found. Please check your account downloads page.");
+              setLoading(false);
+              return;
+            }
+
+            // Get download URL
+            const { url, error: downloadError } = await getDownloadUrl(
+              user.id,
+              retryPurchase.template_version_id
+            );
+
+            if (downloadError || !url) {
+              setError(downloadError || "Failed to generate download link");
+              setLoading(false);
+              return;
+            }
+
+            setDownloadLink(url);
+            setLoading(false);
+          }, 2000);
+          return;
+        }
+
+        // Get download URL
+        const { url, error: downloadError } = await getDownloadUrl(
+          user.id,
+          purchase.template_version_id
+        );
+
+        if (downloadError || !url) {
+          setError(downloadError || "Failed to generate download link");
+          setLoading(false);
+          return;
+        }
+
+        setDownloadLink(url);
+        setLoading(false);
+      } catch (err: any) {
+        console.error("Failed to fetch download link:", err);
+        setError(err.message || "Failed to load download link");
+        setLoading(false);
+      }
     }
+
+    fetchDownloadLink();
   }, [sessionId, templateId]);
 
   const handleDownload = () => {

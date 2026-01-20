@@ -1,7 +1,7 @@
 "use server";
 
 // Email notification utilities
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 interface EmailOptions {
   to: string;
@@ -11,43 +11,55 @@ interface EmailOptions {
 }
 
 /**
- * Send email notification using Resend
+ * Get Gmail SMTP transporter
+ */
+function getEmailTransporter() {
+  const user = process.env.GMAIL_USER;
+  const appPassword = process.env.GMAIL_APP_PASSWORD;
+
+  if (!user || !appPassword) {
+    throw new Error("Gmail credentials not configured");
+  }
+
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: user,
+      pass: appPassword, // App Password, not regular password
+    },
+  });
+}
+
+/**
+ * Send email notification using Gmail SMTP
  */
 export async function sendEmail(options: EmailOptions): Promise<{ success: boolean; error?: string }> {
   try {
-    // Check if Resend API key is configured
-    const resendApiKey = process.env.RESEND_API_KEY;
-
-    if (!resendApiKey) {
-      // Fallback: log email in development mode
-      console.log("📧 Email would be sent (RESEND_API_KEY not configured):", {
+    // Check if Gmail credentials are configured
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+      console.log("📧 Email would be sent (Gmail credentials not configured):", {
         to: options.to,
         subject: options.subject,
       });
       return { success: true };
     }
 
-    // Initialize Resend client
-    const resend = new Resend(resendApiKey);
+    const transporter = getEmailTransporter();
+    const fromEmail = process.env.GMAIL_FROM_EMAIL || process.env.GMAIL_USER || "paingminthant1996@gmail.com";
 
-    // Send email via Resend
-    const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'Azone.store <noreply@paing.xyz>',
+    // Send email via Gmail SMTP
+    const info = await transporter.sendMail({
+      from: fromEmail,
       to: options.to,
       subject: options.subject,
       html: options.html,
       text: options.text,
     });
 
-    if (error) {
-      console.error("Resend API error:", error);
-      return { success: false, error: error.message || "Failed to send email" };
-    }
-
     console.log("📧 Email sent successfully:", {
       to: options.to,
       subject: options.subject,
-      id: data?.id,
+      messageId: info.messageId,
     });
 
     return { success: true };

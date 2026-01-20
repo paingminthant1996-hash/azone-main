@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight, TrendingUp, Clock, Users, Zap } from "lucide-react";
 
 interface CaseStudy {
@@ -19,6 +20,7 @@ interface CaseStudy {
   }[];
   imageUrl: string;
   templateUsed: string;
+  templateSlug?: string; // Add template slug for linking
 }
 
 const caseStudies: CaseStudy[] = [
@@ -41,6 +43,7 @@ const caseStudies: CaseStudy[] = [
     ],
     imageUrl: "/images/case-studies/payflow.jpg",
     templateUsed: "Analytics Dashboard",
+    templateSlug: "aura-ai-dashboard", // Link to Analytics Dashboard template
   },
   {
     id: "2",
@@ -61,6 +64,7 @@ const caseStudies: CaseStudy[] = [
     ],
     imageUrl: "/images/case-studies/stylehub.jpg",
     templateUsed: "E-commerce Platform",
+    templateSlug: "nexus-saas-platform", // Link to E-commerce/SaaS template
   },
   {
     id: "3",
@@ -81,6 +85,7 @@ const caseStudies: CaseStudy[] = [
     ],
     imageUrl: "/images/case-studies/dataviz.jpg",
     templateUsed: "Analytics Dashboard",
+    templateSlug: "quantum-dashboard-pro", // Link to SaaS Dashboard template
   },
 ];
 
@@ -148,9 +153,19 @@ function CaseStudyCard({ study, index }: CaseStudyCardProps) {
               {study.title}
             </h2>
             <p className="text-lg text-gray-400 mb-1">{study.company}</p>
-            <p className="text-sm text-gray-500">
-              Template: <span className="text-azone-purple">{study.templateUsed}</span>
-            </p>
+            {study.templateSlug ? (
+              <Link 
+                href={`/templates/${study.templateSlug}`}
+                className="text-sm text-gray-500 hover:text-azone-purple transition-colors group"
+              >
+                Template: <span className="text-azone-purple group-hover:underline">{study.templateUsed}</span>
+                <ArrowRight className="w-3 h-3 inline-block ml-1 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            ) : (
+              <p className="text-sm text-gray-500">
+                Template: <span className="text-azone-purple">{study.templateUsed}</span>
+              </p>
+            )}
           </div>
 
           <div className="space-y-6 mb-8">
