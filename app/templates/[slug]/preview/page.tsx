@@ -127,19 +127,19 @@ export default function TemplatePreviewPage() {
 
   return (
     <div className="min-h-screen bg-azone-black flex flex-col">
-      {/* Back Button - Fixed Left Side */}
+      {/* Back Button - Fixed Top Left Corner */}
       <Link
         href={`/templates/${slug}`}
-        className="fixed top-1/2 -translate-y-1/2 left-4 z-50 flex items-center gap-2 px-4 py-3 bg-gray-950/90 backdrop-blur-xl border border-gray-800/50 hover:bg-gray-900 text-gray-300 hover:text-white rounded-xl transition-all text-sm shadow-lg"
+        className="fixed top-4 left-4 z-50 flex items-center gap-2 px-4 py-3 bg-gray-950/90 backdrop-blur-xl border border-gray-800/50 hover:bg-gray-900 text-gray-300 hover:text-white rounded-xl transition-all text-sm shadow-lg"
       >
         <ArrowLeft className="w-4 h-4" />
         <span className="hidden lg:inline">Back</span>
       </Link>
 
-      {/* Save & Download Button - Fixed Right Side */}
+      {/* Save & Download Button - Fixed Top Right Corner */}
       <motion.button
         onClick={handleSave}
-        className="fixed top-1/2 -translate-y-1/2 right-4 z-50 flex items-center gap-2 px-4 py-3 bg-azone-purple hover:bg-purple-600 text-white rounded-xl transition-all text-sm font-medium shadow-lg shadow-azone-purple/30"
+        className="fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 bg-azone-purple hover:bg-purple-600 text-white rounded-xl transition-all text-sm font-medium shadow-lg shadow-azone-purple/30"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
