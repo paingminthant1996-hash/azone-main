@@ -127,25 +127,28 @@ export default function TemplatePreviewPage() {
 
   return (
     <div className="min-h-screen bg-azone-black flex flex-col">
-      {/* Back Button - Fixed Top Left Corner */}
-      <Link
-        href={`/templates/${slug}`}
-        className="fixed top-4 left-4 z-50 flex items-center gap-2 px-4 py-3 bg-gray-950/90 backdrop-blur-xl border border-gray-800/50 hover:bg-gray-900 text-gray-300 hover:text-white rounded-xl transition-all text-sm shadow-lg"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span className="hidden lg:inline">Back</span>
-      </Link>
+      {/* Floating Buttons Bar - Below Header */}
+      <div className="fixed top-20 left-4 right-4 z-50 flex items-center justify-between pointer-events-none">
+        {/* Back Button - Left */}
+        <Link
+          href={`/templates/${slug}`}
+          className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-gray-950/95 backdrop-blur-xl border border-gray-800/50 hover:bg-gray-900 text-gray-300 hover:text-white rounded-xl transition-all text-sm shadow-lg"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </Link>
 
-      {/* Save & Download Button - Fixed Top Right Corner */}
-      <motion.button
-        onClick={handleSave}
-        className="fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 bg-azone-purple hover:bg-purple-600 text-white rounded-xl transition-all text-sm font-medium shadow-lg shadow-azone-purple/30"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        <Save className="w-4 h-4" />
-        <span className="hidden lg:inline">Save & Download</span>
-      </motion.button>
+        {/* Save & Download Button - Right */}
+        <motion.button
+          onClick={handleSave}
+          className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 bg-azone-purple hover:bg-purple-600 text-white rounded-xl transition-all text-sm font-medium shadow-lg shadow-azone-purple/30"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <Save className="w-4 h-4" />
+          <span>Save & Download</span>
+        </motion.button>
+      </div>
 
       {/* Full Page iframe */}
       <div className="flex-1 relative">
