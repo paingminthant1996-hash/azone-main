@@ -47,7 +47,6 @@ import { getSession } from "@/lib/auth/auth";
 import { hasUserPurchasedTemplate, getDownloadUrl } from "@/lib/auth/purchases";
 import { getAllTemplates } from "@/lib/db/queries";
 import Link from "next/link";
-import CustomizerSidebar from "./CustomizerSidebar";
 
 interface TemplateDetailProps {
   template: Template;
@@ -381,13 +380,8 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [relatedTemplates, setRelatedTemplates] = useState<Template[]>([]);
-  const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [templateDetail, setTemplateDetail] = useState<any>(null);
 
-  // Customizer state
-  const [customSiteName, setCustomSiteName] = useState("My Store");
-  const [customPrimaryColor, setCustomPrimaryColor] = useState("#7C3AED");
-  const [customHeadingFont, setCustomHeadingFont] = useState("Inter");
 
   // Fetch user and template details on mount
   useEffect(() => {
@@ -579,18 +573,6 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
     },
   };
 
-  // Apply customizations via useEffect
-  useEffect(() => {
-    // Set CSS variables for customizations
-    document.documentElement.style.setProperty('--custom-primary-color', customPrimaryColor);
-    document.documentElement.style.setProperty('--custom-heading-font', customHeadingFont);
-    
-    return () => {
-      // Cleanup on unmount
-      document.documentElement.style.removeProperty('--custom-primary-color');
-      document.documentElement.style.removeProperty('--custom-heading-font');
-    };
-  }, [customPrimaryColor, customHeadingFont]);
 
   return (
     <div className="min-h-screen bg-azone-black relative">
@@ -640,11 +622,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.4, delay: 0.3 }}
-                  className="inline-block text-xs font-medium uppercase tracking-wider mb-4 px-3 py-1.5 rounded-md border text-gray-400 bg-gray-900/40 border-gray-800/30 customizer-preview"
-                  style={{ 
-                    borderColor: customPrimaryColor + '40',
-                    backgroundColor: customPrimaryColor + '20'
-                  }}
+                  className="inline-block text-xs font-medium uppercase tracking-wider mb-4 px-3 py-1.5 rounded-md border text-gray-400 bg-gray-900/40 border-gray-800/30"
                 >
                   {template.category}
                 </motion.span>
@@ -655,12 +633,8 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}
                   className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white mb-4 leading-[1.15] tracking-tight"
-                  style={{ 
-                    fontFamily: customHeadingFont,
-                    color: customPrimaryColor 
-                  }}
                 >
-                  {customSiteName || template.title}
+                  {template.title}
                 </motion.h1>
 
                 {/* Description */}
@@ -692,9 +666,6 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                       }}
                       whileHover={{ scale: 1.1, y: -5 }}
                       className="flex items-center gap-2 px-4 py-2.5 bg-gray-950/90 backdrop-blur-xl border border-gray-800/60 rounded-xl text-white group/tech shadow-lg shadow-black/30"
-                      style={{
-                        borderColor: index === 0 ? customPrimaryColor + '60' : undefined
-                      }}
                     >
                       <motion.div
                         animate={{
@@ -706,10 +677,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                           delay: index * 0.15,
                           ease: "easeInOut",
                         }}
-                        className="text-gray-400 group-hover/tech transition-colors duration-200"
-                        style={{
-                          color: index === 0 ? customPrimaryColor : undefined
-                        }}
+                        className="text-gray-400 group-hover/tech:text-azone-purple transition-colors duration-200"
                       >
                         {getTechIcon(tech)}
                       </motion.div>
@@ -735,10 +703,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
           <div className="lg:col-span-2 space-y-12">
             {/* Image Gallery */}
             <motion.div variants={itemVariants} className="space-y-6">
-              <h2 
-                className="text-3xl font-semibold text-white mb-6"
-                style={{ fontFamily: customHeadingFont }}
-              >
+              <h2 className="text-3xl font-semibold text-white mb-6">
                 Gallery
               </h2>
 
@@ -816,10 +781,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
 
             {/* Production Features - Glassmorphic Cards */}
             <motion.div variants={itemVariants} className="space-y-6">
-              <h2 
-                className="text-3xl font-semibold text-white mb-6"
-                style={{ fontFamily: customHeadingFont }}
-              >
+              <h2 className="text-3xl font-semibold text-white mb-6">
                 Production Features
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -831,16 +793,8 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                     transition={{ duration: 0.4, delay: index * 0.05 }}
                     className="flex items-start gap-3 p-5 bg-gray-950/80 backdrop-blur-xl border border-gray-800/50 rounded-2xl hover:border-gray-700/60 transition-all duration-300 group"
                   >
-                    <div 
-                      className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors"
-                      style={{
-                        backgroundColor: customPrimaryColor + '20'
-                      }}
-                    >
-                      <Check 
-                        className="w-4 h-4" 
-                        style={{ color: customPrimaryColor }}
-                      />
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center bg-azone-purple/20 transition-colors">
+                      <Check className="w-4 h-4 text-azone-purple" />
                     </div>
                     <span className="text-gray-300 leading-relaxed">{feature}</span>
                   </motion.div>
@@ -924,23 +878,8 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
           <div className="lg:col-span-1">
             <motion.div
               variants={itemVariants}
-              className="sticky top-24 space-y-6"
+              className="sticky top-24"
             >
-              {/* Customizer Sidebar */}
-              <CustomizerSidebar
-                siteName={customSiteName}
-                primaryColor={customPrimaryColor}
-                headingFont={customHeadingFont}
-                onSiteNameChange={setCustomSiteName}
-                onPrimaryColorChange={setCustomPrimaryColor}
-                onHeadingFontChange={setCustomHeadingFont}
-                onReset={() => {
-                  setCustomSiteName("My Store");
-                  setCustomPrimaryColor("#7C3AED");
-                  setCustomHeadingFont("Inter");
-                }}
-              />
-
               {/* Purchase Card - Glassmorphic */}
               <div className="bg-gray-950/90 backdrop-blur-2xl border border-gray-800/50 rounded-3xl p-8 shadow-2xl shadow-black/50">
                 {/* Price */}
@@ -1147,68 +1086,49 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                 )}
 
                 {/* Secondary CTA - Live Preview with Pulse Animation */}
-                <motion.button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (template.demoUrl) {
-                      setDemoModalOpen(true);
-                    }
-                  }}
-                  disabled={!template.demoUrl}
-                  className={`w-full py-3.5 px-6 bg-transparent border-2 rounded-xl font-semibold text-base transition-all duration-300 flex items-center justify-center gap-2 group/preview relative overflow-hidden ${template.demoUrl
-                    ? "border-gray-800 text-gray-300 hover:border-gray-700 hover:text-white cursor-pointer"
-                    : "border-gray-800/30 text-gray-600 cursor-not-allowed opacity-50"
-                    }`}
-                  whileHover={template.demoUrl ? { scale: 1.02, y: -2 } : {}}
-                  whileTap={template.demoUrl ? { scale: 0.98 } : {}}
-                  animate={
-                    template.demoUrl
-                      ? {
-                        boxShadow: [
-                          "0 0 0px rgba(124, 58, 237, 0)",
-                          "0 0 20px rgba(124, 58, 237, 0.3)",
-                          "0 0 0px rgba(124, 58, 237, 0)",
-                        ],
-                      }
-                      : {}
-                  }
-                  transition={{
-                    duration: 0.25,
-                    ease: [0.25, 0.1, 0.25, 1],
-                    delay: 0.05,
-                    boxShadow: {
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    },
-                  }}
-                >
-                  {/* Subtle Purple Glow on Hover */}
-                  {template.demoUrl && (
-                    <div className="absolute inset-0 bg-azone-purple/10 opacity-0 group-hover/preview:opacity-100 transition-opacity duration-300 blur-xl"></div>
-                  )}
-                  <div className="relative z-10 flex items-center gap-2">
-                    <motion.div
-                      animate={
-                        template.demoUrl
-                          ? {
-                            scale: [1, 1.1, 1],
-                          }
-                          : {}
-                      }
-                      transition={{
+                <Link href={`/templates/${template.slug}/preview`}>
+                  <motion.button
+                    className="w-full py-3.5 px-6 bg-transparent border-2 border-gray-800 text-gray-300 hover:border-gray-700 hover:text-white rounded-xl font-semibold text-base transition-all duration-300 flex items-center justify-center gap-2 group/preview relative overflow-hidden cursor-pointer"
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    animate={{
+                      boxShadow: [
+                        "0 0 0px rgba(124, 58, 237, 0)",
+                        "0 0 20px rgba(124, 58, 237, 0.3)",
+                        "0 0 0px rgba(124, 58, 237, 0)",
+                      ],
+                    }}
+                    transition={{
+                      duration: 0.25,
+                      ease: [0.25, 0.1, 0.25, 1],
+                      delay: 0.05,
+                      boxShadow: {
                         duration: 2,
                         repeat: Infinity,
                         ease: "easeInOut",
-                      }}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </motion.div>
-                    Live Preview
-                    <ExternalLink className="w-4 h-4 group-hover/preview:translate-x-0.5 transition-transform duration-300 ease-out" />
-                  </div>
-                </motion.button>
+                      },
+                    }}
+                  >
+                    {/* Subtle Purple Glow on Hover */}
+                    <div className="absolute inset-0 bg-azone-purple/10 opacity-0 group-hover/preview:opacity-100 transition-opacity duration-300 blur-xl"></div>
+                    <div className="relative z-10 flex items-center gap-2">
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.1, 1],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </motion.div>
+                      Live Preview
+                      <ArrowRight className="w-4 h-4 group-hover/preview:translate-x-0.5 transition-transform duration-300 ease-out" />
+                    </div>
+                  </motion.button>
+                </Link>
 
                 {/* Included Items */}
                 <div className="pt-8 mt-8 border-t border-gray-800/50">
