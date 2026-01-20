@@ -570,7 +570,7 @@ export default function Header() {
                   Contact
                 </Link>
                 <Link
-                  href="/Services"
+                  href="/services"
                   className="hidden sm:inline-block px-6 py-2.5 text-sm font-semibold bg-azone-purple text-white rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-azone-purple/50"
                   aria-label="Get Started"
                 >
