@@ -8,6 +8,7 @@ import { ToastProvider } from "@/lib/utils/toast";
 import { SettingsProvider } from "@/lib/contexts/SettingsContext";
 import { DesignModeProvider } from "@/lib/contexts/DesignModeContext";
 import { DesignModeToggle } from "@/components/admin/DesignModeToggle";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Azone.store - Production-Ready Templates for Serious Builders",
@@ -107,6 +108,7 @@ export default function RootLayout({
             </DesignModeProvider>
           </SettingsProvider>
         </ErrorBoundary>
+        <Analytics />
       </body>
     </html>
   );
