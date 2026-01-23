@@ -904,6 +904,33 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                   </p>
                 </div>
 
+                {/* Quick Action Buttons */}
+                <div className="flex items-center gap-2 mb-6">
+                  <button
+                    onClick={() => {
+                      const downloadUrls = templateDetail?.download_urls || template.downloadUrls || [];
+                      if (downloadUrls.length > 0) {
+                        window.open(downloadUrls[0], "_blank", "noopener,noreferrer");
+                      }
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800/50 hover:bg-gray-800 border border-gray-700 rounded-xl text-gray-300 hover:text-white text-sm font-medium transition-all whitespace-nowrap"
+                  >
+                    <Download className="w-4 h-4 flex-shrink-0" />
+                    <span>Download ZIP</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (template.demoUrl) {
+                        window.open(template.demoUrl, "_blank", "noopener,noreferrer");
+                      }
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800/50 hover:bg-gray-800 border border-gray-700 rounded-xl text-gray-300 hover:text-white text-sm font-medium transition-all whitespace-nowrap"
+                  >
+                    <ExternalLink className="w-4 h-4 flex-shrink-0" />
+                    <span>Edit URL</span>
+                  </button>
+                </div>
+
                 {/* Primary CTA - Purchase Now or Download */}
                 {checkingAccess ? (
                   <div className="w-full py-4 px-6 bg-gray-800/50 text-gray-500 rounded-xl font-semibold text-lg mb-4 flex items-center justify-center gap-2">
