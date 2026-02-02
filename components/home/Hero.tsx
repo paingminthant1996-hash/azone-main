@@ -8,7 +8,7 @@ import { EditableText } from "@/components/shared/EditableText";
 export default function Hero() {
   const { settings, getText } = useSettings();
   const themeColor = settings?.themeColor || "#7C3AED";
-  
+
   // Get granular translations with fallback
   const heroTitle = getText(settings?.heroTitleEn, settings?.heroTitleMm);
   const heroSubtitle = getText(settings?.heroSubtitleEn, settings?.heroSubtitleMm);
@@ -142,7 +142,7 @@ export default function Hero() {
               <>
                 <EditableText
                   id="hero-title-line-0"
-                  defaultText="Production-Ready"
+                  defaultText="Launch Your Ideas Faster"
                   className="text-white"
                   onSave={async (newText) => {
                     const currentLang = settings?.language || "en";
@@ -150,7 +150,7 @@ export default function Hero() {
                     await fetch("/api/settings", {
                       method: "PATCH",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ [field]: `${newText}\nLaunch Accelerator\nfor Serious Builders` }),
+                      body: JSON.stringify({ [field]: `${newText}\nwith Azone` }),
                     });
                     window.location.reload();
                   }}
@@ -158,7 +158,7 @@ export default function Hero() {
                 <br />
                 <EditableText
                   id="hero-title-line-1"
-                  defaultText="Launch Accelerator"
+                  defaultText="with Azone"
                   className="bg-clip-text text-transparent"
                   onSave={async (newText) => {
                     const currentLang = settings?.language || "en";
@@ -166,23 +166,7 @@ export default function Hero() {
                     await fetch("/api/settings", {
                       method: "PATCH",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ [field]: `Production-Ready\n${newText}\nfor Serious Builders` }),
-                    });
-                    window.location.reload();
-                  }}
-                />
-                <br />
-                <EditableText
-                  id="hero-title-line-2"
-                  defaultText="for Serious Builders"
-                  className="text-white"
-                  onSave={async (newText) => {
-                    const currentLang = settings?.language || "en";
-                    const field = currentLang === "my" ? "heroTitleMm" : "heroTitleEn";
-                    await fetch("/api/settings", {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ [field]: `Production-Ready\nLaunch Accelerator\n${newText}` }),
+                      body: JSON.stringify({ [field]: `Launch Your Ideas Faster\n${newText}` }),
                     });
                     window.location.reload();
                   }}

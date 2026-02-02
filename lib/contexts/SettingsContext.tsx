@@ -28,11 +28,11 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Add timeout to prevent hanging
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
+
       let response;
       try {
         response = await fetch("/api/settings", {
@@ -58,10 +58,12 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         console.warn("Failed to parse settings response, using defaults");
         data = {
           id: "default",
-          themeColor: "#3b82f6",
-          siteName: "My Store",
+          themeColor: "#7C3AED",
+          siteName: "Azone",
           language: "en",
           isMaintenanceMode: false,
+          heroTitleEn: "Launch Your Ideas Faster\nwith Azone",
+          heroSubtitleEn: "Stop building from scratch. Access professionally designed, fully-coded website templates that are ready for production.",
         };
       }
 
@@ -90,10 +92,12 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       // Set default values if fetch fails
       setSettings({
         id: "default",
-        themeColor: "#3b82f6",
-        siteName: "My Store",
+        themeColor: "#7C3AED",
+        siteName: "Azone",
         language: "en",
         isMaintenanceMode: false,
+        heroTitleEn: "Launch Your Ideas Faster\nwith Azone",
+        heroSubtitleEn: "Stop building from scratch. Access professionally designed, fully-coded website templates that are ready for production.",
       });
     } finally {
       setLoading(false);

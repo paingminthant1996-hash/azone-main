@@ -35,12 +35,12 @@ export const translations: Translations = {
     license: "License",
     copyright: "All rights reserved",
 
-    // Homepage
-    "hero-title-line1": "Production-Ready",
-    "hero-title-line2": "Launch Accelerator",
+    // Homepage (match production paing.xyz)
+    "hero-title-line1": "Launch Your Ideas Faster",
+    "hero-title-line2": "with Azone",
     "hero-title-line3": "for Serious Builders",
-    "hero-description": "Built for scale. Designed for production. Used in real-world products.",
-    "hero-subtitle": "For funded startup founders and senior engineers.",
+    "hero-description": "Stop building from scratch. Access professionally designed, fully-coded website templates that are ready for production.",
+    "hero-subtitle": "Stop building from scratch. Access professionally designed, fully-coded website templates that are ready for production.",
     "browse-templates": "Browse Templates",
     "case-studies-button": "Case Studies",
     "scroll-to-explore": "Scroll to explore",

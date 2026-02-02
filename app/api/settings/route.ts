@@ -75,7 +75,7 @@ function transformSiteSettings(row: any): SiteSettings {
   return {
     id: row.id,
     themeColor: row.theme_color || "#3b82f6",
-    siteName: row.site_name || "My Store",
+    siteName: row.site_name || "Azone",
     language: row.language || "en",
     isMaintenanceMode: row.is_maintenance_mode || false,
     // Granular Translation Fields (English)
@@ -95,15 +95,15 @@ function transformSiteSettings(row: any): SiteSettings {
 
 // GET - Fetch site settings
 export async function GET() {
-  // Default settings to return if anything fails
+  // Default settings to return if anything fails (match production paing.xyz)
   const defaultSettings = {
     id: "default",
-    themeColor: "#3b82f6",
-    siteName: "My Store",
+    themeColor: "#7C3AED",
+    siteName: "Azone",
     language: "en",
     isMaintenanceMode: false,
-    heroTitleEn: undefined,
-    heroSubtitleEn: undefined,
+    heroTitleEn: "Launch Your Ideas Faster\nwith Azone",
+    heroSubtitleEn: "Stop building from scratch. Access professionally designed, fully-coded website templates that are ready for production.",
     ctaButtonEn: undefined,
     footerTextEn: undefined,
     heroTitleMm: undefined,
@@ -279,7 +279,7 @@ export async function PATCH(request: NextRequest) {
       // Insert new row with defaults
       const defaultSettings = {
         theme_color: updates.theme_color || "#3b82f6",
-        site_name: updates.site_name || "My Store",
+        site_name: updates.site_name || "Azone",
         language: updates.language || "en",
         is_maintenance_mode: updates.is_maintenance_mode || false,
       };

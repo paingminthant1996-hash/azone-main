@@ -14,7 +14,7 @@ export default function AdminSettingsPage() {
 
   const [formData, setFormData] = useState({
     themeColor: "#3b82f6",
-    siteName: "My Store",
+    siteName: "Azone",
     language: "en",
     // Granular Translation Fields (English)
     heroTitleEn: "",
@@ -42,7 +42,7 @@ export default function AdminSettingsPage() {
         setSettings(data);
         setFormData({
           themeColor: data.themeColor || "#3b82f6",
-          siteName: data.siteName || "My Store",
+          siteName: data.siteName || "Azone",
           language: data.language || "en",
           heroTitleEn: data.heroTitleEn || "",
           heroSubtitleEn: data.heroSubtitleEn || "",
@@ -232,7 +232,7 @@ export default function AdminSettingsPage() {
                     value={formData.siteName}
                     onChange={(e) => handleChange("siteName", e.target.value)}
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="My Store"
+                    placeholder="Azone"
                     required
                   />
                   <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -270,7 +270,7 @@ export default function AdminSettingsPage() {
             className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-6"
           >
             <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
                 <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Content Management</h2>
@@ -282,7 +282,7 @@ export default function AdminSettingsPage() {
             <div className="space-y-6">
               {/* Hero Title */}
               <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                   <Type className="w-4 h-4" />
                   Hero Title
                 </label>
@@ -293,7 +293,7 @@ export default function AdminSettingsPage() {
                       value={formData.heroTitleEn}
                       onChange={(e) => handleChange("heroTitleEn", e.target.value)}
                       className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-azone-purple focus:border-transparent transition-all resize-none"
-                      placeholder="Production-Ready&#10;Launch Accelerator&#10;for Serious Builders"
+                      placeholder="Launch Your Ideas Faster&#10;with Azone"
                       rows={3}
                     />
                   </div>
@@ -312,7 +312,7 @@ export default function AdminSettingsPage() {
 
               {/* Hero Subtitle */}
               <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                   <Type className="w-4 h-4" />
                   Hero Subtitle
                 </label>
@@ -342,7 +342,7 @@ export default function AdminSettingsPage() {
 
               {/* CTA Button */}
               <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                   <Type className="w-4 h-4" />
                   CTA Button Text
                 </label>
@@ -372,7 +372,7 @@ export default function AdminSettingsPage() {
 
               {/* Footer Text */}
               <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                   <Type className="w-4 h-4" />
                   Footer Description
                 </label>
