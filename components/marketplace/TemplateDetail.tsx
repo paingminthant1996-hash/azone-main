@@ -461,25 +461,37 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
   // Download handler
   const handleDownload = async () => {
     const isFree = template.price === 0 || parseFloat(templateDetail?.price || "0") === 0;
-    const downloadPermission = templateDetail?.download_permission || 'purchase';
+    const downloadPermission = templateDetail?.download_permission || template.downloadPermission || 'purchase';
 
-    // For free templates, use download_urls directly
+    // For free templates, use download_urls directly - no authentication needed
     if (isFree || downloadPermission === 'public') {
-      const downloadUrls = templateDetail?.download_urls || template.downloadUrls || [];
+      setDownloadLoading(true);
+      setDownloadError(null);
 
-      if (downloadUrls.length === 0) {
-        setDownloadError("Download URL not available for this template");
+      try {
+        const downloadUrls = templateDetail?.download_urls || template.downloadUrls || [];
+
+        if (downloadUrls.length === 0) {
+          setDownloadError("Download URL not available for this template");
+          setDownloadLoading(false);
+          return;
+        }
+
+        // Open the first download URL immediately for free templates
+        window.open(downloadUrls[0], "_blank", "noopener,noreferrer");
+        setDownloadLoading(false);
+        return;
+      } catch (err: any) {
+        console.error("Download error:", err);
+        setDownloadError(err?.message || "Download failed. Please try again.");
+        setDownloadLoading(false);
         return;
       }
-
-      // Open the first download URL
-      window.open(downloadUrls[0], "_blank", "noopener,noreferrer");
-      return;
     }
 
     // For paid templates, require version selection and user authentication
-    if (!selectedVersionId) {
-      setDownloadError("No version selected");
+    if (templateVersions.length > 1 && !selectedVersionId) {
+      setDownloadError("Please select a version to download");
       return;
     }
 
@@ -499,7 +511,13 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
 
     try {
       // Get download URL using new purchase utilities
-      const { url, error: downloadError } = await getDownloadUrl(user.id, selectedVersionId);
+      const versionId = templateVersions.length > 1 ? selectedVersionId : (templateVersions[0]?.id || null);
+
+      if (!versionId) {
+        throw new Error("No version available for download");
+      }
+
+      const { url, error: downloadError } = await getDownloadUrl(user.id, versionId);
 
       if (downloadError || !url) {
         throw new Error(downloadError || "Failed to get download URL");
@@ -578,16 +596,17 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
     <div className="min-h-screen bg-azone-black relative">
       {/* Back Button */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <motion.button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm font-medium">Back to Templates</span>
-        </motion.button>
+        <Link href="/templates">
+          <motion.button
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <span className="text-sm font-medium">Back to Templates</span>
+          </motion.button>
+        </Link>
       </div>
 
 
@@ -904,51 +923,24 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                   </p>
                 </div>
 
-                {/* Quick Action Buttons */}
-                <div className="flex items-center gap-2 mb-6">
-                  <button
-                    onClick={() => {
-                      const downloadUrls = templateDetail?.download_urls || template.downloadUrls || [];
-                      if (downloadUrls.length > 0) {
-                        window.open(downloadUrls[0], "_blank", "noopener,noreferrer");
-                      }
-                    }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800/50 hover:bg-gray-800 border border-gray-700 rounded-xl text-gray-300 hover:text-white text-sm font-medium transition-all whitespace-nowrap"
-                  >
-                    <Download className="w-4 h-4 flex-shrink-0" />
-                    <span>Download ZIP</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (template.demoUrl) {
-                        window.open(template.demoUrl, "_blank", "noopener,noreferrer");
-                      }
-                    }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800/50 hover:bg-gray-800 border border-gray-700 rounded-xl text-gray-300 hover:text-white text-sm font-medium transition-all whitespace-nowrap"
-                  >
-                    <ExternalLink className="w-4 h-4 flex-shrink-0" />
-                    <span>Edit URL</span>
-                  </button>
-                </div>
-
-                {/* Primary CTA - Purchase Now or Download */}
+                {/* Primary Download Button */}
                 {checkingAccess ? (
                   <div className="w-full py-4 px-6 bg-gray-800/50 text-gray-500 rounded-xl font-semibold text-lg mb-4 flex items-center justify-center gap-2">
                     <div className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
                     <span>Checking access...</span>
                   </div>
-                ) : hasAccess ? (
+                ) : (hasAccess || template.price === 0 || parseFloat(templateDetail?.price || "0") === 0 || templateDetail?.download_permission === 'public') ? (
                   <>
-                    {/* Download Button - User has purchased */}
+                    {/* Download Button - User has access (purchased or free) */}
                     <motion.button
                       onClick={handleDownload}
-                      disabled={downloadLoading || !selectedVersionId}
-                      className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2 group/download relative overflow-hidden mb-4 ${downloadLoading || !selectedVersionId
+                      disabled={downloadLoading || (templateVersions.length > 1 && !selectedVersionId && !(template.price === 0 || parseFloat(templateDetail?.price || "0") === 0))}
+                      className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2 group/download relative overflow-hidden mb-4 ${downloadLoading || (templateVersions.length > 1 && !selectedVersionId && !(template.price === 0 || parseFloat(templateDetail?.price || "0") === 0))
                         ? "bg-gray-800/50 text-gray-500 cursor-not-allowed"
                         : "bg-green-600/90 hover:bg-green-600 text-white border-2 border-green-500/50"
                         }`}
-                      whileHover={!downloadLoading && selectedVersionId ? { scale: 1.02, y: -2 } : {}}
-                      whileTap={!downloadLoading && selectedVersionId ? { scale: 0.98 } : {}}
+                      whileHover={!(downloadLoading || (templateVersions.length > 1 && !selectedVersionId && !(template.price === 0 || parseFloat(templateDetail?.price || "0") === 0))) ? { scale: 1.02, y: -2 } : {}}
+                      whileTap={!(downloadLoading || (templateVersions.length > 1 && !selectedVersionId && !(template.price === 0 || parseFloat(templateDetail?.price || "0") === 0))) ? { scale: 0.98 } : {}}
                     >
                       <div className="relative z-10 flex items-center gap-2">
                         {downloadLoading ? (
@@ -965,41 +957,13 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                         )}
                       </div>
                     </motion.button>
-                    <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-sm text-green-400 text-center">
-                      ✓ You own this template
-                    </div>
-                  </>
-                ) : template.price === 0 || parseFloat(templateDetail?.price || "0") === 0 || templateDetail?.download_permission === 'public' ? (
-                  <>
-                    {/* Free Template - Direct Download Button */}
-                    <motion.button
-                      onClick={handleDownload}
-                      disabled={downloadLoading}
-                      className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2 group/download relative overflow-hidden mb-4 ${downloadLoading
-                        ? "bg-gray-800/50 text-gray-500 cursor-not-allowed"
-                        : "bg-green-600/90 hover:bg-green-600 text-white border-2 border-green-500/50"
-                        }`}
-                      whileHover={!downloadLoading ? { scale: 1.02, y: -2 } : {}}
-                      whileTap={!downloadLoading ? { scale: 0.98 } : {}}
-                    >
-                      <div className="relative z-10 flex items-center gap-2">
-                        {downloadLoading ? (
-                          <>
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>Preparing Download...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Download className="w-5 h-5" />
-                            Download Free Template
-                            <ArrowRight className="w-5 h-5 group-hover/download:translate-x-1 transition-transform duration-300 ease-out" />
-                          </>
-                        )}
+                    {(hasAccess || template.price === 0 || parseFloat(templateDetail?.price || "0") === 0 || templateDetail?.download_permission === 'public') && (
+                      <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-sm text-green-400 text-center">
+                        {template.price === 0 || parseFloat(templateDetail?.price || "0") === 0 || templateDetail?.download_permission === 'public'
+                          ? "✓ Free Template - No Purchase Required"
+                          : "✓ You own this template"}
                       </div>
-                    </motion.button>
-                    <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-sm text-green-400 text-center">
-                      ✓ Free Template - No Purchase Required
-                    </div>
+                    )}
                   </>
                 ) : (
                   <>
@@ -1084,7 +1048,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                 )}
 
                 {/* Version Selector (if multiple versions) */}
-                {templateVersions.length > 1 && (
+                {templateVersions.length > 1 && !(template.price === 0 || parseFloat(templateDetail?.price || "0") === 0) && (
                   <div className="mb-4">
                     <label className="text-sm text-gray-400 mb-2 block">Select Version:</label>
                     <select
@@ -1101,61 +1065,37 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
                   </div>
                 )}
 
+                {/* Action Group - Live Preview and Edit URL side-by-side */}
+                <div className="flex items-center gap-2 mb-4">
+                  <Link href={`/templates/${template.slug}/preview`} className="flex-1">
+                    <motion.button
+                      className="w-full py-3 px-4 bg-transparent border-2 border-gray-800 text-gray-300 hover:border-gray-700 hover:text-white rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 group/preview relative overflow-hidden cursor-pointer"
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Eye className="w-4 h-4" />
+                      Live Preview
+                    </motion.button>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      if (template.demoUrl) {
+                        window.open(template.demoUrl, "_blank", "noopener,noreferrer");
+                      }
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-transparent border-2 border-gray-800 text-gray-300 hover:border-gray-700 hover:text-white rounded-xl font-semibold text-sm transition-all duration-300"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Edit URL
+                  </button>
+                </div>
+
                 {/* User Status */}
-                {user ? (
+                {user && !(template.price === 0 || parseFloat(templateDetail?.price || "0") === 0) && (
                   <div className="mb-4 text-xs text-gray-500 text-center">
                     Signed in as: {user.email || user.id}
                   </div>
-                ) : (
-                  <div className="mb-4 text-xs text-gray-500 text-center">
-                    Sign in to download purchased templates
-                  </div>
                 )}
-
-                {/* Secondary CTA - Live Preview with Pulse Animation */}
-                <Link href={`/templates/${template.slug}/preview`}>
-                  <motion.button
-                    className="w-full py-3.5 px-6 bg-transparent border-2 border-gray-800 text-gray-300 hover:border-gray-700 hover:text-white rounded-xl font-semibold text-base transition-all duration-300 flex items-center justify-center gap-2 group/preview relative overflow-hidden cursor-pointer"
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    animate={{
-                      boxShadow: [
-                        "0 0 0px rgba(124, 58, 237, 0)",
-                        "0 0 20px rgba(124, 58, 237, 0.3)",
-                        "0 0 0px rgba(124, 58, 237, 0)",
-                      ],
-                    }}
-                    transition={{
-                      duration: 0.25,
-                      ease: [0.25, 0.1, 0.25, 1],
-                      delay: 0.05,
-                      boxShadow: {
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      },
-                    }}
-                  >
-                    {/* Subtle Purple Glow on Hover */}
-                    <div className="absolute inset-0 bg-azone-purple/10 opacity-0 group-hover/preview:opacity-100 transition-opacity duration-300 blur-xl"></div>
-                    <div className="relative z-10 flex items-center gap-2">
-                      <motion.div
-                        animate={{
-                          scale: [1, 1.1, 1],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </motion.div>
-                      Live Preview
-                      <ArrowRight className="w-4 h-4 group-hover/preview:translate-x-0.5 transition-transform duration-300 ease-out" />
-                    </div>
-                  </motion.button>
-                </Link>
 
                 {/* Included Items */}
                 <div className="pt-8 mt-8 border-t border-gray-800/50">

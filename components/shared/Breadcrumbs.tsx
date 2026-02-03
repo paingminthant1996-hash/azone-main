@@ -35,7 +35,7 @@ export default function Breadcrumbs({ customItems, templateTitle }: BreadcrumbsP
             breadcrumbs.push({ name: 'Templates', href: '/templates' });
 
             // If it's a template detail page (has slug)
-            if (paths.length > 1 && paths[1]) {
+            if (paths.length > 1 && paths[1] && paths[1] !== 'preview') {
                 // Use template title if provided, otherwise use slug
                 const name = templateTitle || paths[1].split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
                 breadcrumbs.push({
@@ -70,60 +70,60 @@ export default function Breadcrumbs({ customItems, templateTitle }: BreadcrumbsP
         return breadcrumbs;
     };
 
-  const breadcrumbs = buildBreadcrumbs();
+    const breadcrumbs = buildBreadcrumbs();
 
-  // Add structured data for SEO - ALWAYS call useEffect (hooks must be in same order)
-  useEffect(() => {
-    // Don't add structured data on home page
-    if (pathname === "/") {
-      return;
-    }
-
-    if (typeof window !== "undefined" && breadcrumbs.length > 0) {
-      const baseUrl = window.location.origin;
-      const structuredData = {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        itemListElement: breadcrumbs.map((crumb, index) => ({
-          "@type": "ListItem",
-          position: index + 1,
-          name: crumb.name,
-          item: `${baseUrl}${crumb.href}`,
-        })),
-      };
-
-      // Remove existing breadcrumb script if any
-      const existingScript = document.getElementById("breadcrumb-structured-data");
-      if (existingScript) {
-        existingScript.remove();
-      }
-
-      // Add new structured data script
-      const script = document.createElement("script");
-      script.id = "breadcrumb-structured-data";
-      script.type = "application/ld+json";
-      script.text = JSON.stringify(structuredData);
-      document.head.appendChild(script);
-
-      return () => {
-        const scriptToRemove = document.getElementById("breadcrumb-structured-data");
-        if (scriptToRemove) {
-          scriptToRemove.remove();
+    // Add structured data for SEO - ALWAYS call useEffect (hooks must be in same order)
+    useEffect(() => {
+        // Don't add structured data on home page
+        if (pathname === "/") {
+            return;
         }
-      };
+
+        if (typeof window !== "undefined" && breadcrumbs.length > 0) {
+            const baseUrl = window.location.origin;
+            const structuredData = {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                itemListElement: breadcrumbs.map((crumb, index) => ({
+                    "@type": "ListItem",
+                    position: index + 1,
+                    name: crumb.name,
+                    item: `${baseUrl}${crumb.href}`,
+                })),
+            };
+
+            // Remove existing breadcrumb script if any
+            const existingScript = document.getElementById("breadcrumb-structured-data");
+            if (existingScript) {
+                existingScript.remove();
+            }
+
+            // Add new structured data script
+            const script = document.createElement("script");
+            script.id = "breadcrumb-structured-data";
+            script.type = "application/ld+json";
+            script.text = JSON.stringify(structuredData);
+            document.head.appendChild(script);
+
+            return () => {
+                const scriptToRemove = document.getElementById("breadcrumb-structured-data");
+                if (scriptToRemove) {
+                    scriptToRemove.remove();
+                }
+            };
+        }
+    }, [breadcrumbs, pathname]);
+
+    // Don't show breadcrumbs on home page - AFTER all hooks
+    if (pathname === "/") {
+        return null;
     }
-  }, [breadcrumbs, pathname]);
 
-  // Don't show breadcrumbs on home page - AFTER all hooks
-  if (pathname === "/") {
-    return null;
-  }
-
-  return (
-    <nav 
-      className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 border-b border-gray-800"
-      aria-label="Breadcrumb"
-    >
+    return (
+        <nav
+            className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 border-b border-gray-800"
+            aria-label="Breadcrumb"
+        >
             <ol className="flex items-center space-x-2 text-sm">
                 {breadcrumbs.map((crumb, index) => (
                     <li key={crumb.href} className="flex items-center">

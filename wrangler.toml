@@ -1,0 +1,8 @@
+# Cloudflare Wrangler Configuration
+# Used by Cloudflare MCP Server
+
+account_id = "270ad7c677698725fd0344f8b043b7fd"
+zone_id = "483972519418084b6ab9e00d90d7d64d"
+
+# Note: This file is for MCP server configuration
+# API token is provided via environment variables in .cursor/mcp.json

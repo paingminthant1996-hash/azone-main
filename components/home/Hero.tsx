@@ -183,7 +183,10 @@ export default function Hero() {
           >
             <EditableText
               id="hero-subtitle"
-              defaultText={heroSubtitle || "Built for scale. Designed for production. Used in real-world products.\nFor funded startup founders and senior engineers."}
+              defaultText={
+                heroSubtitle ||
+                "Stop building from scratch. Access professionally designed, fully-coded website templates that are ready for production.\nPerfect for founders, freelancers, and small teams who want to launch fast without fighting boilerplate."
+              }
               className="text-gray-400"
               multiline={true}
               onSave={async (newText) => {
