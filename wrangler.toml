@@ -1,8 +1,12 @@
-# Cloudflare Wrangler Configuration
-# Used by Cloudflare MCP Server
+# Cloudflare Pages Configuration
+# For azone-main project deployment
+# Note: Pages projects don't use account_id/zone_id in wrangler.toml
+# These are configured via Cloudflare Dashboard or API
 
-account_id = "270ad7c677698725fd0344f8b043b7fd"
-zone_id = "483972519418084b6ab9e00d90d7d64d"
+name = "azone-main"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
 
-# Note: This file is for MCP server configuration
-# API token is provided via environment variables in .cursor/mcp.json
+# Pages build output directory (required for Pages deployment)
+# This is where Next.js builds output for Cloudflare Pages
+pages_build_output_dir = ".vercel/output/static"
