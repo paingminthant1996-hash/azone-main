@@ -1,7 +1,7 @@
 import { ImageResponse } from '@vercel/og';
 import { NextRequest } from 'next/server';
 
-export const runtime = 'edge';
+// Edge runtime removed - not supported by @opennextjs/cloudflare
 
 export async function GET(request: NextRequest) {
   try {
