@@ -51,13 +51,14 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "URL: Check Workers dashboard for your worker URL" -ForegroundColor Cyan
 } else {
     Write-Host ""
-    Write-Host "[ERROR] Deployment failed!" -ForegroundColor Red
+    Write-Host "[ERROR] Local deploy failed (Windows path issue)" -ForegroundColor Red
     Write-Host ""
-    Write-Host "FIX AUTH - Use Master Key in .env.local:" -ForegroundColor Yellow
-    Write-Host "1. Go to: https://dash.cloudflare.com/profile/api-tokens" -ForegroundColor White
-    Write-Host "2. 'Global API Key' > View > Copy" -ForegroundColor White
-    Write-Host "3. Add to .env.local:" -ForegroundColor White
-    Write-Host "   CLOUDFLARE_EMAIL=your@email.com" -ForegroundColor White
-    Write-Host "   CLOUDFLARE_API_KEY=your-global-api-key" -ForegroundColor White
-    Write-Host "   CLOUDFLARE_ACCOUNT_ID=your-account-id" -ForegroundColor White
+    Write-Host "FALLBACK - Use Git push (Cloudflare builds on Linux):" -ForegroundColor Yellow
+    Write-Host "  git add -A && git commit -m 'deploy' && git push origin main" -ForegroundColor White
+    Write-Host "  -> Cloudflare auto-builds and deploys successfully" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Worker URL: https://azone-main.paingxyz.workers.dev" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "AUTH - Master Key in .env.local:" -ForegroundColor Yellow
+    Write-Host "  CLOUDFLARE_EMAIL, CLOUDFLARE_API_KEY, CLOUDFLARE_ACCOUNT_ID" -ForegroundColor White
 }

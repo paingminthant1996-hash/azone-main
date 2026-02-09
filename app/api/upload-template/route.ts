@@ -34,7 +34,6 @@ function generateSlug(title: string): string {
 }
 
 // Files are now uploaded directly from the client to Supabase Storage
-// This bypasses Vercel's 4.5MB request body limit
 // The API route only receives URLs, not file data
 
 export async function POST(request: NextRequest) {
@@ -68,7 +67,7 @@ export async function POST(request: NextRequest) {
     } catch {
       downloadUrls = zipUrl ? [zipUrl] : [];
     }
-    
+
     // Use zipUrl as fallback if no download URLs
     if (downloadUrls.length === 0 && zipUrl) {
       downloadUrls = [zipUrl];

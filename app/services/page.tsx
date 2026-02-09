@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { 
-  Globe, 
-  Code, 
-  Search, 
-  Wrench, 
-  ArrowRight, 
-  Check, 
+import {
+  Globe,
+  Code,
+  Search,
+  Wrench,
+  ArrowRight,
+  Check,
   MessageCircle,
   Sparkles,
   Zap,
@@ -25,14 +25,14 @@ const packages = [
     nameMm: "Domain နှင့် Hosting Setup",
     price: "30,000 - 50,000",
     priceUsd: "$15-25",
-    description: "Domain ဝယ်ပေး + DNS ချိတ်ပေး + Vercel Deployment",
+    description: "Domain ဝယ်ပေး + DNS ချိတ်ပေး + Cloudflare Deployment",
     descriptionMm: "သင့် website ကို online တင်ပေးမယ်",
     icon: Globe,
     color: "from-blue-500 to-cyan-500",
     features: [
       "Domain registration ကူညီပေးမယ်",
       "Cloudflare DNS setup",
-      "Vercel deployment",
+      "Cloudflare deployment",
       "SSL certificate (free)",
       "Basic guidance ပေးမယ်"
     ],
@@ -54,7 +54,7 @@ const packages = [
       "Logo + Color change",
       "Content update (Myanmar text)",
       "Domain + DNS setup",
-      "Vercel deployment",
+      "Cloudflare deployment",
       "1 month support"
     ],
     delivery: "3-5 ရက်",
@@ -204,7 +204,7 @@ export default function ServicesPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16"><h2 className="text-3xl md:text-4xl font-bold text-white mb-4">ဘယ်လို လုပ်ဆောင်မလဲ?</h2><p className="text-gray-400">ရိုးရှင်းတဲ့ အဆင့် ၄ ဆင့်နဲ့ Website ရရှိမယ်</p></motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[{ step: 1, title: "ဆက်သွယ်ပါ", desc: "လိုအပ်ချက်တွေ ပြောပြပါ" },{ step: 2, title: "Plan ချမယ်", desc: "သင့်အတွက် အကောင်းဆုံး plan ရွေးမယ်" },{ step: 3, title: "လုပ်ဆောင်မယ်", desc: "Website ဆောက်ပြီး ပြင်ဆင်မယ်" },{ step: 4, title: "Deliver လုပ်မယ်", desc: "Website အသင့်သုံးလို့ရအောင် ပေးမယ်" }].map((item, index) => (<motion.div key={index} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="relative">{index < 3 && <div className="hidden lg:block absolute top-8 left-[60%] w-full h-0.5 bg-gradient-to-r from-azone-purple/50 to-transparent" />}<div className="text-center"><div className="w-16 h-16 mx-auto mb-4 rounded-full bg-azone-purple/20 border-2 border-azone-purple flex items-center justify-center"><span className="text-2xl font-bold text-azone-purple">{item.step}</span></div><h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3><p className="text-gray-400 text-sm">{item.desc}</p></div></motion.div>))}
+            {[{ step: 1, title: "ဆက်သွယ်ပါ", desc: "လိုအပ်ချက်တွေ ပြောပြပါ" }, { step: 2, title: "Plan ချမယ်", desc: "သင့်အတွက် အကောင်းဆုံး plan ရွေးမယ်" }, { step: 3, title: "လုပ်ဆောင်မယ်", desc: "Website ဆောက်ပြီး ပြင်ဆင်မယ်" }, { step: 4, title: "Deliver လုပ်မယ်", desc: "Website အသင့်သုံးလို့ရအောင် ပေးမယ်" }].map((item, index) => (<motion.div key={index} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="relative">{index < 3 && <div className="hidden lg:block absolute top-8 left-[60%] w-full h-0.5 bg-gradient-to-r from-azone-purple/50 to-transparent" />}<div className="text-center"><div className="w-16 h-16 mx-auto mb-4 rounded-full bg-azone-purple/20 border-2 border-azone-purple flex items-center justify-center"><span className="text-2xl font-bold text-azone-purple">{item.step}</span></div><h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3><p className="text-gray-400 text-sm">{item.desc}</p></div></motion.div>))}
           </div>
         </div>
       </section>
@@ -224,7 +224,7 @@ export default function ServicesPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="p-6 bg-gray-900/50 border border-gray-800 rounded-2xl hover:border-gray-700 transition-all"><div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4"><span className="text-2xl">📚</span></div><h3 className="text-lg font-semibold text-white mb-2">Free Templates</h3><p className="text-gray-400 text-sm mb-4">v0 နဲ့ လုပ်ထားတဲ့ templates တွေ free download လုပ်ပါ</p><Link href="/templates" className="text-azone-purple text-sm font-medium hover:underline">Templates ကြည့်ရန် →</Link></motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="p-6 bg-gray-900/50 border border-gray-800 rounded-2xl hover:border-gray-700 transition-all"><div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center mb-4"><span className="text-2xl">🎥</span></div><h3 className="text-lg font-semibold text-white mb-2">v0 Tutorial</h3><p className="text-gray-400 text-sm mb-4">v0.dev နဲ့ website ဘယ်လိုလုပ်ရတယ် ဆိုတာ လေ့လာပါ</p><Link href="/docs" className="text-azone-purple text-sm font-medium hover:underline">Tutorial ကြည့်ရန် →</Link></motion.div>
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="p-6 bg-gray-900/50 border border-gray-800 rounded-2xl hover:border-gray-700 transition-all"><div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mb-4"><span className="text-2xl">🚀</span></div><h3 className="text-lg font-semibold text-white mb-2">Vercel Deployment</h3><p className="text-gray-400 text-sm mb-4">Free hosting တင်နည်း step-by-step guide</p><Link href="/docs" className="text-azone-purple text-sm font-medium hover:underline">Guide ကြည့်ရန် →</Link></motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="p-6 bg-gray-900/50 border border-gray-800 rounded-2xl hover:border-gray-700 transition-all"><div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mb-4"><span className="text-2xl">🚀</span></div><h3 className="text-lg font-semibold text-white mb-2">Cloudflare Deployment</h3><p className="text-gray-400 text-sm mb-4">Free hosting တင်နည်း step-by-step guide</p><Link href="/docs" className="text-azone-purple text-sm font-medium hover:underline">Guide ကြည့်ရန် →</Link></motion.div>
           </div>
         </div>
       </section>

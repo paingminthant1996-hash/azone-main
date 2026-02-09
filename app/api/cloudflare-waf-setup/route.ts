@@ -1,13 +1,13 @@
 /**
- * Cloudflare WAF Setup – Run from Vercel (non-Myanmar IP)
+ * Cloudflare WAF Setup – Run from Worker (non-Myanmar IP)
  * -------------------------------------------------------
  * Myanmar IP ကနေ Cloudflare API မရရင် ဒီ route ကို ခေါ်ပါ။
- * Vercel က တခြား region ကနေ run လို့ Cloudflare API ရပါမယ်။
+ * Cloudflare Worker က global edge ကနေ run လို့ Cloudflare API ရပါမယ်။
  *
  * ခေါ်နည်း: GET /api/cloudflare-waf-setup?setup_key=YOUR_CLOUDFLARE_WAF_SETUP_SECRET
  * သို့ Header: x-waf-setup-key: YOUR_CLOUDFLARE_WAF_SETUP_SECRET
  *
- * Vercel Environment Variables မှာ ထည့်ပါ:
+ * Cloudflare Worker Variables မှာ ထည့်ပါ:
  * - CLOUDFLARE_WAF_SETUP_SECRET (ဒီ route ကို ကာကွယ်ရန်)
  * - CLOUDFLARE_ZONE_ID, CLOUDFLARE_API_TOKEN (သို့ CLOUDFLARE_API_KEY + CLOUDFLARE_EMAIL)
  */

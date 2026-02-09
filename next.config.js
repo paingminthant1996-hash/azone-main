@@ -17,14 +17,6 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.supabase.in',
       },
-      {
-        protocol: 'https',
-        hostname: '**.vercel.app',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.vercel-storage.com',
-      },
     ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -36,10 +28,4 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
-
-// OpenNext Cloudflare - enables bindings during local dev
-try {
-  const { initOpenNextCloudflareForDev } = require('@opennextjs/cloudflare')
-  initOpenNextCloudflareForDev()
-} catch (_) {}
 

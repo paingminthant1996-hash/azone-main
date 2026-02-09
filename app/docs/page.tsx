@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  BookOpen, 
-  Code, 
-  Palette, 
-  Rocket, 
-  Database, 
+import {
+  BookOpen,
+  Code,
+  Palette,
+  Rocket,
+  Database,
   Globe,
   ChevronRight,
   CheckCircle2
@@ -298,36 +298,36 @@ const { data, error } = await supabase
       
       <h3>Choose a Hosting Platform</h3>
       <ul>
-        <li><strong>Vercel:</strong> Best for Next.js (free tier available)</li>
+        <li><strong>Cloudflare Workers:</strong> Best for Next.js (free tier, edge hosting)</li>
         <li><strong>Netlify:</strong> Great for static sites</li>
         <li><strong>GitHub Pages:</strong> Free hosting for static sites</li>
         <li><strong>Traditional Hosting:</strong> cPanel, shared hosting</li>
       </ul>
       
-      <h3>Deploy to Vercel</h3>
+      <h3>Deploy to Cloudflare</h3>
       <ol>
         <li>Push your code to GitHub</li>
-        <li>Go to vercel.com and sign up</li>
-        <li>Click "New Project"</li>
+        <li>Go to dash.cloudflare.com → Workers & Pages</li>
+        <li>Create application → Connect to Git</li>
         <li>Import your GitHub repository</li>
-        <li>Click "Deploy"</li>
+        <li>Configure build (npm run build:cloudflare) and deploy</li>
         <li>Your site will be live in minutes!</li>
       </ol>
       
       <h3>Connect Your Domain</h3>
       <ol>
         <li>Buy a domain from a registrar (Namecheap, GoDaddy, etc.)</li>
-        <li>In Vercel, go to your project → Settings → Domains</li>
+        <li>Add your domain to Cloudflare (or use Cloudflare nameservers)</li>
+        <li>In Workers & Pages → your project → Custom domains</li>
         <li>Add your domain</li>
-        <li>Update DNS records as instructed</li>
         <li>Wait for DNS propagation (can take up to 48 hours)</li>
       </ol>
       
       <h3>SSL Certificate</h3>
-      <p>Vercel automatically provides SSL certificates (HTTPS) for free. Your site will be secure by default!</p>
+      <p>Cloudflare automatically provides SSL certificates (HTTPS) for free. Your site will be secure by default!</p>
       
       <h3>Continuous Deployment</h3>
-      <p>With Vercel, every time you push to GitHub, your site automatically updates. No manual deployment needed!</p>
+      <p>With Cloudflare Git integration, every time you push to GitHub, your site automatically builds and deploys!</p>
     `,
   },
 ];
@@ -359,11 +359,10 @@ export default function DocsPage() {
                     <button
                       key={step.id}
                       onClick={() => setActiveStep(step.id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${
-                        isActive
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${isActive
                           ? "bg-azone-purple/20 text-azone-purple border border-azone-purple/30"
                           : "text-gray-400 hover:text-white hover:bg-gray-800/50"
-                      }`}
+                        }`}
                     >
                       <Icon className="w-5 h-5 flex-shrink-0" />
                       <span className="font-medium">{step.title}</span>
@@ -412,11 +411,10 @@ export default function DocsPage() {
                         setActiveStep(step.id);
                         setIsMobileMenuOpen(false);
                       }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left ${
-                        isActive
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left ${isActive
                           ? "bg-azone-purple/20 text-azone-purple"
                           : "text-gray-400 hover:text-white hover:bg-gray-800/50"
-                      }`}
+                        }`}
                     >
                       <Icon className="w-5 h-5" />
                       <span>{step.title}</span>
@@ -448,7 +446,7 @@ export default function DocsPage() {
                 <div className="h-1 w-24 bg-gradient-to-r from-azone-purple to-blue-500 rounded-full"></div>
               </div>
 
-              <div 
+              <div
                 className="prose prose-invert prose-lg max-w-none
                   prose-headings:text-white
                   prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4
@@ -473,7 +471,7 @@ export default function DocsPage() {
                   {(() => {
                     const currentIndex = steps.findIndex(s => s.id === activeStep);
                     const nextStep = steps[currentIndex + 1];
-                    
+
                     if (nextStep) {
                       return (
                         <div>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 // Upload files using service role key (bypasses RLS)
-// Note: Vercel has 4.5MB limit, but we handle it server-side
+// Note: 4.5MB limit for request body (reasonable for most uploads)
 export const maxDuration = 180; // 3 minutes
 export const runtime = "nodejs";
 
@@ -37,11 +37,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check file size (Vercel limit is 4.5MB)
+    // Check file size (4.5MB limit)
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > 4.5) {
       return NextResponse.json(
-        { error: `File size (${fileSizeMB.toFixed(2)}MB) exceeds Vercel's 4.5MB limit. Please reduce file size or use a different upload method.` },
+        { error: `File size (${fileSizeMB.toFixed(2)}MB) exceeds 4.5MB limit. Please reduce file size or use a different upload method.` },
         { status: 413 }
       );
     }
