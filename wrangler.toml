@@ -8,5 +8,5 @@ compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 
 # Pages build output directory (required for Pages deployment)
-# This is where Next.js builds output for Cloudflare Pages
-pages_build_output_dir = ".vercel/output/static"
+# This is where OpenNext builds output for Cloudflare Pages
+pages_build_output_dir = ".open-next/assets"

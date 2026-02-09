@@ -1,0 +1,3 @@
+# Cloudflare Pages Redirects
+# Redirect www.paing.xyz to paing.xyz
+/www/* https://paing.xyz/:splat 301

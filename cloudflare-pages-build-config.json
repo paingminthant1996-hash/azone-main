@@ -1,4 +1,4 @@
 {
   "buildCommand": "npm run build:cloudflare",
-  "outputDirectory": ".vercel/output/static"
+  "outputDirectory": ".open-next/assets"
 }
