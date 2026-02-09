@@ -5,6 +5,34 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   const url = request.nextUrl.clone()
   
+  // Check if Supabase is configured
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  // If Supabase is not configured, skip auth checks but allow basic routing
+  if (!supabaseUrl || !supabaseAnonKey) {
+    // Admin subdomain routing: admin.paing.xyz -> /admin routes
+    if (hostname === 'admin.paing.xyz' || hostname.startsWith('admin.')) {
+      // Allow admin routes on admin subdomain
+      if (request.nextUrl.pathname === '/') {
+        url.pathname = '/admin/login'
+        return NextResponse.redirect(url)
+      }
+    } else {
+      // Main website (paing.xyz) - Block admin routes
+      if (request.nextUrl.pathname.startsWith('/admin')) {
+        return new NextResponse(null, { status: 404 })
+      }
+    }
+    
+    // Continue without auth checks if Supabase not configured
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    })
+  }
+  
   // Admin subdomain routing: admin.paing.xyz -> /admin routes
   if (hostname === 'admin.paing.xyz' || hostname.startsWith('admin.')) {
     // Allow admin routes on admin subdomain
@@ -31,8 +59,8 @@ export async function middleware(request: NextRequest) {
 
   // Create Supabase client
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {
