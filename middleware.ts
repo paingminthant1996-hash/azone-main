@@ -19,6 +19,12 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(url)
       }
     } else {
+      // Redirect www.paing.xyz to paing.xyz
+      if (hostname === 'www.paing.xyz') {
+        url.hostname = 'paing.xyz'
+        return NextResponse.redirect(url, 301)
+      }
+      
       // Main website (paing.xyz) - Block admin routes
       if (request.nextUrl.pathname.startsWith('/admin')) {
         return new NextResponse(null, { status: 404 })
@@ -45,8 +51,14 @@ export async function middleware(request: NextRequest) {
       return new NextResponse(null, { status: 404 })
     }
     
+    // Redirect www.paing.xyz to paing.xyz
+    if (hostname === 'www.paing.xyz') {
+      url.hostname = 'paing.xyz'
+      return NextResponse.redirect(url, 301)
+    }
+    
     // Redirect root domain (paing.xyz) to main website
-    if (hostname === 'paing.xyz' || hostname === 'www.paing.xyz') {
+    if (hostname === 'paing.xyz') {
       // Already on main domain, continue
     }
   }
