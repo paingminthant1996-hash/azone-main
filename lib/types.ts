@@ -1,4 +1,4 @@
-// TypeScript interfaces for Azone.store
+// TypeScript interfaces for Azone
 
 export interface Template {
   id: string;

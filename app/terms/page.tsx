@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service - Azone.store",
-  description: "Terms of Service for Azone.store. Rules and guidelines for using our platform and templates.",
+  title: "Terms of Service - Azone",
+  description: "Terms of Service for Azone. Rules and guidelines for using our platform and templates.",
   openGraph: {
     type: "website",
     url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/terms`,
-    title: "Terms of Service - Azone.store",
-    description: "Terms of Service for Azone.store. Rules and guidelines for using our platform and templates.",
-    siteName: "Azone.store",
+    title: "Terms of Service - Azone",
+    description: "Terms of Service for Azone. Rules and guidelines for using our platform and templates.",
+    siteName: "Azone",
   },
   twitter: {
     card: "summary",
-    title: "Terms of Service - Azone.store",
-    description: "Terms of Service for Azone.store.",
+    title: "Terms of Service - Azone",
+    description: "Terms of Service for Azone.",
   },
   alternates: {
     canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/terms`,
@@ -48,7 +48,7 @@ export default function TermsPage() {
               Agreement to Terms
             </h2>
             <p>
-              By accessing or using Azone.store, you agree to be bound by these Terms of Service. 
+              By accessing or using Azone, you agree to be bound by these Terms of Service. 
               If you disagree with any part of these terms, you may not access our platform or 
               purchase our templates.
             </p>
@@ -59,7 +59,7 @@ export default function TermsPage() {
               Use License
             </h2>
             <p className="mb-4">
-              When you purchase a template from Azone.store, you receive a license to use that 
+              When you purchase a template from Azone, you receive a license to use that 
               template in accordance with our License Agreement. Each template purchase includes:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
@@ -140,9 +140,9 @@ export default function TermsPage() {
               Intellectual Property
             </h2>
             <p>
-              All templates, content, and materials on Azone.store are protected by copyright 
+              All templates, content, and materials on Azone are protected by copyright 
               and other intellectual property laws. You receive a license to use purchased 
-              templates, but ownership remains with Azone.store.
+              templates, but ownership remains with Azone.
             </p>
           </section>
 
@@ -162,7 +162,7 @@ export default function TermsPage() {
               Limitation of Liability
             </h2>
             <p>
-              To the maximum extent permitted by law, Azone.store shall not be liable for any 
+              To the maximum extent permitted by law, Azone shall not be liable for any 
               indirect, incidental, special, or consequential damages arising from your use of 
               our templates or platform.
             </p>

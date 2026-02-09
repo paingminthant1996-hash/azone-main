@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "About - Azone.store",
+  title: "About - Azone",
   description: "We accelerate startups with high-quality UI foundations. Built for production. Designed for scale.",
   keywords: [
     "about",
@@ -14,21 +14,21 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/about`,
-    title: "About - Azone.store",
+    title: "About - Azone",
     description: "We accelerate startups with high-quality UI foundations. Built for production. Designed for scale.",
-    siteName: "Azone.store",
+    siteName: "Azone",
     images: [
       {
         url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/og`,
         width: 1200,
         height: 630,
-        alt: "About Azone.store",
+        alt: "About Azone",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "About - Azone.store",
+    title: "About - Azone",
     description: "We accelerate startups with high-quality UI foundations.",
     images: [`${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/og`],
   },
@@ -45,7 +45,7 @@ export default function AboutPage() {
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-semibold mb-6 leading-[1.15] tracking-tight">
             <span className="text-white">About</span>
-            <span className="text-azone-purple ml-3">Azone.store</span>
+            <span className="text-azone-purple ml-3">Azone</span>
           </h1>
           <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
             We accelerate startups with high-quality UI foundations.
@@ -59,7 +59,7 @@ export default function AboutPage() {
           </h2>
           <div className="space-y-4 text-gray-400 leading-relaxed">
             <p>
-              Azone.store exists to eliminate the friction between idea and production. 
+              Azone exists to eliminate the friction between idea and production. 
               We provide enterprise-grade UI foundations that allow funded startups and 
               senior engineering teams to ship faster, scale confidently, and focus on 
               what matters: building products that work.

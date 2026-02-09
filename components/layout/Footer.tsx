@@ -16,7 +16,7 @@ export default function Footer() {
   const [openPopup, setOpenPopup] = useState<"facebook" | "telegram" | "viber" | null>(null);
 
   // Get site name from settings or use default
-  const siteName = settings?.siteName || "Azone.store";
+  const siteName = settings?.siteName || "Azone";
   // Get footer text with granular translation
   const footerText = getText(settings?.footerTextEn, settings?.footerTextMm);
 

@@ -33,7 +33,7 @@ export default function Header() {
   const searchDropdownRef = useRef<HTMLDivElement>(null);
 
   // Get site name from settings or use default
-  const siteName = settings?.siteName || "Azone.store";
+  const siteName = settings?.siteName || "Azone";
 
   // Check if user is admin - DISABLED: Admin panel completely removed
   // useEffect(() => {

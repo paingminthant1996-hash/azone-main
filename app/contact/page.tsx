@@ -294,7 +294,7 @@ export default function ContactPage() {
                   </h3>
                 </div>
                 <div className="text-gray-300 leading-relaxed space-y-1">
-                  <p className="text-white font-medium">Azone.store</p>
+                  <p className="text-white font-medium">Azone</p>
                   <p>Myanmar</p>
                   <p className="text-sm text-gray-400 mt-2">Remote Team</p>
                 </div>

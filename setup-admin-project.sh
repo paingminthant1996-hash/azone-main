@@ -63,8 +63,8 @@ import "./globals.css";
 import { SettingsProvider } from "@/lib/contexts/SettingsContext";
 
 export const metadata: Metadata = {
-  title: "Admin Panel - Azone.store",
-  description: "Admin dashboard for Azone.store",
+  title: "Admin Panel - Azone",
+  description: "Admin dashboard for Azone",
 };
 
 export default function RootLayout({
@@ -129,7 +129,7 @@ echo "📝 Creating README..."
 cat > README.md << 'EOF'
 # Azone Admin Panel
 
-Separate admin panel for Azone.store marketplace.
+Separate admin panel for Azone marketplace.
 
 ## Setup
 
