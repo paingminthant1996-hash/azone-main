@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - Azone.store",
-  description: "Privacy Policy for Azone.store. How we collect, use, and protect your data.",
+  title: "Privacy Policy - Azone",
+  description: "Privacy Policy for Azone. How we collect, use, and protect your data.",
   openGraph: {
     type: "website",
     url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/privacy`,
-    title: "Privacy Policy - Azone.store",
-    description: "Privacy Policy for Azone.store. How we collect, use, and protect your data.",
-    siteName: "Azone.store",
+    title: "Privacy Policy - Azone",
+    description: "Privacy Policy for Azone. How we collect, use, and protect your data.",
+    siteName: "Azone",
   },
   twitter: {
     card: "summary",
-    title: "Privacy Policy - Azone.store",
-    description: "Privacy Policy for Azone.store.",
+    title: "Privacy Policy - Azone",
+    description: "Privacy Policy for Azone.",
   },
   alternates: {
     canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/privacy`,
@@ -48,7 +48,7 @@ export default function PrivacyPage() {
               Introduction
             </h2>
             <p>
-              Azone.store (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. 
+              Azone (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. 
               This Privacy Policy explains how we collect, use, disclose, and safeguard your 
               information when you use our platform and purchase our templates.
             </p>

@@ -17,13 +17,13 @@ export async function generateMetadata({ params }: PageProps) {
 
   if (!template) {
     return {
-      title: "Template Not Found - Azone.store",
+      title: "Template Not Found - Azone",
       description: "The requested template could not be found.",
     };
   }
 
-  const title = `${template.title} - Azone.store`;
-  const description = template.shortDescription || template.description || `Premium ${template.category} template by Azone.store`;
+  const title = `${template.title} - Azone`;
+  const description = template.shortDescription || template.description || `Premium ${template.category} template by Azone`;
   const imageUrl = template.imageUrl || `${baseUrl}/og`;
 
   return {
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: PageProps) {
       url: `${baseUrl}/templates/${slug}`,
       title,
       description,
-      siteName: "Azone.store",
+      siteName: "Azone",
       images: [
         {
           url: imageUrl,

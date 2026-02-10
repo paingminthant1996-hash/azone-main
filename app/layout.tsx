@@ -10,32 +10,32 @@ import { DesignModeProvider } from "@/lib/contexts/DesignModeContext";
 import { DesignModeToggle } from "@/components/admin/DesignModeToggle";
 
 export const metadata: Metadata = {
-  title: "Azone.store - Production-Ready Templates for Serious Builders",
+  title: "Azone - Production-Ready Templates for Serious Builders",
   description: "Built for production. Designed for scale. Used in real-world products. Enterprise-grade UI kits and boilerplates for funded startup founders and senior engineers.",
   keywords: ["UI templates", "Next.js templates", "React templates", "production-ready", "startup templates", "enterprise UI", "boilerplates"],
-  authors: [{ name: "Azone.store" }],
-  creator: "Azone.store",
-  publisher: "Azone.store",
+  authors: [{ name: "Azone" }],
+  creator: "Azone",
+  publisher: "Azone",
   metadataBase: new URL("https://paing.xyz"),
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://paing.xyz",
-    siteName: "Azone.store",
-    title: "Azone.store - Production-Ready Templates for Serious Builders",
+    siteName: "Azone",
+    title: "Azone - Production-Ready Templates for Serious Builders",
     description: "Built for production. Designed for scale. Used in real-world products. Enterprise-grade UI kits and boilerplates for funded startup founders and senior engineers.",
     images: [
       {
         url: "/og",
         width: 1200,
         height: 630,
-        alt: "Azone.store - Production-Ready Templates",
+        alt: "Azone - Production-Ready Templates",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Azone.store - Production-Ready Templates for Serious Builders",
+    title: "Azone - Production-Ready Templates for Serious Builders",
     description: "Built for production. Designed for scale. Used in real-world products. Enterprise-grade UI kits and boilerplates for funded startup founders and senior engineers.",
     images: ["/og"],
     creator: "@azonestore",

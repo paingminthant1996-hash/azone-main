@@ -84,11 +84,11 @@ export async function sendPurchaseConfirmationEmail(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Purchase Confirmation - Azone.store</title>
+        <title>Purchase Confirmation - Azone</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0;">Azone.store</h1>
+          <h1 style="color: white; margin: 0;">Azone</h1>
         </div>
         <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
           <h2 style="color: #333; margin-top: 0;">Thank You for Your Purchase!</h2>
@@ -108,7 +108,7 @@ export async function sendPurchaseConfirmationEmail(
           </p>
         </div>
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} Azone.store. All rights reserved.</p>
+          <p>© ${new Date().getFullYear()} Azone. All rights reserved.</p>
         </div>
       </body>
     </html>
@@ -125,7 +125,7 @@ Date: ${new Date().toLocaleDateString()}
 
 Download your template: ${process.env.NEXT_PUBLIC_SITE_URL || 'https://paing.xyz'}/account/downloads
 
-© ${new Date().getFullYear()} Azone.store. All rights reserved.
+© ${new Date().getFullYear()} Azone. All rights reserved.
   `;
 
   return sendEmail({

@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "License Agreement - Azone.store",
-  description: "License agreement for Azone.store templates. Usage rights and restrictions for purchased templates.",
+  title: "License Agreement - Azone",
+  description: "License agreement for Azone templates. Usage rights and restrictions for purchased templates.",
   openGraph: {
     type: "website",
     url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/license`,
-    title: "License Agreement - Azone.store",
-    description: "License agreement for Azone.store templates. Usage rights and restrictions for purchased templates.",
-    siteName: "Azone.store",
+    title: "License Agreement - Azone",
+    description: "License agreement for Azone templates. Usage rights and restrictions for purchased templates.",
+    siteName: "Azone",
   },
   twitter: {
     card: "summary",
-    title: "License Agreement - Azone.store",
-    description: "License agreement for Azone.store templates.",
+    title: "License Agreement - Azone",
+    description: "License agreement for Azone templates.",
   },
   alternates: {
     canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://paing.xyz"}/license`,
@@ -35,7 +35,7 @@ export default function LicensePage() {
             <span className="text-azone-purple ml-3">Agreement</span>
           </h1>
           <p className="text-sm text-gray-500">
-            Understanding your rights and restrictions when using Azone.store templates.
+            Understanding your rights and restrictions when using Azone templates.
           </p>
         </div>
 
@@ -46,7 +46,7 @@ export default function LicensePage() {
               Commercial License
             </h2>
             <p className="mb-4">
-              When you purchase a template from Azone.store, you receive a commercial license 
+              When you purchase a template from Azone, you receive a commercial license 
               that grants you the following rights:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
@@ -168,7 +168,7 @@ export default function LicensePage() {
               Ownership
             </h2>
             <p>
-              Azone.store retains ownership of the template design and source code. You receive 
+              Azone retains ownership of the template design and source code. You receive 
               a license to use the template, not ownership of the template itself. You own 
               your modifications and the products you build using the template.
             </p>

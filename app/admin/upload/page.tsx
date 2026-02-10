@@ -83,7 +83,7 @@ export default function AdminUploadPage() {
 
         // Auto-generate meta fields
         if (!formData.metaTitle) {
-            suggestions.metaTitle = `${title} | Premium Template | Azone.store`;
+            suggestions.metaTitle = `${title} | Premium Template | Azone`;
         }
         if (!formData.metaDescription) {
             suggestions.metaDescription = suggestions.shortDescription || `Premium ${title} template`;

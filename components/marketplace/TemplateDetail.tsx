@@ -165,7 +165,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
-  title: "Azone.store - Production-Ready Templates",
+  title: "Azone - Production-Ready Templates",
   description: "Built for production. Designed for scale.",
 };
 
@@ -540,7 +540,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
 
   // Social sharing functions
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-  const shareText = `Check out ${template.title} on Azone.store - ${template.shortDescription || template.description}`;
+  const shareText = `Check out ${template.title} on Azone - ${template.shortDescription || template.description}`;
 
   const handleShare = async (platform: string) => {
     const url = encodeURIComponent(shareUrl);

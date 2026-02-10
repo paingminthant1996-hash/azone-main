@@ -5,7 +5,7 @@ test.describe('Homepage', () => {
     await page.goto('/');
 
     // Check page title
-    await expect(page).toHaveTitle(/Azone.store/);
+    await expect(page).toHaveTitle(/Azone/);
 
     // Check main heading
     await expect(page.locator('h1')).toContainText('Launch Your Ideas Faster');

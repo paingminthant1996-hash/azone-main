@@ -64,20 +64,6 @@ export async function GET(request: NextRequest) {
               >
                 Azone
               </span>
-              <span
-                style={{
-                  fontSize: '72px',
-                  fontWeight: '700',
-                  background: 'linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  color: 'transparent',
-                  letterSpacing: '-0.02em',
-                  lineHeight: '1',
-                }}
-              >
-                .store
-              </span>
             </div>
             
             {/* Divider line */}
