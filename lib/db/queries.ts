@@ -275,7 +275,7 @@ export async function deleteAllTemplates(): Promise<{ deletedCount: number }> {
 
     // Delete all templates by IDs
     const templateIds = allTemplates.map(t => t.id);
-    const { data, error } = await supabase!
+    const { error } = await supabase!
       .from("templates")
       .delete()
       .in("id", templateIds);
@@ -297,7 +297,8 @@ export async function deleteAllTemplates(): Promise<{ deletedCount: number }> {
       console.warn("template_versions table may not exist:", versionError);
     }
 
-    return { deletedCount: data?.length || 0 };
+    // Use the number of IDs we attempted to delete as deletedCount
+    return { deletedCount: templateIds.length };
   } catch (error) {
     console.error("Failed to delete templates:", error);
     throw error;
