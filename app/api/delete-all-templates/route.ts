@@ -63,7 +63,9 @@ export async function POST(request: NextRequest) {
 
     // Delete all templates by IDs
     const templateIds = allTemplates.map(t => t.id);
-    const { data, error } = await supabase
+    const deletedCount = templateIds.length;
+    
+    const { error } = await supabase
       .from("templates")
       .delete()
       .in("id", templateIds);
@@ -91,7 +93,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "All templates deleted successfully",
-      deletedCount: data?.length || 0,
+      deletedCount: deletedCount,
     });
   } catch (error: any) {
     console.error("Delete templates error:", error);
