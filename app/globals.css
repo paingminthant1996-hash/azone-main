@@ -182,7 +182,8 @@ button, a, input, select, textarea, [role="button"], [role="link"],
   }
 }
 
-/* Hide Header and Breadcrumbs in Preview Pages */
+/* Hide Header and Breadcrumbs in Preview Pages - Aggressive CSS Rules */
+/* Target all possible header/breadcrumb containers */
 body:has([class*="preview-layout"]) .header-container,
 body:has([class*="preview-layout"]) .breadcrumbs-container,
 body:has([class*="preview-layout"]) header,
@@ -194,7 +195,25 @@ body.preview-layout-active nav[aria-label="Breadcrumb"],
 [class*="preview-layout"] ~ .header-container,
 [class*="preview-layout"] ~ .breadcrumbs-container,
 [class*="preview-layout"] header,
-[class*="preview-layout"] nav[aria-label="Breadcrumb"] {
+[class*="preview-layout"] nav[aria-label="Breadcrumb"],
+/* Additional selectors for any header that might render */
+header.sticky,
+header[class*="sticky"],
+nav[aria-label="Breadcrumb"],
+.header-container,
+.breadcrumbs-container {
+  /* Only apply if we're on a preview page - check via body class or data attribute */
+}
+
+/* Apply hiding rules when preview layout is detected */
+body:has([class*="preview-layout"]) header,
+body:has([class*="preview-layout"]) nav[aria-label="Breadcrumb"],
+body:has([class*="preview-layout"]) .header-container,
+body:has([class*="preview-layout"]) .breadcrumbs-container,
+body.preview-layout-active header,
+body.preview-layout-active nav[aria-label="Breadcrumb"],
+body.preview-layout-active .header-container,
+body.preview-layout-active .breadcrumbs-container {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
@@ -203,5 +222,7 @@ body.preview-layout-active nav[aria-label="Breadcrumb"],
   position: absolute !important;
   top: -9999px !important;
   pointer-events: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 

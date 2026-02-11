@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import Footer from "@/components/layout/Footer";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
@@ -55,17 +56,55 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Get pathname from middleware header to check server-side
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') || '';
+  const isPreviewPage = pathname.includes('/preview');
+
   return (
     <html lang="en" className="scroll-smooth dark">
       <head>
         {/* Prevent blank page on slow connections */}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        {/* Aggressive script to hide headers immediately on preview pages before React hydrates */}
+        {isPreviewPage && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  if (typeof window !== 'undefined') {
+                    const hideHeaders = () => {
+                      const selectors = ['header', 'nav[aria-label="Breadcrumb"]', '.header-container', '.breadcrumbs-container'];
+                      selectors.forEach(s => {
+                        document.querySelectorAll(s).forEach(el => {
+                          el.style.display = 'none';
+                          el.style.visibility = 'hidden';
+                          el.style.height = '0';
+                          el.style.opacity = '0';
+                          el.style.position = 'absolute';
+                          el.style.top = '-9999px';
+                        });
+                      });
+                    };
+                    hideHeaders();
+                    if (document.readyState === 'loading') {
+                      document.addEventListener('DOMContentLoaded', hideHeaders);
+                    }
+                    setTimeout(hideHeaders, 0);
+                    setTimeout(hideHeaders, 50);
+                    setTimeout(hideHeaders, 100);
+                  }
+                })();
+              `,
+            }}
+          />
+        )}
       </head>
       <body className="min-h-screen flex flex-col bg-azone-black">
         <ErrorBoundary>
@@ -81,7 +120,7 @@ export default function RootLayout({
                   Skip to main content
                 </a>
                 {/* Conditionally render header/breadcrumbs (hidden on preview pages) */}
-                <ConditionalHeader />
+                {!isPreviewPage && <ConditionalHeader />}
                 <main id="main-content" className="flex-1" tabIndex={-1}>
                   <ErrorBoundary>
                     {children}
