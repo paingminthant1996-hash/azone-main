@@ -66,7 +66,7 @@ export default function FixSiteNamePage() {
 
         <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 mb-6">
           <p className="text-gray-300 mb-4">
-            This will update site_name in database from "Azone.store" (or any variation) to "Azone".
+            This will update site_name in database from &quot;Azone.store&quot; (or any variation) to &quot;Azone&quot;.
           </p>
 
           <div className="mb-4">
@@ -111,7 +111,7 @@ export default function FixSiteNamePage() {
 
         <div className="mt-6 p-4 bg-yellow-900/20 border border-yellow-700 rounded-lg">
           <p className="text-yellow-400 text-sm">
-            ⚠️ <strong>Note:</strong> This updates the database. The site name will change from "Azone.store" to "Azone" immediately after fixing.
+            ⚠️ <strong>Note:</strong> This updates the database. The site name will change from &quot;Azone.store&quot; to &quot;Azone&quot; immediately after fixing.
           </p>
         </div>
       </div>
