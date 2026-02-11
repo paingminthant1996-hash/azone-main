@@ -56,7 +56,7 @@ $ReadmePath = Join-Path $TemplateFolder "README.md"
 $ReadmeContent = @"
 # $TemplateName
 
-Template downloaded from AZone Store.
+Template downloaded from Azone.
 
 ## Setup
 
@@ -73,7 +73,7 @@ npm run dev
 ## Notes
 
 - Downloaded: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-- Source: AZone Store
+- Source: Azone
 "@
 
 Set-Content -Path $ReadmePath -Value $ReadmeContent

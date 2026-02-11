@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     title: "Azone - Production-Ready Templates for Serious Builders",
     description: "Built for production. Designed for scale. Used in real-world products. Enterprise-grade UI kits and boilerplates for funded startup founders and senior engineers.",
     images: ["/og"],
-    creator: "@azonestore",
+    creator: "@azone",
   },
   robots: {
     index: true,
