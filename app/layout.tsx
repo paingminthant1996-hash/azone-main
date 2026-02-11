@@ -89,7 +89,9 @@ export default function RootLayout({
                     </div>
                   </div>
                 }>
-                  <Header />
+                  <div className="relative z-50">
+                    <Header />
+                  </div>
                 </ErrorBoundary>
                 <Breadcrumbs />
                 <main id="main-content" className="flex-1" tabIndex={-1}>

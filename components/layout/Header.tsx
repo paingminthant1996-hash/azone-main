@@ -213,6 +213,7 @@ export default function Header() {
         ? "bg-azone-black/80 backdrop-blur-md shadow-sm border-b border-gray-800"
         : "bg-azone-black"
         }`}
+      style={{ position: 'sticky' }}
     >
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
