@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight, Home } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface BreadcrumbItem {
     name: string;
@@ -121,7 +121,7 @@ export default function Breadcrumbs({ customItems, templateTitle }: BreadcrumbsP
 
     return (
         <nav
-            className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 border-b border-gray-800"
+            className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 border-b border-gray-800 relative z-40"
             aria-label="Breadcrumb"
         >
             <ol className="flex items-center space-x-2 text-sm">

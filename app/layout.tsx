@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { ToastProvider } from "@/lib/utils/toast";
 import { SettingsProvider } from "@/lib/contexts/SettingsContext";
 import { DesignModeProvider } from "@/lib/contexts/DesignModeContext";
 import { DesignModeToggle } from "@/components/admin/DesignModeToggle";
+import ConditionalHeader from "@/components/shared/ConditionalHeader";
 
 export const metadata: Metadata = {
   title: "Azone - Production-Ready Templates for Serious Builders",
@@ -81,17 +80,8 @@ export default function RootLayout({
                 >
                   Skip to main content
                 </a>
-                <ErrorBoundary fallback={
-                  <div className="min-h-screen bg-azone-black flex items-center justify-center px-4">
-                    <div className="text-center">
-                      <h1 className="text-2xl font-bold text-white mb-4">Header Error</h1>
-                      <p className="text-gray-400">Please refresh the page</p>
-                    </div>
-                  </div>
-                }>
-                  <Header />
-                </ErrorBoundary>
-                <Breadcrumbs />
+                {/* Conditionally render header/breadcrumbs (hidden on preview pages) */}
+                <ConditionalHeader />
                 <main id="main-content" className="flex-1" tabIndex={-1}>
                   <ErrorBoundary>
                     {children}
