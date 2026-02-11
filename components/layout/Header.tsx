@@ -10,7 +10,23 @@ import { getAllTemplates } from "@/lib/db/queries";
 import { useSettings } from "@/lib/contexts/SettingsContext";
 import { EditableText } from "@/components/shared/EditableText";
 
+// Prevent double rendering
+let headerRendered = false;
+
 export default function Header() {
+  // Prevent double rendering in development/preview
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+    return () => {
+      headerRendered = false;
+    };
+  }, []);
+  
+  if (!mounted && typeof window !== 'undefined') {
+    return null;
+  }
   const router = useRouter();
   const pathname = usePathname();
   const { settings, t } = useSettings();

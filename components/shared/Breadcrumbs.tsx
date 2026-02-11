@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight, Home } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface BreadcrumbItem {
     name: string;
@@ -17,6 +17,15 @@ interface BreadcrumbsProps {
 
 export default function Breadcrumbs({ customItems, templateTitle }: BreadcrumbsProps = {}) {
     const pathname = usePathname();
+    const [mounted, setMounted] = useState(false);
+    
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+    
+    if (!mounted && typeof window !== 'undefined') {
+        return null;
+    }
 
     // Build breadcrumb items
     const buildBreadcrumbs = (): BreadcrumbItem[] => {
