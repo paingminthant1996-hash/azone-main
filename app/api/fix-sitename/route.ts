@@ -39,52 +39,86 @@ export async function POST(request: NextRequest) {
     // Create Supabase client with service role key
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Update site_name in settings table
-    const { data, error } = await supabase
-      .from("settings")
-      .update({ site_name: "Azone" })
-      .neq("site_name", "Azone") // Only update if not already "Azone"
-      .select();
-
-    if (error) {
-      console.error("Error updating site_name:", error);
-      return NextResponse.json(
-        { error: "Failed to update site_name", details: error.message },
-        { status: 500 }
-      );
-    }
-
-    // Also check for "Azone.store" variations
-    const { data: allSettings, error: fetchError } = await supabase
+    // First, check current values
+    const { data: currentSettings, error: fetchError } = await supabase
       .from("settings")
       .select("id, site_name");
 
     if (fetchError) {
       console.error("Error fetching settings:", fetchError);
+      return NextResponse.json(
+        { error: "Failed to fetch settings", details: fetchError.message },
+        { status: 500 }
+      );
     }
 
-    let updatedCount = data?.length || 0;
-    const variations = ["Azone.store", "Azone,store", "azone.store", "AZone Store"];
+    if (!currentSettings || currentSettings.length === 0) {
+      // No settings found, create one with correct value
+      const { data: newSetting, error: createError } = await supabase
+        .from("settings")
+        .insert({ site_name: "Azone" })
+        .select();
 
-    // Update any variations found
+      if (createError) {
+        return NextResponse.json(
+          { error: "Failed to create settings", details: createError.message },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "Settings created with site_name 'Azone'",
+        updatedCount: 1,
+        created: true,
+      });
+    }
+
+    // Update all records that don't have "Azone"
+    const variations = ["Azone.store", "Azone,store", "azone.store", "AZone Store", "azone-store"];
+    let updatedCount = 0;
+    const updates: any[] = [];
+
+    for (const setting of currentSettings) {
+      const currentName = setting.site_name;
+      
+      // Check if it needs updating
+      if (currentName !== "Azone" && (variations.includes(currentName) || currentName?.includes("store") || currentName?.includes("Store"))) {
+        const { data: updated, error: updateError } = await supabase
+          .from("settings")
+          .update({ site_name: "Azone" })
+          .eq("id", setting.id)
+          .select();
+
+        if (updateError) {
+          console.error(`Error updating setting ${setting.id}:`, updateError);
+          updates.push({ id: setting.id, error: updateError.message });
+        } else {
+          updatedCount++;
+          updates.push({ id: setting.id, oldValue: currentName, newValue: "Azone" });
+        }
+      }
+    }
+
+    // Also do a bulk update for any remaining variations
     for (const variation of variations) {
-      const { data: updateData, error: updateError } = await supabase
+      const { data: bulkUpdated, error: bulkError } = await supabase
         .from("settings")
         .update({ site_name: "Azone" })
         .eq("site_name", variation)
         .select();
 
-      if (updateError) {
-        console.error(`Error updating ${variation}:`, updateError);
-      } else if (updateData && updateData.length > 0) {
-        updatedCount += updateData.length;
+      if (!bulkError && bulkUpdated && bulkUpdated.length > 0) {
+        updatedCount += bulkUpdated.length;
       }
     }
 
     return NextResponse.json({
       success: true,
-      message: `Site name updated to "Azone". ${updatedCount} record(s) updated.`,
+      message: `Site name fixed. ${updatedCount} record(s) updated to "Azone".`,
       updatedCount: updatedCount,
+      details: updates,
+      currentSettings: currentSettings.map(s => ({ id: s.id, site_name: s.site_name })),
     });
   } catch (error: any) {
     console.error("Fix site name error:", error);
