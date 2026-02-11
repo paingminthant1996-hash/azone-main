@@ -17,15 +17,6 @@ interface BreadcrumbsProps {
 
 export default function Breadcrumbs({ customItems, templateTitle }: BreadcrumbsProps = {}) {
     const pathname = usePathname();
-    const [mounted, setMounted] = useState(false);
-    
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-    
-    if (!mounted && typeof window !== 'undefined') {
-        return null;
-    }
 
     // Build breadcrumb items
     const buildBreadcrumbs = (): BreadcrumbItem[] => {
