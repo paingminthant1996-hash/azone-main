@@ -1,18 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-  ArrowLeft
-} from "lucide-react";
+import { useParams } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { getTemplateDetail } from "@/lib/db/queries";
 import { Template } from "@/lib/types";
 
 export default function TemplatePreviewPage() {
   const params = useParams();
-  const router = useRouter();
   const slug = params?.slug as string;
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
