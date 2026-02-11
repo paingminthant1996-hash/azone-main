@@ -5,6 +5,10 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   const url = request.nextUrl.clone()
   
+  // Add pathname to headers for layout to check
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-pathname', request.nextUrl.pathname)
+  
   // Check if Supabase is configured
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -140,7 +144,14 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return response
+  // Return response with pathname header
+  const responseWithHeader = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
+  
+  return responseWithHeader
 }
 
 export const config = {
