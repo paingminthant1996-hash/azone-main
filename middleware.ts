@@ -148,14 +148,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Return response with pathname header
-  const responseWithHeader = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  })
-  
-  return responseWithHeader
+  return response
 }
 
 export const config = {
