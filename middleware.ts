@@ -36,9 +36,10 @@ export async function middleware(request: NextRequest) {
     }
     
     // Continue without auth checks if Supabase not configured
+    // Include pathname header for layout
     return NextResponse.next({
       request: {
-        headers: request.headers,
+        headers: requestHeaders,
       },
     })
   }
@@ -68,9 +69,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Create response with pathname header for layout
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set('x-pathname', request.nextUrl.pathname)
-  
+  // (requestHeaders already declared at top with pathname header)
   let response = NextResponse.next({
     request: {
       headers: requestHeaders,
