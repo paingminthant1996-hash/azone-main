@@ -183,18 +183,15 @@ button, a, input, select, textarea, [role="button"], [role="link"],
 }
 
 /* Hide Header and Breadcrumbs in Preview Pages */
-.preview-layout ~ .header-container,
-.preview-layout ~ .breadcrumbs-container,
-.preview-layout ~ header,
-.preview-layout ~ nav[aria-label="Breadcrumb"],
-body:has(.preview-layout) .header-container,
-body:has(.preview-layout) .breadcrumbs-container {
+body:has([class*="preview-layout"]) .header-container,
+body:has([class*="preview-layout"]) .breadcrumbs-container,
+body:has([class*="preview-layout"]) header,
+body:has([class*="preview-layout"]) nav[aria-label="Breadcrumb"],
+[class*="preview-layout"] ~ .header-container,
+[class*="preview-layout"] ~ .breadcrumbs-container {
   display: none !important;
-}
-
-/* Hide header/breadcrumbs when preview layout is present */
-body:has(.preview-layout) header,
-body:has(.preview-layout) nav[aria-label="Breadcrumb"] {
-  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
 }
 

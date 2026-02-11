@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import Header from "@/components/layout/Header";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
@@ -11,10 +12,28 @@ import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
  */
 export default function ConditionalHeader() {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
   const isPreviewPage = pathname?.includes("/preview") || false;
 
+  useEffect(() => {
+    setMounted(true);
+    
+    // Also hide via DOM manipulation as backup
+    if (isPreviewPage) {
+      const header = document.querySelector('header');
+      const breadcrumbs = document.querySelector('nav[aria-label="Breadcrumb"]');
+      const headerContainer = document.querySelector('.header-container');
+      const breadcrumbsContainer = document.querySelector('.breadcrumbs-container');
+      
+      if (header) header.style.display = 'none';
+      if (breadcrumbs) breadcrumbs.style.display = 'none';
+      if (headerContainer) headerContainer.style.display = 'none';
+      if (breadcrumbsContainer) breadcrumbsContainer.style.display = 'none';
+    }
+  }, [isPreviewPage]);
+
   // Don't render header/breadcrumbs on preview pages
-  if (isPreviewPage) {
+  if (isPreviewPage || !mounted) {
     return null;
   }
 
