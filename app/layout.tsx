@@ -89,11 +89,11 @@ export default function RootLayout({
                     </div>
                   </div>
                 }>
-                  <div key="header-wrapper" suppressHydrationWarning>
+                  <div key="header-wrapper" suppressHydrationWarning className="header-container">
                     <Header />
                   </div>
                 </ErrorBoundary>
-                <div key="breadcrumbs-wrapper" suppressHydrationWarning>
+                <div key="breadcrumbs-wrapper" suppressHydrationWarning className="breadcrumbs-container">
                   <Breadcrumbs />
                 </div>
                 <main id="main-content" className="flex-1" tabIndex={-1}>

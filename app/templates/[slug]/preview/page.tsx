@@ -81,13 +81,13 @@ export default function TemplatePreviewPage() {
     );
   }
 
-  // Get demo URL
+  // Get demo URL - Use the template page directly (it has its own header)
   const demoUrl = template.demoUrl || `https://paing.xyz/templates/${slug}`;
 
   return (
-    <div className="min-h-screen bg-azone-black flex flex-col">
-      {/* Back Button Only - Fixed Position */}
-      <div className="fixed top-20 sm:top-24 left-2 sm:left-4 z-50 pointer-events-none">
+    <div className="min-h-screen bg-azone-black flex flex-col relative">
+      {/* Back Button Only - Fixed Position (above iframe) */}
+      <div className="fixed top-4 left-2 sm:left-4 z-[100] pointer-events-none">
         <Link
           href={`/templates/${slug}`}
           className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-950/95 backdrop-blur-xl border border-gray-800/50 hover:bg-gray-900 text-gray-300 hover:text-white rounded-lg sm:rounded-xl transition-all text-xs sm:text-sm shadow-lg"
@@ -97,8 +97,8 @@ export default function TemplatePreviewPage() {
         </Link>
       </div>
 
-      {/* Full Page iframe - Responsive */}
-      <div className="flex-1 relative pt-0">
+      {/* Full Page iframe - No padding, full screen */}
+      <div className="flex-1 relative w-full h-screen">
         {iframeLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-950 z-10">
             <div className="text-center px-4">
