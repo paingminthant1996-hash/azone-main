@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
@@ -12,20 +12,14 @@ import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
  */
 export default function ConditionalHeader() {
   const pathname = usePathname();
-  const [shouldRender, setShouldRender] = useState(true);
+  
+  // Check synchronously if we're on a preview page - MUST check before render
+  const isPreviewPage = pathname?.includes("/preview") || false;
 
   useEffect(() => {
-    // Check if we're on a preview page
-    const isPreviewPage = 
-      typeof window !== 'undefined' && 
-      (window.location.pathname.includes("/preview") || 
-       document.body.classList.contains("preview-layout") ||
-       document.querySelector('[class*="preview-layout"]') !== null);
-    
-    if (isPreviewPage) {
-      setShouldRender(false);
-      
-      // Aggressively hide header and breadcrumbs via DOM manipulation
+    // Backup: Aggressively hide header and breadcrumbs via DOM manipulation
+    // This catches any edge cases where pathname check might fail
+    if (isPreviewPage || (typeof window !== 'undefined' && window.location.pathname.includes("/preview"))) {
       const hideElements = () => {
         const selectors = [
           'header',
@@ -45,22 +39,32 @@ export default function ConditionalHeader() {
             htmlEl.style.height = '0';
             htmlEl.style.overflow = 'hidden';
             htmlEl.style.opacity = '0';
+            htmlEl.style.position = 'absolute';
+            htmlEl.style.top = '-9999px';
+            htmlEl.style.pointerEvents = 'none';
           });
         });
       };
       
-      // Hide immediately and after delays
+      // Hide immediately and after delays to catch late-rendering elements
       hideElements();
-      setTimeout(hideElements, 0);
-      setTimeout(hideElements, 50);
-      setTimeout(hideElements, 100);
-    } else {
-      setShouldRender(true);
+      const timeouts = [
+        setTimeout(hideElements, 0),
+        setTimeout(hideElements, 50),
+        setTimeout(hideElements, 100),
+        setTimeout(hideElements, 200),
+        setTimeout(hideElements, 500),
+      ];
+      
+      return () => {
+        timeouts.forEach(timeout => clearTimeout(timeout));
+      };
     }
-  }, [pathname]);
+  }, [isPreviewPage, pathname]);
 
-  // Don't render header/breadcrumbs on preview pages
-  if (!shouldRender || (typeof window !== 'undefined' && window.location.pathname.includes("/preview"))) {
+  // CRITICAL: Don't render header/breadcrumbs on preview pages
+  // This check happens synchronously before render, preventing initial render
+  if (isPreviewPage) {
     return null;
   }
 
