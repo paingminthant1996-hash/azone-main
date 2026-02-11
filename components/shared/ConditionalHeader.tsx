@@ -12,28 +12,55 @@ import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
  */
 export default function ConditionalHeader() {
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-  const isPreviewPage = pathname?.includes("/preview") || false;
+  const [shouldRender, setShouldRender] = useState(true);
 
   useEffect(() => {
-    setMounted(true);
+    // Check if we're on a preview page
+    const isPreviewPage = 
+      typeof window !== 'undefined' && 
+      (window.location.pathname.includes("/preview") || 
+       document.body.classList.contains("preview-layout") ||
+       document.querySelector('[class*="preview-layout"]') !== null);
     
-    // Also hide via DOM manipulation as backup
     if (isPreviewPage) {
-      const header = document.querySelector('header');
-      const breadcrumbs = document.querySelector('nav[aria-label="Breadcrumb"]');
-      const headerContainer = document.querySelector('.header-container');
-      const breadcrumbsContainer = document.querySelector('.breadcrumbs-container');
+      setShouldRender(false);
       
-      if (header) header.style.display = 'none';
-      if (breadcrumbs) breadcrumbs.style.display = 'none';
-      if (headerContainer) headerContainer.style.display = 'none';
-      if (breadcrumbsContainer) breadcrumbsContainer.style.display = 'none';
+      // Aggressively hide header and breadcrumbs via DOM manipulation
+      const hideElements = () => {
+        const selectors = [
+          'header',
+          'nav[aria-label="Breadcrumb"]',
+          '.header-container',
+          '.breadcrumbs-container',
+          '[class*="header-container"]',
+          '[class*="breadcrumbs-container"]'
+        ];
+        
+        selectors.forEach(selector => {
+          const elements = document.querySelectorAll(selector);
+          elements.forEach(el => {
+            const htmlEl = el as HTMLElement;
+            htmlEl.style.display = 'none';
+            htmlEl.style.visibility = 'hidden';
+            htmlEl.style.height = '0';
+            htmlEl.style.overflow = 'hidden';
+            htmlEl.style.opacity = '0';
+          });
+        });
+      };
+      
+      // Hide immediately and after delays
+      hideElements();
+      setTimeout(hideElements, 0);
+      setTimeout(hideElements, 50);
+      setTimeout(hideElements, 100);
+    } else {
+      setShouldRender(true);
     }
-  }, [isPreviewPage]);
+  }, [pathname]);
 
   // Don't render header/breadcrumbs on preview pages
-  if (isPreviewPage || !mounted) {
+  if (!shouldRender || (typeof window !== 'undefined' && window.location.pathname.includes("/preview"))) {
     return null;
   }
 

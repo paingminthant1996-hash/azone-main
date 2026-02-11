@@ -187,11 +187,21 @@ body:has([class*="preview-layout"]) .header-container,
 body:has([class*="preview-layout"]) .breadcrumbs-container,
 body:has([class*="preview-layout"]) header,
 body:has([class*="preview-layout"]) nav[aria-label="Breadcrumb"],
+body.preview-layout-active .header-container,
+body.preview-layout-active .breadcrumbs-container,
+body.preview-layout-active header,
+body.preview-layout-active nav[aria-label="Breadcrumb"],
 [class*="preview-layout"] ~ .header-container,
-[class*="preview-layout"] ~ .breadcrumbs-container {
+[class*="preview-layout"] ~ .breadcrumbs-container,
+[class*="preview-layout"] header,
+[class*="preview-layout"] nav[aria-label="Breadcrumb"] {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
   overflow: hidden !important;
+  opacity: 0 !important;
+  position: absolute !important;
+  top: -9999px !important;
+  pointer-events: none !important;
 }
 

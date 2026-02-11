@@ -14,6 +14,9 @@ export default function PreviewLayout({
   children: ReactNode;
 }) {
   useEffect(() => {
+    // Mark body with preview class for CSS targeting
+    document.body.classList.add('preview-layout-active');
+    
     // Aggressively hide header and breadcrumbs in preview pages
     const hideElements = () => {
       const selectors = [
@@ -28,22 +31,31 @@ export default function PreviewLayout({
       selectors.forEach(selector => {
         const elements = document.querySelectorAll(selector);
         elements.forEach(el => {
-          (el as HTMLElement).style.display = 'none';
-          (el as HTMLElement).style.visibility = 'hidden';
-          (el as HTMLElement).style.height = '0';
-          (el as HTMLElement).style.overflow = 'hidden';
+          const htmlEl = el as HTMLElement;
+          htmlEl.style.display = 'none';
+          htmlEl.style.visibility = 'hidden';
+          htmlEl.style.height = '0';
+          htmlEl.style.overflow = 'hidden';
+          htmlEl.style.opacity = '0';
+          htmlEl.style.position = 'absolute';
+          htmlEl.style.top = '-9999px';
         });
       });
     };
     
-    // Hide immediately
+    // Hide immediately and multiple times to catch late-rendering elements
     hideElements();
-    
-    // Hide again after a short delay (in case elements render later)
-    const timeout = setTimeout(hideElements, 100);
+    const timeouts = [
+      setTimeout(hideElements, 0),
+      setTimeout(hideElements, 50),
+      setTimeout(hideElements, 100),
+      setTimeout(hideElements, 200),
+      setTimeout(hideElements, 500),
+    ];
     
     return () => {
-      clearTimeout(timeout);
+      document.body.classList.remove('preview-layout-active');
+      timeouts.forEach(timeout => clearTimeout(timeout));
     };
   }, []);
 
