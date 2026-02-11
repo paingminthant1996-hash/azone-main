@@ -85,7 +85,7 @@ export default function TemplatePreviewPage() {
   const demoUrl = template.demoUrl || `https://paing.xyz/templates/${slug}`;
 
   return (
-    <div className="min-h-screen bg-azone-black flex flex-col relative">
+    <div className="min-h-screen bg-azone-black flex flex-col relative preview-layout">
       {/* Back Button Only - Fixed Position (above iframe) */}
       <div className="fixed top-4 left-2 sm:left-4 z-[100] pointer-events-none">
         <Link

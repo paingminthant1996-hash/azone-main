@@ -14,25 +14,36 @@ export default function PreviewLayout({
   children: ReactNode;
 }) {
   useEffect(() => {
-    // Hide header and breadcrumbs in preview pages
-    const header = document.querySelector('header');
-    const breadcrumbs = document.querySelector('nav[aria-label="Breadcrumb"]');
+    // Aggressively hide header and breadcrumbs in preview pages
+    const hideElements = () => {
+      const selectors = [
+        'header',
+        'nav[aria-label="Breadcrumb"]',
+        '.header-container',
+        '.breadcrumbs-container',
+        '[class*="header-container"]',
+        '[class*="breadcrumbs-container"]'
+      ];
+      
+      selectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => {
+          (el as HTMLElement).style.display = 'none';
+          (el as HTMLElement).style.visibility = 'hidden';
+          (el as HTMLElement).style.height = '0';
+          (el as HTMLElement).style.overflow = 'hidden';
+        });
+      });
+    };
     
-    if (header) {
-      header.style.display = 'none';
-    }
-    if (breadcrumbs) {
-      breadcrumbs.style.display = 'none';
-    }
+    // Hide immediately
+    hideElements();
+    
+    // Hide again after a short delay (in case elements render later)
+    const timeout = setTimeout(hideElements, 100);
     
     return () => {
-      // Restore on unmount
-      if (header) {
-        header.style.display = '';
-      }
-      if (breadcrumbs) {
-        breadcrumbs.style.display = '';
-      }
+      clearTimeout(timeout);
     };
   }, []);
 
