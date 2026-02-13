@@ -1,0 +1,14 @@
+# Security headers for SSL
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# HSTS for HTTPS only
+https://paing.xyz/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+https://admin.paing.xyz/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains

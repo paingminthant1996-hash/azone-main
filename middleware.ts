@@ -4,7 +4,20 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   const url = request.nextUrl.clone()
-  
+
+  // Force HTTPS redirect for SSL (check Cloudflare header)
+  const proto = request.headers.get('x-forwarded-proto') || request.headers.get('cf-visitor')
+  if (proto && !proto.includes('https')) {
+    const httpsUrl = request.nextUrl.clone()
+    httpsUrl.protocol = 'https'
+    httpsUrl.host = hostname
+    return NextResponse.redirect(httpsUrl, 301)
+  }
+
+  // Add pathname to headers for layout to check
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-pathname', request.nextUrl.pathname)
+
   // Admin subdomain routing: admin.paing.xyz -> /admin routes
   if (hostname === 'admin.paing.xyz' || hostname.startsWith('admin.')) {
     // Allow admin routes on admin subdomain
@@ -16,7 +29,7 @@ export async function middleware(request: NextRequest) {
       // Return 404 for admin routes on main domain
       return new NextResponse(null, { status: 404 })
     }
-    
+
     // Redirect root domain (paing.xyz) to main website
     if (hostname === 'paing.xyz' || hostname === 'www.paing.xyz') {
       // Already on main domain, continue
@@ -59,7 +72,7 @@ export async function middleware(request: NextRequest) {
       const {
         data: { session },
       } = await supabase.auth.getSession()
-      
+
       if (session) {
         // Redirect to overview if logged in
         url.pathname = '/admin/overview'
@@ -70,7 +83,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(url)
       }
     }
-    
+
     // Protect other admin routes (except login)
     if (request.nextUrl.pathname.startsWith('/admin') && !request.nextUrl.pathname.startsWith('/admin/login')) {
       const {

@@ -1,0 +1,13 @@
+# Cloudflare Pages Redirects - FIXED VERSION
+# No loops - only handle HTTP to HTTPS and WWW redirects
+
+# HTTP to HTTPS redirects
+http://paing.xyz/* https://paing.xyz/:splat 301
+http://www.paing.xyz/* https://paing.xyz/:splat 301
+http://admin.paing.xyz/* https://admin.paing.xyz/:splat 301
+
+# WWW to non-www redirects (HTTPS only)
+https://www.paing.xyz/* https://paing.xyz/:splat 301
+
+# Note: Admin routing handled by middleware.ts, not redirects
+# No /admin/* redirect to prevent loops
