@@ -9,4 +9,7 @@ http://admin.paing.xyz/* https://admin.paing.xyz/:splat 301
 # WWW to non-www redirects (HTTPS only)
 https://www.paing.xyz/* https://paing.xyz/:splat 301
 
+# Next.js client-side routing fallback
+/* /index.html 200
+
 # OpenNext will handle the rest of the routing
