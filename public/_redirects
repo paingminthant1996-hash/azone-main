@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Cloudflare Pages Redirects - FIXED VERSION
 # No loops - only handle HTTP to HTTPS and WWW redirects
 
@@ -11,3 +12,8 @@ https://www.paing.xyz/* https://paing.xyz/:splat 301
 
 # Note: Admin routing handled by middleware.ts, not redirects
 # No /admin/* redirect to prevent loops
+=======
+# Cloudflare Pages Redirects
+# Note: Subdomain redirects (www.paing.xyz) are handled in middleware.ts
+# This file is for path-based redirects only
+>>>>>>> cf27d10a28cc1bf5b39a44a6e85257bde68235bc

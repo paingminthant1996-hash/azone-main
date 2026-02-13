@@ -250,6 +250,62 @@ export async function createPurchase(
 }
 
 /**
+ * Delete all templates from Supabase
+ * WARNING: This will delete ALL templates from the database
+ */
+export async function deleteAllTemplates(): Promise<{ deletedCount: number }> {
+  if (!isSupabaseConfigured() || !supabase) {
+    throw new Error("Supabase is not configured");
+  }
+
+  try {
+    // First get all template IDs
+    const { data: allTemplates, error: fetchError } = await supabase!
+      .from("templates")
+      .select("id");
+
+    if (fetchError) {
+      console.error("Error fetching templates:", fetchError);
+      throw fetchError;
+    }
+
+    if (!allTemplates || allTemplates.length === 0) {
+      return { deletedCount: 0 };
+    }
+
+    // Delete all templates by IDs
+    const templateIds = allTemplates.map(t => t.id);
+    const { error } = await supabase!
+      .from("templates")
+      .delete()
+      .in("id", templateIds);
+
+    if (error) {
+      console.error("Error deleting templates:", error);
+      throw error;
+    }
+
+    // Also delete template versions if they exist
+    try {
+      const { data: versions } = await supabase!.from("template_versions").select("id");
+      if (versions && versions.length > 0) {
+        const versionIds = versions.map(v => v.id);
+        await supabase!.from("template_versions").delete().in("id", versionIds);
+      }
+    } catch (versionError) {
+      // Ignore if table doesn't exist
+      console.warn("template_versions table may not exist:", versionError);
+    }
+
+    // Use the number of IDs we attempted to delete as deletedCount
+    return { deletedCount: templateIds.length };
+  } catch (error) {
+    console.error("Failed to delete templates:", error);
+    throw error;
+  }
+}
+
+/**
  * Get template detail with demos and versions from Supabase
  * Returns template with joined demos and template_versions data
  */

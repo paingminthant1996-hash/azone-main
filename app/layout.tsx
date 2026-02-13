@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { ToastProvider } from "@/lib/utils/toast";
 import { SettingsProvider } from "@/lib/contexts/SettingsContext";
 import { DesignModeProvider } from "@/lib/contexts/DesignModeContext";
 import { DesignModeToggle } from "@/components/admin/DesignModeToggle";
+import ConditionalHeader from "@/components/shared/ConditionalHeader";
 
 export const metadata: Metadata = {
   title: "Azone - Production-Ready Templates for Serious Builders",
@@ -56,17 +56,55 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Get pathname from middleware header to check server-side
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') || '';
+  const isPreviewPage = pathname.includes('/preview');
+
   return (
     <html lang="en" className="scroll-smooth dark">
       <head>
         {/* Prevent blank page on slow connections */}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        {/* Aggressive script to hide headers immediately on preview pages before React hydrates */}
+        {isPreviewPage && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  if (typeof window !== 'undefined') {
+                    const hideHeaders = () => {
+                      const selectors = ['header', 'nav[aria-label="Breadcrumb"]', '.header-container', '.breadcrumbs-container'];
+                      selectors.forEach(s => {
+                        document.querySelectorAll(s).forEach(el => {
+                          el.style.display = 'none';
+                          el.style.visibility = 'hidden';
+                          el.style.height = '0';
+                          el.style.opacity = '0';
+                          el.style.position = 'absolute';
+                          el.style.top = '-9999px';
+                        });
+                      });
+                    };
+                    hideHeaders();
+                    if (document.readyState === 'loading') {
+                      document.addEventListener('DOMContentLoaded', hideHeaders);
+                    }
+                    setTimeout(hideHeaders, 0);
+                    setTimeout(hideHeaders, 50);
+                    setTimeout(hideHeaders, 100);
+                  }
+                })();
+              `,
+            }}
+          />
+        )}
       </head>
       <body className="min-h-screen flex flex-col bg-azone-black">
         <ErrorBoundary>
@@ -81,17 +119,8 @@ export default function RootLayout({
                 >
                   Skip to main content
                 </a>
-                <ErrorBoundary fallback={
-                  <div className="min-h-screen bg-azone-black flex items-center justify-center px-4">
-                    <div className="text-center">
-                      <h1 className="text-2xl font-bold text-white mb-4">Header Error</h1>
-                      <p className="text-gray-400">Please refresh the page</p>
-                    </div>
-                  </div>
-                }>
-                  <Header />
-                </ErrorBoundary>
-                <Breadcrumbs />
+                {/* Conditionally render header/breadcrumbs (hidden on preview pages) */}
+                {!isPreviewPage && <ConditionalHeader />}
                 <main id="main-content" className="flex-1" tabIndex={-1}>
                   <ErrorBoundary>
                     {children}

@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   const url = request.nextUrl.clone()
+<<<<<<< HEAD
 
   // Force HTTPS redirect for SSL (check Cloudflare header)
   const proto = request.headers.get('x-forwarded-proto') || request.headers.get('cf-visitor')
@@ -18,6 +19,48 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-pathname', request.nextUrl.pathname)
 
+=======
+  
+  // Add pathname to headers for layout to check
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-pathname', request.nextUrl.pathname)
+  
+  // Check if Supabase is configured
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  // If Supabase is not configured, skip auth checks but allow basic routing
+  if (!supabaseUrl || !supabaseAnonKey) {
+    // Admin subdomain routing: admin.paing.xyz -> /admin routes
+    if (hostname === 'admin.paing.xyz' || hostname.startsWith('admin.')) {
+      // Allow admin routes on admin subdomain
+      if (request.nextUrl.pathname === '/') {
+        url.pathname = '/admin/login'
+        return NextResponse.redirect(url)
+      }
+    } else {
+      // Redirect www.paing.xyz to paing.xyz
+      if (hostname === 'www.paing.xyz') {
+        url.hostname = 'paing.xyz'
+        return NextResponse.redirect(url, 301)
+      }
+      
+      // Main website (paing.xyz) - Block admin routes
+      if (request.nextUrl.pathname.startsWith('/admin')) {
+        return new NextResponse(null, { status: 404 })
+      }
+    }
+    
+    // Continue without auth checks if Supabase not configured
+    // Include pathname header for layout
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    })
+  }
+  
+>>>>>>> cf27d10a28cc1bf5b39a44a6e85257bde68235bc
   // Admin subdomain routing: admin.paing.xyz -> /admin routes
   if (hostname === 'admin.paing.xyz' || hostname.startsWith('admin.')) {
     // Allow admin routes on admin subdomain
@@ -29,23 +72,35 @@ export async function middleware(request: NextRequest) {
       // Return 404 for admin routes on main domain
       return new NextResponse(null, { status: 404 })
     }
+<<<<<<< HEAD
 
+=======
+    
+    // Redirect www.paing.xyz to paing.xyz
+    if (hostname === 'www.paing.xyz') {
+      url.hostname = 'paing.xyz'
+      return NextResponse.redirect(url, 301)
+    }
+    
+>>>>>>> cf27d10a28cc1bf5b39a44a6e85257bde68235bc
     // Redirect root domain (paing.xyz) to main website
-    if (hostname === 'paing.xyz' || hostname === 'www.paing.xyz') {
+    if (hostname === 'paing.xyz') {
       // Already on main domain, continue
     }
   }
 
+  // Create response with pathname header for layout
+  // (requestHeaders already declared at top with pathname header)
   let response = NextResponse.next({
     request: {
-      headers: request.headers,
+      headers: requestHeaders,
     },
   })
 
   // Create Supabase client
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {

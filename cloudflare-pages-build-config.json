@@ -1,0 +1,4 @@
+{
+  "buildCommand": "npm run build:cloudflare",
+  "outputDirectory": ".open-next/assets"
+}

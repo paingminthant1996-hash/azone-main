@@ -55,6 +55,25 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.supabase.in',
       },
+<<<<<<< HEAD
+=======
+      {
+        protocol: 'https',
+        hostname: '**.vercel.app',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.vercel-storage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.pages.dev',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.cloudflare.com',
+      },
+>>>>>>> cf27d10a28cc1bf5b39a44a6e85257bde68235bc
     ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],

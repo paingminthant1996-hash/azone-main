@@ -47,7 +47,7 @@ fi
 cat > "$TEMPLATE_FOLDER/README.md" << EOF
 # $TEMPLATE_NAME
 
-Template downloaded from AZone Store.
+Template downloaded from Azone.
 
 ## Setup
 
@@ -64,7 +64,7 @@ npm run dev
 ## Notes
 
 - Downloaded: $(date '+%Y-%m-%d %H:%M:%S')
-- Source: AZone Store
+- Source: Azone
 EOF
 
 echo ""

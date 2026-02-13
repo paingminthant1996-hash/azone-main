@@ -209,10 +209,12 @@ export default function Header() {
 
   return (
     <header
+      key="main-header"
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled
         ? "bg-azone-black/80 backdrop-blur-md shadow-sm border-b border-gray-800"
         : "bg-azone-black"
         }`}
+      suppressHydrationWarning
     >
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">

@@ -897,7 +897,7 @@ export default function TemplateDetail({ template }: TemplateDetailProps) {
           <div className="lg:col-span-1">
             <motion.div
               variants={itemVariants}
-              className="sticky top-24"
+              className="sticky top-20 sm:top-24"
             >
               {/* Purchase Card - Glassmorphic */}
               <div className="bg-gray-950/90 backdrop-blur-2xl border border-gray-800/50 rounded-3xl p-8 shadow-2xl shadow-black/50">
